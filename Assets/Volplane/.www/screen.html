@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en-us">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script type="text/javascript" src="https://www.airconsole.com/api/airconsole-1.7.0.js"></script>
+        <script type="text/javascript" src="javascript/unity-airconsole-agent.js"></script>
+        <script type="text/javascript">
+            function initVolplane() {
+            
+                var screenRatio = {
+                    width: 16,
+                    height: 9
+                };
+                /*
+                var progress_bar_config = {
+                    left: "35%",
+                    top: "65%",
+                    width: "30%",
+                    height: "5%",
+                    background: "#000000",
+                    color: "#ADEE00"
+                };
+                */
+                window.volplane = new Agent('game', screenRatio);
+                
+            }
+        </script>
+    </head>
+    
+    <body onload="initVolplane()">
+        <div id="game"></div>
+    </body>
+</html>
