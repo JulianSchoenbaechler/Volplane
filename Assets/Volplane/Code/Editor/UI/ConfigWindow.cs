@@ -32,6 +32,10 @@ namespace Volplane.UI
         /// </summary>
         protected static ConfigWindow window;
 
+        private int tempServerPort;
+        private int tempWebsocketPort;
+        private int tempDebugLog;
+
         /// <summary>
         /// Init this instance.
         /// </summary>
@@ -58,9 +62,9 @@ namespace Volplane.UI
         {
             GUILayout.Space(10f);
 
-            Config.LocalServerPort = EditorGUILayout.IntField("Local Webserver Port:", Config.LocalServerPort);
-            Config.LocalWebsocketPort = EditorGUILayout.IntField("Local Websocket Port:", Config.LocalWebsocketPort);
-            Config.DebugLog = (int)(DebugState)EditorGUILayout.EnumPopup("Debug Messages:", (DebugState)Config.DebugLog);
+            tempServerPort = EditorGUILayout.IntField("Local Webserver Port:", Config.LocalServerPort);
+            tempWebsocketPort = EditorGUILayout.IntField("Local Websocket Port:", Config.LocalWebsocketPort);
+            tempDebugLog = (int)(DebugState)EditorGUILayout.EnumPopup("Debug Messages:", (DebugState)Config.DebugLog);
 
             GUILayout.Space(40f);
 
@@ -79,13 +83,23 @@ namespace Volplane.UI
                     Extensions.LocalWebserver.Start();
             }
 
-            GUILayout.Space(40f);
-
-            if(GUILayout.Button("Save User Config"))
+            // Saving edited preferences
+            if(tempServerPort != Config.LocalServerPort)
             {
-                EditorPrefs.SetInt("LocalServerPort", Config.LocalServerPort);
-                EditorPrefs.SetInt("LocalWebsocketPort", Config.LocalWebsocketPort);
-                EditorPrefs.SetInt("DebugLog", Config.DebugLog);
+                Config.LocalServerPort = tempServerPort;
+                EditorPrefs.SetInt("LocalServerPort", tempServerPort);
+            }
+
+            if(tempWebsocketPort != Config.LocalWebsocketPort)
+            {
+                Config.LocalWebsocketPort = tempWebsocketPort;
+                EditorPrefs.SetInt("LocalWebsocketPort", tempWebsocketPort);
+            }
+
+            if(tempDebugLog != Config.LocalServerPort)
+            {
+                Config.DebugLog = tempDebugLog;
+                EditorPrefs.SetInt("DebugLog", tempDebugLog);
             }
         }
     }

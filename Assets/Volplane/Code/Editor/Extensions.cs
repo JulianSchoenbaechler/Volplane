@@ -23,6 +23,8 @@ namespace Volplane.Editor
 {
     using System;
     using System.Text;
+    using System.Net;
+    using System.Net.Sockets;
     using UnityEditor;
     using UnityEngine;
     using Volplane.Net;
@@ -68,6 +70,8 @@ namespace Volplane.Editor
             Config.LocalServerPort = EditorPrefs.GetInt("LocalServerPort", Config.DefaultLocalServerPort);
             Config.LocalWebsocketPort = EditorPrefs.GetInt("LocalWebsocketPort", Config.DefaultLocalWebsocketPort);
             Config.DebugLog = EditorPrefs.GetInt("DebugLog", (int)DebugState.None);
+            Config.BrowserStart = EditorPrefs.GetInt("BrowserStart", (int)BrowserStartMode.Standard);
+            Config.AutoScaleCanvas = EditorPrefs.GetBool("AutoScaleCanvas", true);
         }
 
         /// <summary>
@@ -93,6 +97,10 @@ namespace Volplane.Editor
             }
         }
 
+        /// <summary>
+        /// Starts the browser and connects to AirConsole in order to test the game.
+        /// This method should be called when entering playmode.
+        /// </summary>
         protected static void StartBrowserPlaySession()
         {
             StringBuilder url = new StringBuilder(128);
@@ -116,12 +124,30 @@ namespace Volplane.Editor
                     return;
             }
 
-            url.AppendFormat("http://localhost:{0:D}/?unity-editor-websocket-port={1:D}&unity-plugin-version={2}",
+            url.AppendFormat("http://{0}:{1:D}/?unity-editor-websocket-port={2:D}&unity-plugin-version={3}",
+                             GetLocalIPAddress(),
                              Config.LocalServerPort,
                              Config.LocalWebsocketPort,
                              "1.6");
             
             Application.OpenURL(url.ToString());
+        }
+
+        /// <summary>
+        /// Gets the local IP address of this machine.
+        /// </summary>
+        /// <returns>The local IP address.</returns>
+        protected static string GetLocalIPAddress()
+        {
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    return ip.ToString();
+            }
+
+            return "?";
         }
     }
 }

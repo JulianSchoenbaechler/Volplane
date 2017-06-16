@@ -34,7 +34,7 @@
  */
 function Agent(gameContainer, screenRatio, loadingBar) {
     
-    this.isStandalone = this.getUrlParameter('unity-editor-websocket-port') != null ? true : false;
+    this.isStandalone = this.getUrlParameter('unity-editor-websocket-port') != null ? false : true;
     this.isUnityReady = false;
     this.dataQueue = [];
     
@@ -66,113 +66,115 @@ Agent.prototype.initAirConsole = function() {
     if(typeof this.airconsole != 'undefined')
         return;
     
-    this.airconsole = new AirConsole({ 'synchronize_time': true });
+    var instance = this;
     
-    this.airconsole.onConnect = function(device_id) {
-        this.sendToUnity({
+    instance.airconsole = new AirConsole({ 'synchronize_time': true });
+    
+    instance.airconsole.onConnect = function(device_id) {
+        instance.sendToUnity({
             'action': 'onConnect',
             'device_id': device_id
         });
     };
     
-    this.airconsole.onDisconnect = function(device_id) {
-        this.sendToUnity({
+    instance.airconsole.onDisconnect = function(device_id) {
+        instance.sendToUnity({
             'action': 'onDisconnect',
             'device_id': device_id
         });
     };
 
-    this.airconsole.onReady = function(code) {
-        this.sendToUnity({
+    instance.airconsole.onReady = function(code) {
+        instance.sendToUnity({
             'action': 'onReady',
             'code': code,
-            'device_id': this.airconsole.device_id,
-            'devices': this.airconsole.devices,
-            'server_time_offset': this.airconsole.server_time_offset,
+            'device_id': instance.airconsole.device_id,
+            'devices': instance.airconsole.devices,
+            'server_time_offset': instance.airconsole.server_time_offset,
             'location': window.location.href
         });
     };
     
-    this.airconsole.onMessage = function(from, data) {
-        this.sendToUnity({
+    instance.airconsole.onMessage = function(from, data) {
+        instance.sendToUnity({
             'action': 'onMessage',
             'from': from,
             'data': data
         });
     };
 
-    this.airconsole.onDeviceStateChange = function(device_id, device_data) {
-        this.sendToUnity({
+    instance.airconsole.onDeviceStateChange = function(device_id, device_data) {
+        instance.sendToUnity({
             'action': 'onDeviceStateChange',
             'device_id': device_id,
             'device_data': device_data
         });
     };
     
-    this.airconsole.onCustomDeviceStateChange = function(device_id) {
-        this.sendToUnity({
+    instance.airconsole.onCustomDeviceStateChange = function(device_id) {
+        instance.sendToUnity({
             'action': 'onCustomDeviceStateChange',
             'device_id': device_id
         });
     };
     
-    this.airconsole.onDeviceProfileChange = function(device_id) {
-        this.sendToUnity({
+    instance.airconsole.onDeviceProfileChange = function(device_id) {
+        instance.sendToUnity({
             'action': 'onDeviceProfileChange',
             'device_id': device_id
         });
     };
     
-    this.airconsole.onEmailAddress = function(email_address) {
-        this.sendToUnity({
+    instance.airconsole.onEmailAddress = function(email_address) {
+        instance.sendToUnity({
             'action': 'onEmailAddress',
             'email_address': email_address
         });
     };
     
-    this.airconsole.onAdShow = function() {
-        this.sendToUnity({
+    instance.airconsole.onAdShow = function() {
+        instance.sendToUnity({
             'action': 'onAdShow'
         });
     };
     
-    this.airconsole.onAdComplete = function(ad_was_shown) {
-        this.sendToUnity({
+    instance.airconsole.onAdComplete = function(ad_was_shown) {
+        instance.sendToUnity({
             'action': 'onAdComplete',
             'ad_was_shown': ad_was_shown
         });
     };
 
-    this.airconsole.onPremium = function(device_id) {
-        this.sendToUnity({
+    instance.airconsole.onPremium = function(device_id) {
+        instance.sendToUnity({
             'action': 'onPremium',
             'device_id': device_id
         });
     };
 
-    this.airconsole.onPersistentDataLoaded = function(data) {
-        this.sendToUnity({
+    instance.airconsole.onPersistentDataLoaded = function(data) {
+        instance.sendToUnity({
             'action': 'onPersistentDataLoaded',
             'data': data
         });
     };
 
-    this.airconsole.onPersistentDataStored = function(uid) {
-        this.sendToUnity({
+    instance.airconsole.onPersistentDataStored = function(uid) {
+        instance.sendToUnity({
             'action': 'onPersistentDataStored',
             'uid': uid
         });
     };
 
-    this.airconsole.onHighScores = function(highscores) {
-        this.sendToUnity({
+    instance.airconsole.onHighScores = function(highscores) {
+        instance.sendToUnity({
             'action': 'onHighScores',
             'highscores': highscores
         });
     };
 
-    this.airconsole.onHighScoreStored = function(highscore) {
-        this.sendToUnity({
+    instance.airconsole.onHighScoreStored = function(highscore) {
+        instance.sendToUnity({
             'action': 'onHighScoreStored',
             'highscore': highscore
         });
@@ -188,26 +190,27 @@ Agent.prototype.setupWebsocket = function() {
     if(typeof this.socket != 'undefined')
         return;
     
-    var port = this.getUrlParameter('unity-editor-websocket-port');
+    var instance = this;
+    var port = instance.getUrlParameter('unity-editor-websocket-port');
     
-    this.socket = new WebSocket('ws://localhost:' + port + '/Volplane');
+    instance.socket = new WebSocket('ws://localhost:' + port + '/Volplane');
     
-    this.socket.onopen = function() {
+    instance.socket.onopen = function() {
         
-        this.isUnityReady = true;
-        this.initAirConsole();
+        instance.unityIsReady(false);
+        instance.initAirConsole();
         
     }
     
-    this.socket.onclose = function() {
+    instance.socket.onclose = function() {
         
         console.log('socket closed...');
         
     }
     
-    this.socket.onmessage = function(msg) {
+    instance.socket.onmessage = function(msg) {
         
-        this.processData(msg.data);
+        instance.processData(msg.data);
         
     }
     
@@ -384,3 +387,30 @@ Agent.prototype.getUrlParameter = function(name) {
     return result;
     
 };
+
+/*
+ * Setter function for external call from Unity.
+ * Indicates that Unity is ready.
+ * @param {boolean} autoScaleCanvas - true when canvas should scale automatically. Otherwise false.
+ */
+Agent.prototype.unityIsReady = function(autoScaleCanvas) {
+    
+    var instance = this;
+    
+    instance.isUnityReady = true;
+    instance.dequeueToUnity();
+    
+    if(typeof autoScaleCanvas === true) {
+        
+        window.addEventListener('resize', function() { instance.resizeCanvas() });
+        instance.resizeCanvas();
+        
+    }
+    
+};
+
+function unityIsReady(autoScaleCanvas) {
+    
+    window.volplane.unityIsReady(autoScaleCanvas);
+    
+}

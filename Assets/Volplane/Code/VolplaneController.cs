@@ -21,13 +21,30 @@
 
 namespace Volplane
 {
-    using UnityEngine;
     using SimpleJSON;
-
+    using UnityEngine;
+    using Volplane.Net;
+    using WebSocketSharp;
+    using WebSocketSharp.Server;
 
     public class VolplaneController : MonoBehaviour
     {
         public static VolplaneController VolplaneSingleton;
+
+        #if UNITY_EDITOR
+        private WebSocketServer websocketServer;
+        #endif
+
+        public void ProcessData(string data)
+        {
+            Debug.Log(data);
+            JSON.Parse(data);
+        }
+
+        public void Send(string data)
+        {
+            
+        }
 
         private void Awake()
         {
@@ -41,11 +58,41 @@ namespace Volplane
         private void Start()
         {
             Application.runInBackground = true;
+
+            #if UNITY_EDITOR
+
+            if(Application.isEditor)
+            {
+                websocketServer = new WebSocketServer(Config.LocalWebsocketPort);
+                websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate(VolplaneWebsocketService websocketService)
+                {
+                    websocketService.dataReceived += ProcessData;
+                });
+                websocketServer.Start();
+            }
+
+            #else
+
+            if(Application.platform == RuntimePlatform.WebGLPlayer)
+                Application.ExternalCall("unityIsReady", Config.AutoScaleCanvas);
+
+            #endif
         }
 
-        public void ProcessData(string data)
+        #if UNITY_EDITOR
+
+        private void OnApplicationQuit()
         {
-            JSON.Parse(data);
+            if(websocketServer.IsListening)
+                websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
         }
+
+        private void OnDisable()
+        {
+            if(websocketServer.IsListening)
+                websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
+        }
+
+        #endif
     }
 }

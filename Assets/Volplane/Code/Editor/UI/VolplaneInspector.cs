@@ -32,21 +32,27 @@ namespace Volplane.UI
         private int tempBrowserStart = (int)BrowserStartMode.Standard;
         private bool tempAutoScaleCanvas = true;
 
+        /// <summary>
+        /// Inspector GUI draw call.
+        /// </summary>
         public override void OnInspectorGUI()
         {
             // Show version info, license, etc...
 
+
+            // Draw serialized properties
             serializedObject.Update();
 
             DrawPropertiesExcluding(serializedObject, excludedProperties);
 
             serializedObject.ApplyModifiedProperties();
 
+
             // Browser start mode and canvas scale settings
             tempBrowserStart = (int)(BrowserStartMode)EditorGUILayout.EnumPopup("Browser Start", (BrowserStartMode)Config.BrowserStart);
             tempAutoScaleCanvas = EditorGUILayout.Toggle("Auto Scale Canvas", Config.AutoScaleCanvas);
 
-            // Temporarily store those settings in editor preferences
+            // Store those settings in editor preferences
             if(tempBrowserStart != Config.BrowserStart)
             {
                 Config.BrowserStart = tempBrowserStart;
@@ -60,6 +66,9 @@ namespace Volplane.UI
             }
         }
 
+        /// <summary>
+        /// On enable.
+        /// </summary>
         private void OnEnable()
         {
             excludedProperties = new[] { "m_Script" };
