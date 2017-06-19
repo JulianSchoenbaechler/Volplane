@@ -22,7 +22,9 @@
 namespace Volplane
 {
     using SimpleJSON;
+    using System;
     using UnityEngine;
+    using Volplane.AirConsole;
     using Volplane.Net;
     using WebSocketSharp;
     using WebSocketSharp.Server;
@@ -34,6 +36,16 @@ namespace Volplane
         #if UNITY_EDITOR
         private WebSocketServer websocketServer;
         #endif
+        private AirConsoleAgent agent;
+
+        #if UNITY_EDITOR
+        private event Action<JSONObject> websocketSend;
+        #endif
+
+        public AirConsoleAgent AirConsole
+        {
+            get { return this.agent; }
+        }
 
         public void ProcessData(string data)
         {
@@ -41,9 +53,19 @@ namespace Volplane
             JSON.Parse(data);
         }
 
-        public void Send(string data)
+        public void Send(JSONObject data)
         {
-            
+            #if UNITY_EDITOR
+
+            if(Application.isEditor)
+                websocketSend(data);
+
+            #else
+
+            if(Application.platform == RuntimePlatform.WebGLPlayer)
+                Application.ExternalCall("window.volplane.processData", data.ToString());
+
+            #endif
         }
 
         private void Awake()
@@ -53,6 +75,8 @@ namespace Volplane
 
             VolplaneSingleton = this;
             DontDestroyOnLoad(this.gameObject);
+
+            agent = new AirConsoleAgent();
         }
 
         private void Start()
@@ -67,6 +91,7 @@ namespace Volplane
                 websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate(VolplaneWebsocketService websocketService)
                 {
                     websocketService.dataReceived += ProcessData;
+                    websocketSend += websocketService.Message;
                 });
                 websocketServer.Start();
             }
@@ -74,7 +99,7 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
-                Application.ExternalCall("unityIsReady", Config.AutoScaleCanvas);
+                Application.ExternalCall("window.volplane.unityIsReady", Config.AutoScaleCanvas);
 
             #endif
         }
@@ -94,5 +119,11 @@ namespace Volplane
         }
 
         #endif
+
+        void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.Space))
+                Send(JSON.Parse(@"{""action"": ""debug"", ""data"":""Hello World!""}").AsObject);
+        }
     }
 }

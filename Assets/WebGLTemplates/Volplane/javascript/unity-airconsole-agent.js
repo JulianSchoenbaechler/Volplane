@@ -125,13 +125,6 @@ Agent.prototype.initAirConsole = function() {
         });
     };
     
-    instance.airconsole.onEmailAddress = function(email_address) {
-        instance.sendToUnity({
-            'action': 'onEmailAddress',
-            'email_address': email_address
-        });
-    };
-    
     instance.airconsole.onAdShow = function() {
         instance.sendToUnity({
             'action': 'onAdShow'
@@ -273,7 +266,7 @@ Agent.prototype.processData = function(jsonData) {
     
     var data = JSON.parse(jsonData);
     
-    switch(data) {
+    switch(data.action) {
         
         case 'message':
             this.airconsole.message(data.from, data.data);
@@ -408,9 +401,3 @@ Agent.prototype.unityIsReady = function(autoScaleCanvas) {
     }
     
 };
-
-function unityIsReady(autoScaleCanvas) {
-    
-    window.volplane.unityIsReady(autoScaleCanvas);
-    
-}
