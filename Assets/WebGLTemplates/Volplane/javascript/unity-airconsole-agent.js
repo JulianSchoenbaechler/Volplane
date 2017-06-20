@@ -263,13 +263,13 @@ Agent.prototype.dequeueToUnity = function() {
  * @param {string} jsonData - Data as JSON string.
  */
 Agent.prototype.processData = function(jsonData) {
-    
+    console.log(jsonData);
     var data = JSON.parse(jsonData);
     
     switch(data.action) {
         
         case 'message':
-            this.airconsole.message(data.from, data.data);
+            this.airconsole.message(data.to, data.data);
             break;
         
         case 'broadcast':
@@ -287,6 +287,10 @@ Agent.prototype.processData = function(jsonData) {
         case 'setActivePlayers':
             this.airconsole.setActivePlayers(data.max_players);
             break;
+            
+        case 'showAd':
+            this.airconsole.showAd();
+            break;
         
         case 'storePersistentData':
             this.airconsole.storePersistentData(data.key, data.value, data.uid);
@@ -297,11 +301,11 @@ Agent.prototype.processData = function(jsonData) {
             break;
         
         case 'storeHighScore':
-            this.airconsole.storePersistentData(data.key, data.value, data.uid);
+            this.airconsole.storeHighScore(data.level_name, data.level_version, data.score, data.uid, data.data, data.score_string);
             break;
         
         case 'requestHighScores':
-            this.airconsole.requestPersistentData(data.uids);
+            this.airconsole.requestHighScores(data.level_name, data.level_version, data.uids, data.ranks, data.total, data.top);
             break;
         
         case 'navigateHome':

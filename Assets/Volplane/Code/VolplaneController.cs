@@ -73,7 +73,7 @@ namespace Volplane
             VolplaneSingleton = this;
             DontDestroyOnLoad(this.gameObject);
 
-            agent = new AirConsoleAgent();
+            agent = new AirConsoleAgent(this);
         }
 
         private void Start()
@@ -126,7 +126,9 @@ namespace Volplane
         void Update()
         {
             if(Input.GetKeyDown(KeyCode.Space))
-                Send(JSON.Parse(@"{""action"": ""debug"", ""data"":""Hello World!""}").AsObject);
+            {
+                print(agent.GetMasterControllerDeviceId());
+            }
         }
     }
 }
