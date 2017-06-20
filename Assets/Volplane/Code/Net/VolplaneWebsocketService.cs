@@ -56,7 +56,7 @@ namespace Volplane.Net
         /// </summary>
         /// <param name="data">JSON data.</param>
         public void Message(JSONObject data)
-        {
+		{
             Send(data.ToString() + suffix);
         }
 
@@ -67,7 +67,7 @@ namespace Volplane.Net
         protected override void OnMessage(MessageEventArgs e)
         {
             if(e.IsText)
-            {
+			{
                 if(dataReceived != null)
                     dataReceived(e.Data);
             }
@@ -112,7 +112,7 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-                Debug.LogError("[Volplane (Websocket Service)] " + e.Message);
+				Debug.LogError("[Volplane (Websocket Service)] " + e.Message);
                 Debug.LogException(e.Exception);
             }
         }

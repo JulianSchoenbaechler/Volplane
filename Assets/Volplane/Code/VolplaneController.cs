@@ -35,12 +35,10 @@ namespace Volplane
 
         #if UNITY_EDITOR
         private WebSocketServer websocketServer;
+		private VolplaneWebsocketService websocketService;
         #endif
         private AirConsoleAgent agent;
 
-        #if UNITY_EDITOR
-        private event Action<JSONObject> websocketSend;
-        #endif
 
         public AirConsoleAgent AirConsole
         {
@@ -49,16 +47,15 @@ namespace Volplane
 
         public void ProcessData(string data)
         {
-            Debug.Log(data);
-            JSON.Parse(data);
+			agent.ProcessData(JSON.Parse(data));
         }
 
         public void Send(JSONObject data)
         {
             #if UNITY_EDITOR
 
-            if(Application.isEditor)
-                websocketSend(data);
+			if(Application.isEditor)
+				websocketService.Message(data);
 
             #else
 
@@ -90,8 +87,8 @@ namespace Volplane
                 websocketServer = new WebSocketServer(Config.LocalWebsocketPort);
                 websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate(VolplaneWebsocketService websocketService)
                 {
-                    websocketService.dataReceived += ProcessData;
-                    websocketSend += websocketService.Message;
+					this.websocketService = websocketService;
+                    this.websocketService.dataReceived += ProcessData;
                 });
                 websocketServer.Start();
             }
@@ -108,12 +105,18 @@ namespace Volplane
 
         private void OnApplicationQuit()
         {
+			if(websocketServer == null)
+				return;
+
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
         }
 
         private void OnDisable()
-        {
+		{
+			if(websocketServer == null)
+				return;
+			
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
         }
