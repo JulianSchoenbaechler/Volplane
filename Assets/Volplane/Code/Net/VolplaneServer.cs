@@ -21,6 +21,7 @@
 
 namespace Volplane.Net
 {
+    using System;
     using System.IO;
     using System.Net;
 
@@ -46,26 +47,26 @@ namespace Volplane.Net
         protected override void ProcessRequest(HttpListenerContext context)
         {
             HttpListenerRequest request = context.Request;
+            byte[] buffer;
 
             // If POST data is sent -> request coming from controller editor.
-            if(!context.Request.HasEntityBody)
+            if(!request.HasEntityBody)
             {
                 string filePath;
+                string serverPath = request.Url.LocalPath;
 
-                switch(Path.GetFileName(request.Url.LocalPath))
+                if(serverPath.StartsWith("/volplane/") ||
+                   String.Equals(Path.GetFileName(serverPath), "screen.html"))
                 {
-                    case "screen.html":
-                        filePath = localPath + Config.WebServerPath + request.Url.LocalPath;
-                        break;
-
-                    default:
-                        filePath = localPath + Config.WebTemplatePath + request.Url.LocalPath;
-                        break;
+                    serverPath = serverPath.Replace("/volplane/", "/");
+                    filePath = localPath + Config.WebServerPath + serverPath;
+                }
+                else
+                {
+                    filePath = localPath + Config.WebTemplatePath + serverPath;
                 }
 
                 filePath = filePath.Replace('/', '\\');
-
-                byte[] buffer;
 
                 if(File.Exists(filePath))
                 {
@@ -91,10 +92,32 @@ namespace Volplane.Net
             }
             else
             {
+                /*
                 // Controller editor data
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 context.Response.ContentLength64 = 0;
                 context.Response.Close();
+                */
+
+                using(Stream body = request.InputStream)
+                {
+                    using(StreamReader reader = new StreamReader(body, request.ContentEncoding))
+                    {
+                        UnityEngine.Debug.Log(reader.ReadToEnd());
+                    }
+                }
+
+                buffer = System.Text.Encoding.UTF8.GetBytes("saved");
+
+                // Controller editor data
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                context.Response.ContentType = "text/plain";
+                context.Response.ContentLength64 = buffer.Length;
+
+                using(Stream s = context.Response.OutputStream)
+                {
+                    s.Write(buffer, 0, buffer.Length);
+                }
             }
         }
     }

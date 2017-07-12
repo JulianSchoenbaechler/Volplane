@@ -19,11 +19,10 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-namespace Volplane.UI
+namespace Volplane.Editor.UI
 {
     using UnityEditor;
     using UnityEngine;
-    using Volplane.Editor;
 
     public class ConfigWindow : EditorWindow
     {

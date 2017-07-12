@@ -47,7 +47,7 @@ namespace Volplane
         public static int LocalServerPort                   = 7860;
         public static int LocalWebsocketPort                = 7861;
 
-        public const string WebServerPath                   = "/Volplane/.www";
+        public const string WebServerPath                   = "/Volplane/WebServer";
         public const string WebTemplatePath                 = "/WebGLTemplates/Volplane";
         public const string WebsocketVirtualPath            = "/Volplane";
 
