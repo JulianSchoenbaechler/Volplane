@@ -1,0 +1,1260 @@
+/**
+ * ControllerEditor
+ * @copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
+ * @version 0.1.0
+ * @license MIT
+ * 
+ * @external jQuery
+ * @see {@link http://api.jquery.com/jQuery/}
+ */
+
+/**
+ * Gateway object to the ControllerEditor.
+ * @constructor
+ * @param {String|undefined} controllerName - The controller to be loaded.
+ */
+function ControllerEditor(controllerName) {
+    this.init(controllerName);
+}
+
+
+/**
+ * @chapter
+ * CONSTANTS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Selector for the loading view.
+ * @constant {string}
+ */
+ControllerEditor.LOADING = '#ce-loading-screen';
+
+/**
+ * Selector for the main view.
+ * @constant {string}
+ */
+ControllerEditor.MAIN = '#ce-main';
+
+/**
+ * Selector for the view selection view.
+ * @constant {string}
+ */
+ControllerEditor.VIEWS = '#ce-view';
+
+/**
+ * Selector for the controller editor view.
+ * @constant {string}
+ */
+ControllerEditor.CONTROLLER = '#ce-controller';
+
+/**
+ * Selector for the controller options view.
+ * @constant {string}
+ */
+ControllerEditor.OPTIONS = '#ce-controller-options';
+
+/**
+ * Selector for the controller view container.
+ * @constant {string}
+ */
+ControllerEditor.WORKSPACE = '#ce-controller-workspace';
+
+/**
+ * Selector for the taskbar container.
+ * @constant {string}
+ */
+ControllerEditor.TASKBAR = '#ce-controller-taskbar';
+
+/**
+ * Selector for the controlbar container.
+ * @constant {string}
+ */
+ControllerEditor.CONTROLBAR = '#ce-controller-ctrlbar';
+
+/**
+ * Selector for the side panel higher container.
+ * @constant {string}
+ */
+ControllerEditor.SIDEPANELTOP = '#ce-controller-side-top';
+
+/**
+ * Selector for the side panel lower container.
+ * @constant {string}
+ */
+ControllerEditor.SIDEPANELBOTTOM = '#ce-controller-side-bottom';
+
+/**
+ * Selector for the header container.
+ * @constant {string}
+ */
+ControllerEditor.HEADER = '#ce-header';
+
+/**
+ * Volplane web server data path.
+ * @constant {string}
+ */
+ControllerEditor.DATAPATH = 'data/';
+
+/**
+ * Unity WebGL build data path.
+ * @constant {string}
+ */
+ControllerEditor.WEBGLDATAPATH = '../data/';
+
+
+/**
+ * @chapter
+ * PROPERTIES
+ * -------------------------------------------------------------------------
+ */
+ControllerEditor.prototype.elementEditorInstance = null;
+ControllerEditor.prototype.inputElementsInstance = null;
+ControllerEditor.prototype.step = 'main';
+ControllerEditor.prototype.controllerObject = {};
+ControllerEditor.prototype.grid = { x: 5, y: 5 };
+ControllerEditor.prototype.controllerList = [];
+ControllerEditor.prototype.imageList = [];
+ControllerEditor.prototype.fontList = [];
+
+
+/**
+ * @chapter
+ * PUBLIC FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Saves the current controller. Passing controller object to Volplanes webservice
+ * running in Unity editor.
+ * @param {String} callback - Callback function invoked after successfully saving controller.
+ */
+ControllerEditor.prototype.saveController = function(callback) {
+    
+    var instance = this;
+    
+    if((typeof instance.controllerObject == 'undefined') || (instance.controllerObject === null))
+        return;
+    
+    var error = false;
+    
+    // Last edit
+    instance.controllerObject.lastEdit = Math.round(new Date().getTime() / 1000);
+    
+    // Show loading panel
+    $(ControllerEditor.LOADING + ' > p').html('Saving...');
+    $(ControllerEditor.LOADING).fadeIn(200);
+    $('body').css('overflow', 'hidden');
+    
+    $.ajax({
+        type: "POST",
+        url: 'save-controller',
+        data: JSON.stringify(instance.controllerObject),
+        dataType: 'text',
+        timeout: 20000
+    })
+    .done(function(data) {
+        
+        if(data != 'saved') {
+            
+            instance.editorPopupInstance.alert('Saving Controller Error', data);
+            error = 'Failed to save controller data. ' + data;
+            
+        } else {
+            
+            if(typeof callback == 'function') callback();
+            
+        }
+        
+    })
+    .fail(function() {
+        
+        instance.editorPopupInstance.alert('Connection Error', 'Webservice is not responding! Check your Volplane settings in the Unity Editor.');
+        error = 'Failed to save controller data. Webservice is not responding.';
+    })
+    .always(function() {
+        
+        $(ControllerEditor.LOADING).fadeOut(200);
+        $('body').css('overflow', 'auto');
+        console.log(JSON.stringify(instance.controllerObject, null, '    '));
+        if(error !== false) {
+            
+            throw new Error(error);
+            
+        }
+        
+    });
+    
+};
+
+
+/**
+ * PRIVATE FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Initializes the ControllerEditor.
+ * @param {String|undefined} controllerName - The controller to be loaded.
+ * @private
+ */
+ControllerEditor.prototype.init = function(controllerName) {
+    
+    var instance = this;
+    controllerName = controllerName || false;
+    
+    instance.elementEditorInstance = new ElementEditor();
+    instance.inputElementsInstance = new InputElements();
+    instance.editorPopupInstance = new EditorPopup();
+    
+    // Proxy all object functions
+    $.proxy(instance.saveController, instance);
+    $.proxy(instance.loadMainView, instance);
+    $.proxy(instance.loadViewSelection, instance);
+    $.proxy(instance.drawControllerGrid, instance);
+    $.proxy(instance.loadController, instance);
+    $.proxy(instance.loadControllerEditor, instance);
+    $.proxy(instance.addNewElement, instance);
+    $.proxy(instance.removeElement, instance);
+    $.proxy(instance.getNewButton, instance);
+    $.proxy(instance.reloadControllerList, instance);
+    $.proxy(instance.reloadImageList, instance);
+    $.proxy(instance.reloadFontList, instance);
+    $.proxy(instance.loadingProgress, instance);
+    
+    // Load image and font list
+    instance.reloadImageList();
+    instance.reloadFontList();
+    
+    if(controllerName === false) {
+        
+        // Load main view
+        instance.loadMainView();
+        
+    } else {
+        
+        // Load controller + first view
+        instance.loadViewSelection(controllerName, 0);
+        
+    }
+    
+    // Deselect elements on workspace when clicking anywhere
+    $(ControllerEditor.WORKSPACE).click(function () {
+        
+        // Clear properties
+        $(ControllerEditor.SIDEPANELTOP).empty().html('<i>No element selected.</i>');
+        
+        // Unselect all elements
+        $(ControllerEditor.WORKSPACE + ' > .ce-content-element-border').removeClass('ce-content-element-border');
+        
+        // Hide 'delete' button
+        $(ControllerEditor.TASKBAR + ' > .ce-remove-element').hide();
+        
+    });
+    
+    // Hide loading panel
+    $(ControllerEditor.LOADING).fadeOut(200);
+    $('body').css('overflow', 'auto');
+    
+};
+
+/**
+ * Load and display main view with controller selection.
+ * @private
+ */
+ControllerEditor.prototype.loadMainView = function() {
+    
+    var instance = this;
+    
+    // Load controller names
+    instance.reloadControllerList(function() {
+        
+        // Click handler
+        var loadController = function(index) {
+            
+            return function() { instance.loadViewSelection(instance.controllerList[index], 0); };
+            
+        };
+        
+        // Empty main view
+        $(ControllerEditor.MAIN).empty();
+        $(ControllerEditor.HEADER).html('No controller selected.');
+        
+        // Iterate through all controllers
+        for(var i = 0; i < instance.controllerList.length; i++) {
+            
+            instance.getNewButton(instance.controllerList[i], instance.controllerList[i], 'img/select-controller.png', { w: 128, h: 128 }, 'bottom')
+            .click(loadController(i))
+            .appendTo(ControllerEditor.MAIN);
+            
+        }
+    
+    });
+    
+    instance.step = 'main';
+    
+    $(ControllerEditor.CONTROLBAR).empty();
+    $(ControllerEditor.CONTROLLER).hide();
+    $(ControllerEditor.VIEWS).hide();
+    $(ControllerEditor.MAIN).show();
+    
+};
+
+/**
+ * Load and display view selection view from a specific controller.
+ * @param {String} controllerName - Controller that should be searched for.
+ * @private
+ */
+ControllerEditor.prototype.loadViewSelection = function(controllerName = null, preselected = -1) {
+    
+    var instance = this;
+    
+    // Only load controller views when controller name is provided.
+    // Display previously loaded views otherwise.
+    if(controllerName !== null) {
+        
+        // Load controller
+        instance.loadController(controllerName, function() {
+            
+            var viewArray = Object.keys(instance.controllerObject.views);
+            
+            // Click handler load view
+            var loadView = function(index) {
+                
+                return function() {
+                    
+                    $(ControllerEditor.VIEWS + ' > .tab-selected').removeClass('tab-selected');
+                    $(this).addClass('tab-selected');
+                    
+                    instance.loadControllerEditor(viewArray[index]);
+                    
+                };
+                
+            };
+            
+            // Click handler add view
+            var addView = function() {
+                
+                instance.editorPopupInstance.prompt('Add New View', 'Enter a name identifier for this view:', true, function(name) {
+                    
+                    instance.controllerObject.views[name] = { content: [] };
+                    instance.saveController(function() {
+                        instance.loadViewSelection(controllerName, viewArray.length);
+                    });
+                    
+                });
+                
+            };
+            
+            // Click handler remove view
+            var removeView = function(index) {
+                
+                return function(e) {
+                    
+                    instance.editorPopupInstance.confirm('Delete View', 'Are you sure you want to delete this view?<br />This action cannot be undone.', function(state) {
+                        console.log(state);
+                        if(state) {
+                            delete instance.controllerObject.views[viewArray[index]];
+                            instance.saveController(function() {
+                                instance.loadViewSelection(controllerName, index - 1);
+                            });
+                        }
+                        
+                    });
+                    
+                    e.stopPropagation();
+                    
+                };
+                
+            };
+            
+            // Current created button jQuery selector
+            var $button;
+            
+            // Empty view
+            $(ControllerEditor.VIEWS).empty();
+            $(ControllerEditor.HEADER).html('Select a controller view to edit or add a new one.');
+            
+            // Iterate through all views
+            for(var i = 0; i < viewArray.length; i++) {
+                
+                $button = instance.getNewButton(viewArray[i], viewArray[i], 'img/select-view.png', { w: 128, h: 128 }, 'bottom')
+                .click(loadView(i))
+                .append($('<div class="ce-delete-button"></div>').click(removeView(i)))
+                .appendTo($(ControllerEditor.VIEWS));
+                
+                // Preselect
+                if((preselected >= 0) && (i == preselected))
+                    $button.trigger('click');
+                
+            }
+            
+            // Add new view
+            instance.getNewButton('Add new...', 'Add new view', 'img/new-view.png', { w: 128, h: 128 }, 'bottom')
+            .click(addView)
+            .appendTo($(ControllerEditor.VIEWS));
+            
+            // Set controller options
+            $(ControllerEditor.OPTIONS).html('<h1>Controller Options</h1>');
+            $optionsForm = $('<form/>', {
+                submit: function(e) {
+                    instance.saveController(function() {
+                        instance.loadViewSelection(controllerName, $(ControllerEditor.VIEWS).index($('.tab-selected')));
+                    });
+                    $(ControllerEditor.OPTIONS).fadeOut(200);
+                    e.preventDefault();
+                }
+            });
+            
+            instance.inputElementsInstance.getDropdownInput('Orientation', { portrait: 'portrait', landscape: 'landscape' }, instance.controllerObject.layout || 'portrait', function() {
+                instance.controllerObject.layout = $(this).val();
+            }).addClass('ce-edit-layout').appendTo($optionsForm);
+            
+            instance.inputElementsInstance.getToggleInput('Synchronize Time', instance.controllerObject.synchronizeTime || true, function() {
+                instance.controllerObject.synchronizeTime = $(this).is(':checked');
+            }).addClass('ce-edit-synchronize-time').appendTo($optionsForm);
+            
+            instance.inputElementsInstance.getToggleInput('Track Device Motion', instance.controllerObject.deviceMotion || false, function() {
+                if($(this).is(':checked')) {
+                    $optionsForm.children('.ce-edit-device-motion-interval').show();
+                    $optionsForm.children('.ce-edit-device-motion-sensitivity').show();
+                } else {
+                    $optionsForm.children('.ce-edit-device-motion-interval').hide();
+                    $optionsForm.children('.ce-edit-device-motion-sensitivity').hide();
+                }
+                instance.controllerObject.deviceMotion = $(this).is(':checked');
+            }).addClass('ce-edit-device-motion').appendTo($optionsForm);
+            
+            instance.inputElementsInstance.getNumberInput('Accelerometer Check Interval', instance.controllerObject.deviceMotionInterval || 40, 1000, 5, 'ms', function() {
+                instance.controllerObject.deviceMotionInterval = parseInt($(this).val(), 10);
+            }).addClass('ce-edit-device-motion-interval').appendTo($optionsForm);
+            
+            instance.inputElementsInstance.getNumberInput('Sensitivity', instance.controllerObject.deviceMotionSensitivity || 5, 10, 1, '', function() {
+                instance.controllerObject.deviceMotionSensitivity = parseInt($(this).val(), 10);
+            }).addClass('ce-edit-device-motion-sensitivity').appendTo($optionsForm);
+            
+            $optionsForm.append($('<input/>', {
+                type: 'submit',
+                value: 'OK'
+            })).appendTo($(ControllerEditor.OPTIONS));
+            
+            if((instance.controllerObject.deviceMotion || false) === false) {
+                $optionsForm.children('.ce-edit-device-motion-interval').hide();
+                $optionsForm.children('.ce-edit-device-motion-sensitivity').hide();
+            }
+            
+            if(typeof instance.controllerObject.layout == 'undefined') $(ControllerEditor.OPTIONS).fadeIn(200);
+            
+        });
+        
+    }
+    
+    instance.step = 'view';
+    
+    $(ControllerEditor.CONTROLBAR).empty();
+    $(ControllerEditor.CONTROLLER).show();
+    $(ControllerEditor.VIEWS).show();
+    $(ControllerEditor.MAIN).hide();
+    
+};
+
+/**
+ * Load and display controller editor for this specific view.
+ * @param {String} viewName - View that should be loaded into the editor.
+ * @private
+ */
+ControllerEditor.prototype.loadControllerEditor = function(viewName) {
+    
+    var instance = this;
+    
+    // Loading screen
+    $(ControllerEditor.LOADING + ' > p').html('Loading...');
+    $(ControllerEditor.LOADING).fadeIn(200);
+    $('body').css('overflow', 'hidden');
+    instance.loadingNo = 0;
+    
+    // Setup taskbar
+    $(ControllerEditor.TASKBAR).empty();
+    instance.getNewButton('Add New Button', 'Add New Button...', 'img/new-button.png', { w: 292, h: 50 }, 'right').appendTo($(ControllerEditor.TASKBAR)).click({
+        viewName: viewName,
+        type: 'button',
+        instance: instance
+    }, instance.addNewElement);
+    instance.getNewButton('Add New D-Pad', 'Add New D-Pad...', 'img/new-dpad.png', { w: 292, h: 50 }, 'right').appendTo($(ControllerEditor.TASKBAR)).click({
+        viewName: viewName,
+        type: 'dpad',
+        instance: instance
+    }, instance.addNewElement);
+    instance.getNewButton('Add New Joystick', 'Add New Joystick...', 'img/new-joystick.png', { w: 292, h: 50 }, 'right').appendTo($(ControllerEditor.TASKBAR)).click({
+        viewName: viewName,
+        type: 'joystick',
+        instance: instance
+    }, instance.addNewElement);
+    instance.getNewButton('Add New Swipe Field', 'Add New Swipe Field...', 'img/new-swipe.png', { w: 292, h: 50 }, 'right').appendTo($(ControllerEditor.TASKBAR)).click({
+        viewName: viewName,
+        type: 'swipe',
+        instance: instance
+    }, instance.addNewElement);
+    instance.getNewButton('Add New Touch Area', 'Add New Touch Area...', 'img/new-touch.png', { w: 292, h: 50 }, 'right').appendTo($(ControllerEditor.TASKBAR)).click({
+        viewName: viewName,
+        type: 'touch',
+        instance: instance
+    }, instance.addNewElement);
+    instance.getNewButton('Add New Text Field', 'Add New Text Field...', 'img/new-text.png', { w: 292, h: 50 }, 'right').appendTo($(ControllerEditor.TASKBAR)).click({
+        viewName: viewName,
+        type: 'text',
+        instance: instance
+    }, instance.addNewElement);
+    
+    var $remove = instance.getNewButton('Delete Selected Element', 'Delete Selected Element...', 'img/trash.png', { w: 292, h: 50 }, 'right').addClass('ce-remove-element');
+    $remove.appendTo($(ControllerEditor.TASKBAR)).hide();
+    
+    // Load controller elements
+    
+    // View object
+    var viewObject = instance.controllerObject.views[viewName];
+    
+    // Loading progress
+    instance.loadingProgress(viewObject.content.length);
+    
+    // Empty and setup workspace
+    $(ControllerEditor.WORKSPACE).empty();
+    $(ControllerEditor.WORKSPACE).removeClass(['landscape', 'portrait']);
+    $(ControllerEditor.WORKSPACE).addClass(instance.controllerObject.layout);
+    instance.drawControllerGrid();
+    
+    // Empt and setup controlbar (options / save)
+    $(ControllerEditor.CONTROLBAR).empty();
+    $(ControllerEditor.CONTROLBAR).append(instance.getNewButton('', 'Controller Settings', 'img/options.png', { w: 32, h: 32 })
+    .click(function() {
+        $(ControllerEditor.OPTIONS).fadeIn(200);
+    }));
+    $(ControllerEditor.CONTROLBAR).append(instance.getNewButton('', 'Save Controller', 'img/save-controller.png', { w: 32, h: 32 })
+    .click(function() {
+        instance.saveController();
+    }));
+    
+    // Load view properties
+    
+    // Clear previous properties.
+    $(ControllerEditor.SIDEPANELBOTTOM).empty();
+    $(ControllerEditor.HEADER).html('Controller Editor: &quot;' + viewName + '&quot;');
+    
+    // Synchronize grid
+    instance.grid.x = viewObject.gridX || instance.grid.x;
+    instance.grid.y = viewObject.gridY || instance.grid.y;
+    viewObject.gridX = instance.grid.x;
+    viewObject.gridY = instance.grid.y;
+    instance.drawControllerGrid();
+    
+    // Load and display all element properties
+    instance.elementEditorInstance.loadViewProperties(
+        $(ControllerEditor.SIDEPANELBOTTOM),    // Selector
+        viewObject,                             // View object
+        instance.imageList,                     // Image list
+        function(obj, key) {                    // Callback
+            
+            viewObject[key] = obj[key];
+            
+            // React to changes
+            switch(key) {
+                            
+                case 'color':
+                    
+                    if(typeof obj[key] == 'undefined') obj[key] = 'rgb(31, 29, 42)';
+                    
+                    $(ControllerEditor.WORKSPACE).css('background-color', obj[key]);
+                    break;
+                
+                case 'image':
+                    
+                    if(typeof obj[key] == 'undefined') obj[key] = 'img/transparent.png';
+                    
+                    $(ControllerEditor.WORKSPACE).css('background-image', 'url(' + obj[key] + ')');
+                    break;
+                
+                case 'format':
+                    
+                    if(typeof obj[key] == 'undefined') obj[key] = 'contain';
+                    
+                    // Repeat?
+                    if(obj[key].lastIndexOf('repeat', 0) === 0) {
+                        
+                        $(ControllerEditor.WORKSPACE).css('background-size', 'auto auto');
+                        $(ControllerEditor.WORKSPACE).css('background-repeat', obj[key]);
+                        
+                    } else {
+                        
+                        $(ControllerEditor.WORKSPACE).css('background-size', obj[key]);
+                        $(ControllerEditor.WORKSPACE).css('background-repeat', 'no-repeat');
+                        
+                    }
+                    break;
+                
+                case 'grid':
+                    
+                    if(typeof obj[key] == 'undefined') obj[key] = false;
+                    
+                    if(obj[key])
+                        $(ControllerEditor.WORKSPACE + ' > #ce-controller-grid').show();
+                    else
+                        $(ControllerEditor.WORKSPACE + ' > #ce-controller-grid').hide();
+                    
+                    break;
+                
+                case 'gridX':
+                case 'gridY':
+                    
+                    instance.grid.x = viewObject.gridX || instance.grid.x;
+                    instance.grid.y = viewObject.gridY || instance.grid.y;
+                    instance.drawControllerGrid();
+                    
+                    if((instance.grid.x < 4) ||
+                       (instance.grid.y < 4)) {
+                        
+                        $(ControllerEditor.WORKSPACE + ' > #ce-controller-grid').hide();
+                        $('.ce-editor-show-grid').hide();
+                        
+                    } else {
+                        
+                        if(viewObject.grid)
+                            $(ControllerEditor.WORKSPACE + ' > #ce-controller-grid').show();
+                        
+                        $('.ce-editor-show-grid').show();
+                        
+                    }
+                    
+                    break;
+                
+                default:
+                    break;
+            }
+        }
+    );
+    
+    // Iterate through all elements in view
+    for(var i = 0; i < viewObject.content.length; i++) {
+        
+        // viewObject.content[i] <- Element object
+        var $element = instance.elementEditorInstance.getElementSelector(viewObject.content[i]);
+        $element.appendTo($(ControllerEditor.WORKSPACE));
+        
+        // To prevent variable loss in callback functions, the index variable 'i' and the
+        // html element selector '$element' (jQuery) are wrapped inan anonymous function call.
+        (function(index, $el) {
+            
+            // Click handler function
+            $el.click(function(e) {
+                
+                // Clear previous properties + display type.
+                $(ControllerEditor.SIDEPANELTOP).empty();
+                
+                switch(viewObject.content[index].type) {
+                    case 'button':
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>Button</h2>'));
+                        break;
+                    case 'dpad':
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>D-Pad</h2>'));
+                        break;
+                    case 'joystick':
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>Joystick</h2>'));
+                        break;
+                    case 'swipe':
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>Swipe Field</h2>'));
+                        break;
+                    case 'touch':
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>Touch Area</h2>'));
+                        break;
+                    case 'text':
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>Text Field</h2>'));
+                        break;
+                    default:
+                        $(ControllerEditor.SIDEPANELTOP).append($('<h2>Element</h2>'));
+                        break;
+                }
+                
+                // Mark element as selected
+                $(ControllerEditor.WORKSPACE + ' > .ce-content-element-border').removeClass('ce-content-element-border');
+                $el.addClass('ce-content-element-border');
+                
+                // Show remove button for this element
+                // + element click handler
+                $remove.show();
+                $remove.off('click');
+                $remove.click({
+                    instance: instance,
+                    viewName: viewName,
+                    elementIndex: index,
+                    $selector: $el
+                }, instance.removeElement);
+                
+                // Load and display all element properties
+                instance.elementEditorInstance.loadElementProperties(
+                    $(ControllerEditor.SIDEPANELTOP),   // Selector
+                    viewObject.content[index],          // Element object
+                    instance.imageList,                 // Image list
+                    instance.fontList,                  // Font list
+                    function(obj, key) {                // Callback
+                        
+                        // In special cases (eg. changing images) an element must be edited also
+                        // on the workspace. And sometimes element properties are dependent on themselves
+                        // (eg. element should not leap over workspace when width is changed).
+                        // This switch handles those special cases:
+                        switch(key) {
+                            
+                            case 'name':
+                                
+                                if(instance.checkElementName(viewObject, obj[key])) {
+                                    viewObject.content[index][key] = obj[key];
+                                } else {
+                                    instance.editorPopupInstance.alert('Naming Error', 'This name already exists for an element in the current view ' +
+                                                              'or does not correlate with the element name conventions!<br />' +
+                                                              'An element name must be at least three characters long and must not have any special characters ' +
+                                                              'with the exception of &#91;-&#93; and &#91;_&#93;.');
+                                    $(ControllerEditor.SIDEPANELTOP + ' > .ce-edit-name > input').val(viewObject.content[index][key]);
+                                }
+                                break;
+                            
+                            case 'width':
+                                
+                                // Move element to the left (-x coordinate) when element overflows workspace
+                                // Change js object...
+                                viewObject.content[index].x -= (viewObject.content[index].x + obj[key]) > 100 ?
+                                                               (viewObject.content[index].x + obj[key]) - 100 :
+                                                               0;
+                                viewObject.content[index][key] = obj[key];
+                                
+                                // ...and css
+                                $el.css('left', viewObject.content[index].x.toString() + '%');
+                                $el.css('width', obj[key].toString() + '%');
+                                break;
+                            
+                            case 'height':
+                                
+                                // Move element to the top (-y coordinate) when element overflows workspace
+                                // Change js object...
+                                viewObject.content[index].y -= (viewObject.content[index].y + obj[key]) > 100 ?
+                                                               (viewObject.content[index].y + obj[key]) - 100 :
+                                                               0;
+                                viewObject.content[index][key] = obj[key];
+                                
+                                // ...and css
+                                $el.css('top', viewObject.content[index].y.toString() + '%');
+                                $el.css('height', obj[key].toString() + '%');
+                                break;
+                            
+                            case 'relative':
+                            case 'distance':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                
+                                if(obj.type == 'dpad') {
+                                    
+                                    if(obj.relative) {
+                                        
+                                        $el.children('div').show().css({
+                                            'top': (obj.distance || 10).toString() + 'px',
+                                            'bottom': (obj.distance || 10).toString() + 'px',
+                                            'left': (obj.distance || 10).toString() + 'px',
+                                            'right': (obj.distance || 10).toString() + 'px',
+                                            'width': 'auto',
+                                            'height': 'auto'
+                                        });
+                                        
+                                    } else {
+                                        
+                                        $el.children('div').hide();
+                                        
+                                    }
+                                    
+                                }
+                                
+                                // Disable or enable elements based on relative element
+                                if(obj.relative) {
+                                    
+                                    $('.ce-edit-distance,' +
+                                      '.ce-edit-text,' +
+                                      '.ce-edit-font,' +
+                                      '.ce-edit-font-color,' +
+                                      '.ce-edit-font-size,' +
+                                      '.ce-edit-handler-image,' +
+                                      '.ce-edit-thumb-image').show();
+                                    
+                                } else {
+                                    
+                                    $('.ce-edit-distance,' +
+                                      '.ce-edit-text,' +
+                                      '.ce-edit-font,' +
+                                      '.ce-edit-font-color,' +
+                                      '.ce-edit-font-size,' +
+                                      '.ce-edit-handler-image,' +
+                                      '.ce-edit-thumb-image').hide();
+                                    
+                                }
+                                
+                                break;
+                            
+                            case 'image':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.css('background-image', 'url(' + obj[key] + ')');
+                                break;
+                            
+                            case 'handlerImage':
+                            case 'stickImage':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.children('div').css('background-image', 'url(' + obj[key] + ')');
+                                break;
+                            
+                            case 'text':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.find('p').html(obj[key]);
+                                break;
+                            
+                            case 'textAlign':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.find('p').css('text-align', obj[key]);
+                                break;
+                            
+                            case 'paddingVertical':
+                            case 'paddingHorizontal':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                viewObject.content[index].paddingVertical = viewObject.content[index].paddingVertical || 2;
+                                viewObject.content[index].paddingHorizontal = viewObject.content[index].paddingHorizontal || 2;
+                                $el.find('p').css('padding', viewObject.content[index].paddingVertical.toString() + 'pt ' +
+                                                      viewObject.content[index].paddingHorizontal.toString() + 'pt');
+                                break;
+                            
+                            case 'font':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.find('p').css('font-family', obj[key]);
+                                break;
+                            
+                            case 'fontSize':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.find('p').css('font-size', obj[key].toString() + 'pt');
+                                break;
+                            
+                            case 'fontColor':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.find('p').css('color', obj[key]);
+                                break;
+                            
+                            case 'hidden':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.css('opacity', obj[key] ? 0.5 : 1);
+                                break;
+                            
+                            default:
+                                viewObject.content[index][key] = obj[key];
+                                $el.css('z-index', (obj.layer + 1).toString());
+                                break;
+                            
+                        }
+                        
+                    } // Callback
+                    
+                ); // loadElementProperties
+                
+                e.stopPropagation();
+                
+            }); // Click handler
+            
+            // Drag 'n' drop handler
+            $el.udraggable({
+                containment: 'parent',
+                positionElement: function($selector, dragging, x, y) {
+                    
+                    if(dragging) {
+                        
+                        $selector.css({
+                            left: x,
+                            top: y
+                        });
+                        $selector.addClass('ce-content-element-border');
+                        
+                    } else {
+                        
+                        // Custom grid align
+                        var xPercent = (100 / $(ControllerEditor.WORKSPACE).width()) * x;
+                        var yPercent = (100 / $(ControllerEditor.WORKSPACE).height()) * y;
+                        var xPosition = Math.round(xPercent / instance.grid.x) * instance.grid.x;
+                        var yPosition = Math.round(yPercent / instance.grid.y) * instance.grid.y;
+                        
+                        if(xPosition + viewObject.content[index].width > 100)
+                            xPosition = Math.floor(xPercent / instance.grid.x) * instance.grid.x;
+                        
+                        if(yPosition + viewObject.content[index].height > 100)
+                            yPosition = Math.floor(yPercent / instance.grid.y) * instance.grid.y;
+                        
+                        $selector.css({
+                            left: xPosition.toString() + '%',
+                            top: yPosition.toString() + '%'
+                        });
+                        $selector.trigger('click'); // Select this element
+                        
+                        viewObject.content[index].x = xPosition;
+                        viewObject.content[index].y = yPosition;
+                        
+                    }
+                    
+                },
+                normalisePosition: function() {
+                    
+                    $el.css({
+                        position: 'absolute',
+                        top: $el.css('top'),
+                        left: $el.css('left'),
+                        right: 'auto',
+                        bottom: 'auto'
+                    });
+                    
+                }
+            });
+            
+            // Update loading progress
+            instance.loadingProgress(viewObject.content.length);
+            
+        })(i, $element); // Anonymous function and function call (index and html element) 
+        
+    }
+    
+    instance.step = 'controller';
+    
+    $(ControllerEditor.CONTROLLER).show();
+    //$(ControllerEditor.VIEWS).hide();
+    $(ControllerEditor.MAIN).hide();
+    
+};
+
+/*
+ * Add element to controller. This is a click-event handler function.
+ * @param {String} e.data.viewName - The name of the view the element is located in.
+ * @param {Number} e.data.type - The type of the element.
+ * @param {Object} e.data.instance - This ControllerEditor object.
+ * @private
+ */
+ControllerEditor.prototype.addNewElement = function(e) {
+    
+    var instance = e.data.instance;
+    
+    if((typeof e.data.viewName == 'undefined') ||
+       (typeof e.data.type == 'undefined'))
+        return;
+    
+    // Promt for element name
+    instance.editorPopupInstance.prompt('New Element', 'Enter a name identifier for this new element:', true, function(name) {
+        
+        if(!instance.checkElementName(instance.controllerObject.views[e.data.viewName], name)) {
+            instance.editorPopupInstance.alert('Naming Error', 'This name already exists for an element in the current view ' +
+                                               'or does not correlate with the element name conventions!<br />' +
+                                               'An element name must be at least three characters long and must not have any special characters ' +
+                                               'with the exception of &#91;-&#93; and &#91;_&#93;.<br />New element could not be added!');
+            return;
+        }
+        
+        // Add new element
+        var elObject = instance.elementEditorInstance.createNewElement(e.data.type, name);
+        
+        instance.controllerObject.views[e.data.viewName].content.push(elObject);
+        instance.loadControllerEditor(e.data.viewName);
+        
+    });
+    
+};
+
+/*
+ * Remove element from controller. This is a click-event handler function.
+ * @param {String} e.data.viewName - The name of the view the element is located in.
+ * @param {Number} e.data.elementIndex - The content-index of the element.
+ * @param {jQuery} e.data.$selector - jQuery selector of the DOM element on the workspace.
+ * @param {Object} e.data.instance - This ControllerEditor object.
+ * @private
+ */
+ControllerEditor.prototype.removeElement = function(e) {
+    
+    var instance = e.data.instance;
+    
+    if((typeof e.data.viewName == 'undefined') ||
+       (typeof e.data.elementIndex == 'undefined') ||
+       (typeof e.data.$selector == 'undefined'))
+        return;
+    
+    instance.editorPopupInstance.confirm('Delete Element', 'Are you sure you want to delete this element?', function(confirm) {
+        
+        if(!confirm)
+            return;
+        
+        // Delete
+        instance.controllerObject.views[e.data.viewName].content.splice(e.data.elementIndex, 1);
+        e.data.$selector.remove();
+        
+        // Hide button
+        $(this).hide();
+        
+        instance.loadControllerEditor(e.data.viewName);
+        
+    });
+    
+};
+
+/*
+ * Check element name for Volplane naming conventions.
+ * @param {Object} viewObject - The view object which contains the element to be checked.
+ * @param {String} elementName - Element name.
+ * @private
+ */
+ControllerEditor.prototype.checkElementName = function(viewObject, elementName) {
+    
+    if((typeof viewObject == 'undefined') ||
+       (typeof elementName == 'undefined'))
+        return false;
+    
+    if(elementName.length < 3)
+        return false;
+    
+    for(var i = 0; i < viewObject.content.length; i++) {
+        
+        if(elementName === viewObject.content[i].name)
+            return false;
+        
+    }
+    
+    return true;
+    
+};
+
+/**
+ * Create a simple button element. A jQuery selector is returned.
+ * @param {String} text - Text for the button.
+ * @param {String} title - Title for the button.
+ * @param {String} backgroundImage - URL link of the button image.
+ * @param {Object} size - The size of the button.
+ * @param {Number} size.w - The buttons with in pixels.
+ * @param {Number} size.h - The buttons height in pixels.
+ * @param {String} textAlign - The alignement specification for the buttons text. Valid values are: 'top', 'center', 'bottom', 'left', 'right'.
+ * @returns {jQuery} The button as jQuery selector.
+ * @private
+ */
+ControllerEditor.prototype.getNewButton = function(text = 'Click me!', title = '', backgroundImage = 'img/button.png', size = {}, textAlign = 'center') {
+    
+    var $button = $('<div/>', {
+        'class': 'ce-button ce-button-text-' + textAlign,
+        'title': title,
+        'style': 'background-image: url(\'' + backgroundImage + '\');' +
+                 'height: ' + (size.h || 40).toString() + 'px;' +
+                 'max-height: ' + (size.h || 40).toString() + 'px;' +
+                 'width: ' + (size.w || 100).toString() + 'px;' +
+                 'max-width: ' + (size.w || 100).toString() + 'px;'
+    });
+    
+    var $text = $('<p/>', {
+        'text': text
+    });
+    
+    switch(textAlign) {
+        
+        case 'center':
+            $button.css('line-height', (size.h || 40).toString() + 'px');
+            break;
+        
+        case 'left':
+            $button.css('line-height', (size.h || 40).toString() + 'px');
+            $text.css('padding-right', (size.h || 40).toString() + 'px');
+            break;
+        
+        case 'right':
+            $button.css('line-height', (size.h || 40).toString() + 'px');
+            $text.css('padding-left', (size.h || 40).toString() + 'px');
+            break;
+        
+        default:
+            break;
+        
+    }
+    
+    $text.appendTo($button);
+    
+    return $button;
+    
+};
+
+/**
+ * Draws the grid used to align elements on the workspace.
+ * @private
+ */
+ControllerEditor.prototype.drawControllerGrid = function() {
+    
+    var instance = this;
+    
+    var xCount = Math.floor(100 / instance.grid.x),
+        yCount = Math.floor(100 / instance.grid.y);
+    
+    var $tableContainer = $('<div/>', { id: 'ce-controller-grid' }),
+        $table = $('<table/>', {
+            style: 'width: ' + (xCount * instance.grid.x).toString() + '%;' +
+                    'height: ' + (yCount * instance.grid.y).toString() + '%;'
+        });
+    
+    for(var i = 0; i < yCount; i++) {
+        
+        var $row = $('<tr/>');
+        
+        for(var j = 0; j < xCount; j++) {
+            $row.append($('<td/>'));
+        }
+        
+        $row.appendTo($table);
+    }
+    
+    $('#ce-controller-grid').remove();
+    $tableContainer.append($table).appendTo($(ControllerEditor.WORKSPACE));
+    
+};
+
+/**
+ * Loads a controller object from the server by name.
+ * @param {String} name - The name of the controller.
+ * @param {Function} callback - Callback fired when the object is loaded.
+ * @private
+ */
+ControllerEditor.prototype.loadController = function(name, callback) {
+    
+    var instance = this;
+    
+    $.get(ControllerEditor.WEBGLDATAPATH + name + '.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
+        
+        instance.controllerObject = data;
+        
+    }, 'json').fail(function() {
+        
+        throw new Error('ControllerEditor Error: Failed to load controller data.');
+        
+    }).always(function() {
+        
+        if(typeof callback != 'undefined')
+            callback();
+        
+    });
+    
+};
+
+/**
+ * Reloads the controller list from the server.
+ * @param {Function} callback - Callback fired when list is loaded.
+ * @private
+ */
+ControllerEditor.prototype.reloadControllerList = function(callback) {
+    
+    var instance = this;
+    
+    $.get(ControllerEditor.DATAPATH + 'controller-list.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
+        
+        instance.controllerList = data;
+        
+    }, 'json').fail(function() {
+        
+        throw new Error('ControllerEditor Error: Failed to load controller list.');
+        
+    }).always(function() {
+        
+        if(typeof callback != 'undefined')
+            callback();
+        
+    });
+    
+};
+
+/**
+ * Reloads the image link list from the server.
+ * @param {Function} callback - Callback fired when list is loaded.
+ * @private
+ */
+ControllerEditor.prototype.reloadImageList = function(callback) {
+    
+    var instance = this;
+    
+    $.get(ControllerEditor.DATAPATH + 'img-list.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
+        
+        instance.imageList = data;
+        
+    }, 'json').fail(function() {
+        
+        throw new Error('ControllerEditor Error: Failed to load image list.');
+        
+    }).always(function() {
+        
+        if(typeof callback != 'undefined')
+            callback();
+        
+    });
+
+};
+
+/**
+ * Reloads the font link list from the server.
+ * @param {Function} callback - Callback fired when list is loaded.
+ * @private
+ */
+ControllerEditor.prototype.reloadFontList = function(callback) {
+    
+    var instance = this;
+    
+    $.get(ControllerEditor.DATAPATH + 'font-list.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
+        
+        instance.fontList = data;
+        
+    }, 'json').fail(function() {
+        
+        throw new Error('ControllerEditor Error: Failed to load font list.');
+        
+    }).always(function() {
+        
+        if(typeof callback != 'undefined')
+            callback();
+        
+    });
+    
+};
+
+/**
+ * Tracks individual loading progress.
+ * @param {Number} finish - The maximum count number when loading screen should fade out.
+ * @private
+ */
+ControllerEditor.prototype.loadingProgress = function(finish) {
+    
+    if(typeof finish == 'undefined')
+        return;
+    
+    var instance = this;
+    
+    instance.loadingNo = (instance.loadingNo + 1) || 1;
+    
+    if(typeof instance.loadingTimeout != 'undefined')
+        clearTimeout(instance.loadingTimeout);
+    
+    // Finished loading?
+    if(instance.loadingNo >= finish) {
+        
+        $(ControllerEditor.LOADING).fadeOut(200);
+        $('body').css('overflow', 'auto');
+        
+    } else {
+        
+        instance.loadingTimeout = setTimeout(function() {
+            $(ControllerEditor.LOADING).fadeOut(200);
+            $('body').css('overflow', 'auto');
+        }, 10000);
+        
+    }
+    
+};

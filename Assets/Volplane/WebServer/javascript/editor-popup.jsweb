@@ -1,0 +1,251 @@
+/**
+ * EditorPopup
+ * @copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
+ * @version 0.1.0
+ * @license MIT
+ * 
+ * @external jQuery
+ * @see {@link http://api.jquery.com/jQuery/}
+ */
+
+/**
+ * Gateway object to the EditorPopup object.
+ * @constructor
+ */
+function EditorPopup() {
+    this.init();
+}
+
+
+/**
+ * @chapter
+ * PUBLIC FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Alert popup.
+ * @param {String} title - The title displayed as header of the popup.
+ * @param {String} text - The displayed alert text.
+ */
+EditorPopup.prototype.alert = function(title, text = '') {
+    
+    var instance = this;
+    
+    if(typeof title == 'undefined') {
+        alert(text);
+        return;
+    }
+    
+    var closePopup = function($p) {
+        return function(e) {
+            e.preventDefault();
+            instance.closePopup($p);
+        };
+    };
+    
+    var $popup = instance.getPopup(title);
+    var $inputs = $('<form/>', {
+        submit: closePopup($popup)
+    });
+    var $default = $('<input/>', {
+        type: 'submit',
+        value: 'OK'
+    });
+    
+    $popup.append('<p>' + text + '</p>');
+    $inputs.append($default);
+    $popup.append($inputs);
+    
+    instance.openPopup($popup);
+    $default.focus();
+    
+};
+
+/**
+ * Yes / No confirm popup.
+ * @param {String} title - The title displayed as header of the popup.
+ * @param {String} text - The displayed alert text.
+ * @param {Function} callback - A callback when user sends confirmation.
+ */
+EditorPopup.prototype.confirm = function(title, text, callback) {
+    
+    var instance = this;
+    
+    if((typeof title == 'undefined') || (typeof text == 'undefined')) {
+        alert(text);
+        return;
+    }
+    
+    var closePopup = function($p, callbackState) {
+        return function(e) {
+            e.preventDefault();
+            instance.closePopup($p);
+            if(typeof callback == 'function') callback(callbackState);
+        };
+    };
+    
+    var $popup = instance.getPopup(title);
+    var $inputs = $('<form/>', {
+        submit: closePopup($popup, true)
+    });
+    var $default = $('<input/>', {
+        type: 'submit',
+        value: 'Yes'
+    });
+    
+    $popup.append('<p>' + text + '</p>');
+    $inputs.append($('<input/>', {
+        type: 'button',
+        value: 'No',
+        click: closePopup($popup, false)
+    }), $default);
+    $popup.append($inputs);
+    
+    instance.openPopup($popup);
+    $default.focus();
+    
+};
+
+/**
+ * Text input prompt popup.
+ * @param {String} title - The title displayed as header of the popup.
+ * @param {String} text - The displayed text.
+ * @param {Boolean} isName - Should the text input correlate naming conventions?
+ * @param {Function} callback - A callback when user sends data.
+ */
+EditorPopup.prototype.prompt = function(title, text, isName, callback) {
+    
+    var instance = this;
+    
+    if((typeof title == 'undefined') || (typeof text == 'undefined')) {
+        alert(text);
+        return;
+    }
+    
+    var inputText = 'noname';
+    
+    var closePopup = function($p, text) {
+        return function(e) {
+            e.preventDefault();
+            instance.closePopup($p);
+            if((typeof callback == 'function') && text) callback(inputText);
+        };
+    };
+    
+    var $popup = instance.getPopup(title);
+    var $inputs = $('<form/>', {
+        submit: closePopup($popup, true)
+    });
+    var $default;
+    
+    if(isName) {
+        
+        $default = $('<input/>', {
+            type: 'text',
+            value: inputText,
+            pattern: '[a-zA-Z0-9_-]{3,25}',
+            change: function() {
+                
+                var nameArray = $(this).val().match(/[a-zA-Z0-9_-]/g);
+                
+                if(nameArray !== null)
+                    $(this).val(nameArray.join(''));
+                else
+                    $(this).val('noname');
+                
+                inputText = $(this).val();
+            }
+        });
+        
+    } else {
+        
+        $default = $('<input/>', {
+            type: 'text',
+            value: inputText
+        });
+        
+    }
+    
+    $popup.append('<p>' + text + '</p>');
+    $inputs.append($default);
+    $inputs.append($('<input/>', {
+        type: 'button',
+        value: 'Cancel',
+        click: closePopup($popup, false)
+    }), $('<input/>', {
+        type: 'submit',
+        value: 'OK'
+    }));
+    $popup.append($inputs);
+    
+    instance.openPopup($popup);
+    $default.focus().select();
+    
+};
+
+
+/**
+ * PRIVATE FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Get a new popup.
+ * @param {String} name - The name displayed as header for this popup.
+ * @returns {jQuery} jQuery selector of this popup div container.
+ * @private
+ */
+EditorPopup.prototype.getPopup = function(name = '') {
+    
+    $popup = $('<div/>', {
+        'class': 'ce-popup-box',
+        'style': 'display: none;'
+    });
+    $popup.append('<h1>' + name + '</h1>');
+    $popup.appendTo($('body'));
+    
+    return $popup;
+    
+};
+
+/**
+ * Open a popup.
+ * @param {jQuery} $popup - The jQuery selector for the popup that should be opened.
+ * @private
+ */
+EditorPopup.prototype.openPopup = function($popup) {
+    
+    $('body').css('overflow', 'hidden');
+    $popup.fadeIn(50);
+    
+};
+
+/**
+ * Close a popup.
+ * This function is used as click handler.
+ * @param {jQuery} $popup - The jQuery selector for the popup that should be closed.
+ * @private
+ */
+EditorPopup.prototype.closePopup = function($popup) {
+    
+    $('body').css('overflow', 'auto');
+    $popup.fadeOut(200, function() { $popup.remove(); });
+    
+};
+
+
+/**
+ * Initializes the EditorPopup.
+ * @private
+ */
+EditorPopup.prototype.init = function() {
+    
+    var instance = this;
+    
+    // Proxy object functions
+    $.proxy(instance.alert, instance);
+    $.proxy(instance.confirm, instance);
+    $.proxy(instance.prompt, instance);
+    
+};
