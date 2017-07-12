@@ -352,7 +352,7 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
                 return function(e) {
                     
                     instance.editorPopupInstance.confirm('Delete View', 'Are you sure you want to delete this view?<br />This action cannot be undone.', function(state) {
-                        console.log(state);
+                        
                         if(state) {
                             delete instance.controllerObject.views[viewArray[index]];
                             instance.saveController(function() {

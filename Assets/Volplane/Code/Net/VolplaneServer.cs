@@ -24,6 +24,7 @@ namespace Volplane.Net
     using System;
     using System.IO;
     using System.Net;
+    using Volplane.IO;
 
 
     public class VolplaneServer : WebServer
@@ -98,7 +99,7 @@ namespace Volplane.Net
                 context.Response.ContentLength64 = 0;
                 context.Response.Close();
                 */
-
+                /*
                 using(Stream body = request.InputStream)
                 {
                     using(StreamReader reader = new StreamReader(body, request.ContentEncoding))
@@ -106,7 +107,8 @@ namespace Volplane.Net
                         UnityEngine.Debug.Log(reader.ReadToEnd());
                     }
                 }
-
+                */
+                //FileManager.
                 buffer = System.Text.Encoding.UTF8.GetBytes("saved");
 
                 // Controller editor data
