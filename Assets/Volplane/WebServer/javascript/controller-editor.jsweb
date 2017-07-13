@@ -96,12 +96,6 @@ ControllerEditor.HEADER = '#ce-header';
  */
 ControllerEditor.DATAPATH = 'data/';
 
-/**
- * Unity WebGL build data path.
- * @constant {string}
- */
-ControllerEditor.WEBGLDATAPATH = '../data/';
-
 
 /**
  * @chapter
@@ -176,7 +170,7 @@ ControllerEditor.prototype.saveController = function(callback) {
         
         $(ControllerEditor.LOADING).fadeOut(200);
         $('body').css('overflow', 'auto');
-        console.log(JSON.stringify(instance.controllerObject, null, '    '));
+        
         if(error !== false) {
             
             throw new Error(error);
@@ -408,6 +402,7 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
             
             instance.inputElementsInstance.getDropdownInput('Orientation', { portrait: 'portrait', landscape: 'landscape' }, instance.controllerObject.layout || 'portrait', function() {
                 instance.controllerObject.layout = $(this).val();
+                $(ControllerEditor.WORKSPACE).removeClass("portrait landscape").addClass($(this).val());
             }).addClass('ce-edit-layout').appendTo($optionsForm);
             
             instance.inputElementsInstance.getToggleInput('Synchronize Time', instance.controllerObject.synchronizeTime || true, function() {
@@ -451,7 +446,6 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
     
     instance.step = 'view';
     
-    $(ControllerEditor.CONTROLBAR).empty();
     $(ControllerEditor.CONTROLLER).show();
     $(ControllerEditor.VIEWS).show();
     $(ControllerEditor.MAIN).hide();
@@ -570,7 +564,7 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                     
                     if(typeof obj[key] == 'undefined') obj[key] = 'img/transparent.png';
                     
-                    $(ControllerEditor.WORKSPACE).css('background-image', 'url(' + obj[key] + ')');
+                    $(ControllerEditor.WORKSPACE).css('background-image', 'url(\'../' + obj[key] + '\')');
                     break;
                 
                 case 'format':
@@ -797,14 +791,14 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                             case 'image':
                                 
                                 viewObject.content[index][key] = obj[key];
-                                $el.css('background-image', 'url(' + obj[key] + ')');
+                                $el.css('background-image', 'url(\'../' + obj[key] + '\')');
                                 break;
                             
                             case 'handlerImage':
                             case 'stickImage':
                                 
                                 viewObject.content[index][key] = obj[key];
-                                $el.children('div').css('background-image', 'url(' + obj[key] + ')');
+                                $el.children('div').css('background-image', 'url(\'../' + obj[key] + '\')');
                                 break;
                             
                             case 'text':
@@ -1130,7 +1124,7 @@ ControllerEditor.prototype.loadController = function(name, callback) {
     
     var instance = this;
     
-    $.get(ControllerEditor.WEBGLDATAPATH + name + '.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
+    $.get(ControllerEditor.DATAPATH + 'controller/' + name + '.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
         
         instance.controllerObject = data;
         

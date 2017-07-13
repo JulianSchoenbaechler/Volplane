@@ -47,7 +47,7 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
         'height': elementObject.height.toString() + '%',
         'left': elementObject.x.toString() + '%',
         'top': elementObject.y.toString() + '%',
-        'background-image': 'url(' + (elementObject.image || 'img/' + elementObject.type + '.png') + ')',
+        'background-image': 'url(\'../' + (elementObject.image || + elementObject.type + '.png') + '\')',
         'z-index': ((elementObject.layer || 1) + 1).toString()
     });
     
@@ -57,7 +57,7 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
         
         if(typeof elementObject.text != 'undefined') {
             $('<div/>', {
-                'style': 'background-image: url(' + (elementObject.handlerImage || elementObject.stickImage) + ');'
+                'style': 'background-image: url(\'../' + (elementObject.handlerImage || elementObject.stickImage) + '\');'
             }).append($('<p>' + elementObject.text + '</p>').css({
                 'font-family': elementObject.font || 'Helvetica',
                 'font-size': (elementObject.fontSize || 12).toString() + 'pt',
@@ -65,7 +65,7 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
             })).appendTo($el);
         } else {
             $el.append($('<div/>', {
-                'style': 'background-image: url(' + (elementObject.handlerImage || elementObject.stickImage) + ');'
+                'style': 'background-image: url(\'../' + (elementObject.handlerImage || elementObject.stickImage) + '\');'
             }));
         }
             
