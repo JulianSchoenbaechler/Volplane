@@ -72,6 +72,7 @@ namespace Volplane.Editor
             Config.DebugLog = EditorPrefs.GetInt("DebugLog", (int)DebugState.None);
             Config.BrowserStart = EditorPrefs.GetInt("BrowserStart", (int)BrowserStartMode.Standard);
             Config.AutoScaleCanvas = EditorPrefs.GetBool("AutoScaleCanvas", true);
+            Config.SelectedController = EditorPrefs.GetString("SelectedController", null);
         }
 
         /// <summary>

@@ -41,6 +41,7 @@ namespace Volplane
 
         public static int BrowserStart                      = (int)BrowserStartMode.Standard;
         public static bool AutoScaleCanvas                  = true;
+        public static string SelectedController             = null;
 
         public const int DefaultLocalServerPort             = 7860;
         public const int DefaultLocalWebsocketPort          = 7861;
