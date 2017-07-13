@@ -22,8 +22,11 @@
 namespace Volplane.IO
 {
     using SimpleJSON;
+    using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
 
     public class FileManager
@@ -37,19 +40,26 @@ namespace Volplane.IO
         public static JSONArray GetFileListFromDirectory(string directoryPath, string prefixPath = "")
         {
             JSONArray list = new JSONArray();
-            string[] directories = Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories);
+            IEnumerable<string> directories;
 
-            for(int i = 0; i < directories.Length; i++)
+            directoryPath = directoryPath.Replace('/', '\\');
+
+            // Ignore meta files
+            directories = Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
+                .Where<string>(name => !name.EndsWith(".meta"));
+
+            foreach(string directory in directories)
             {
-                list[i] = prefixPath + directories[i].Replace(directoryPath, "");
+                list[-1] = prefixPath + directory.Replace(directoryPath, "").Replace('\\', '/');
             }
 
             return list;
         }
 
         /// <summary>
-        /// Writes a JSON formatted file. The filename is set by the submitted JSON data.
-        /// The data must contain a 'name' property.
+        /// Writes a JSON formatted file. The filename can be set by the submitted JSON data.
+        /// If the given path leads to a directory instead of a file, the data must contain a 'name' property
+        /// which will be used for file creation.
         /// </summary>
         /// <param name="inputStream">Input stream.</param>
         /// <param name="filePath">File path.</param>
@@ -57,7 +67,6 @@ namespace Volplane.IO
         public static void WriteJSON(Stream inputStream, string filePath, bool prettify = true)
         {
             StringBuilder sbContent = new StringBuilder(65535);
-            JSONNode json;
 
             // Read file from stream
             using(StreamReader reader = new StreamReader(inputStream, Encoding.UTF8))
@@ -68,14 +77,40 @@ namespace Volplane.IO
                 }
             }
 
-            json = JSON.Parse(sbContent.ToString());
-            sbContent.Length = 0;
-            sbContent.Capacity = 65535;
+            WriteJSON(JSON.Parse(sbContent.ToString()), filePath, prettify);
+        }
+
+        /// <summary>
+        /// Writes a JSON formatted file. The filename can be set by the submitted JSON data.
+        /// If the given path leads to a directory instead of a file, the data must contain a 'name' property
+        /// which will be used for file creation.
+        /// </summary>
+        /// <param name="jsonData">JSON data.</param>
+        /// <param name="filePath">File path.</param>
+        /// <param name="prettify">If set to <c>true</c> prettify JSON output.</param>
+        public static void WriteJSON(JSONNode jsonData, string filePath, bool prettify = true)
+        {
+            StringBuilder sbContent = new StringBuilder(65535);
 
             if(prettify)
-                sbContent.Insert(0, json.ToString(4));
+                sbContent.Insert(0, jsonData.ToString(4));
             else
-                sbContent.Insert(0, json.ToString());
+                sbContent.Insert(0, jsonData.ToString());
+
+            // Check if path is a directory
+            if(Path.GetExtension(filePath) == String.Empty)
+            {
+                if(jsonData["name"] == null)
+                {
+                    if(Config.DebugLog == (int)DebugState.All)
+                        UnityEngine.Debug.LogError("[Volplane (FileManager)] Invalid file path. Could not write file.");
+
+                    return;
+                }
+
+                filePath = String.Format("{0:G}/{1:G}.json", filePath, jsonData["name"].Value);
+                filePath = filePath.Replace('/', '\\');
+            }
 
             // Write file
             using(StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))

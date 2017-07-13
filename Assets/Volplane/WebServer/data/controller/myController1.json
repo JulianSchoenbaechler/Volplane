@@ -1,0 +1,68 @@
+﻿{
+    "name" : "myController1",
+    "lastEdit" : 1499963623,
+    "layout" : "landscape",
+    "deviceMotion" : false,
+    "views" : {
+        "view1" : {
+            "content" : [
+                {
+                    "type" : "dpad",
+                    "name" : "dpad",
+                    "width" : 44,
+                    "height" : 100,
+                    "x" : 4,
+                    "y" : 0,
+                    "image" : "img/dpad.png",
+                    "hidden" : false,
+                    "diagonal" : true,
+                    "relative" : false,
+                    "distance" : 10,
+                    "text" : "",
+                    "font" : "",
+                    "fontSize" : 12,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "handlerImage" : "none",
+                    "upHighlightImage" : "img/dpad-highlight-up.png",
+                    "downHighlightImage" : "img/dpad-highlight-down.png",
+                    "leftHighlightImage" : "img/dpad-highlight-left.png",
+                    "rightHighlightImage" : "img/dpad-highlight-right.png"
+                },
+                {
+                    "type" : "button",
+                    "name" : "button-top",
+                    "width" : 40,
+                    "height" : 50,
+                    "x" : 56,
+                    "y" : 0,
+                    "image" : "img/button.png",
+                    "hidden" : false,
+                    "text" : "Button Top",
+                    "font" : "",
+                    "fontSize" : 20,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/button-highlight.png"
+                },
+                {
+                    "type" : "button",
+                    "name" : "button-bottom",
+                    "width" : 40,
+                    "height" : 50,
+                    "x" : 56,
+                    "y" : 50,
+                    "image" : "img/button.png",
+                    "hidden" : false,
+                    "text" : "Button Bottom",
+                    "font" : "",
+                    "fontSize" : 20,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/button-highlight.png"
+                }
+            ],
+            "gridX" : 4,
+            "gridY" : 50,
+            "color" : "rgb(31, 29, 42)",
+            "grid" : true
+        }
+    }
+}

@@ -25,9 +25,15 @@
         <script src="javascript/controller-editor.jsweb" type="text/javascript"></script>
         
         <script type="text/javascript">
-            $(document).ready(function() { 
+            $(document).ready(function() {
                 
-                var editor = new ControllerEditor('myController1');
+                var controller = getUrlParameter('controller');
+                var editor;
+                
+                if(controller !== null)
+                    editor = new ControllerEditor('myController1');
+                else
+                    editor = new ControllerEditor();
                 
                 $(window).scroll(function() {
                     
@@ -35,6 +41,26 @@
                     
                 });
             });
+            
+            function getUrlParameter(name) {
+    
+                var result = null;
+                var tmp = [];
+                
+                window.location.search
+                    .substr(1)
+                    .split('&')
+                    .forEach(function(item) {
+                        tmp = item.split('=');
+                        
+                        if(tmp[0] === name)
+                            result = decodeURIComponent(tmp[1]);
+                        
+                    });
+                    
+                return result;
+                
+            };
         </script>
         
     </head>

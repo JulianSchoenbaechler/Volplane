@@ -59,11 +59,13 @@ namespace Volplane.Net
                 if(serverPath.StartsWith("/volplane/") ||
                    String.Equals(Path.GetFileName(serverPath), "screen.html"))
                 {
+                    // Local web server path
                     serverPath = serverPath.Replace("/volplane/", "/");
                     filePath = localPath + Config.WebServerPath + serverPath;
                 }
                 else
                 {
+                    // WebGL template path
                     filePath = localPath + Config.WebTemplatePath + serverPath;
                 }
 
@@ -79,6 +81,7 @@ namespace Volplane.Net
                 }
                 else
                 {
+                    // File not found
                     buffer = System.Text.Encoding.UTF8.GetBytes("<html><head><title>404 Not Found.</title></head><body><h1>Error 404 - Not Found.</h1></body></html>");
 
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -93,32 +96,32 @@ namespace Volplane.Net
             }
             else
             {
-                /*
-                // Controller editor data
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                context.Response.ContentLength64 = 0;
-                context.Response.Close();
-                */
-                /*
-                using(Stream body = request.InputStream)
-                {
-                    using(StreamReader reader = new StreamReader(body, request.ContentEncoding))
-                    {
-                        UnityEngine.Debug.Log(reader.ReadToEnd());
-                    }
-                }
-                */
-                //FileManager.
+                // Saving controller data
                 buffer = System.Text.Encoding.UTF8.GetBytes("saved");
 
-                // Controller editor data
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                context.Response.ContentType = "text/plain";
-                context.Response.ContentLength64 = buffer.Length;
-
-                using(Stream s = context.Response.OutputStream)
+                try
                 {
-                    s.Write(buffer, 0, buffer.Length);
+                    FileManager.WriteJSON(request.InputStream, localPath + Config.WebServerPath + "/data/controller");
+                }
+                catch(Exception e)
+                {
+                    buffer = System.Text.Encoding.UTF8.GetBytes(
+                        String.Format("Could not write data to path: {0:G}{1:G}/data/controller", localPath, Config.WebServerPath)
+                    );
+                    UnityEngine.Debug.LogErrorFormat("[Volplane (File Manager)] Unable to write file to: '{0:G}{1:G}/data/controller'.", localPath, Config.WebServerPath);
+                    UnityEngine.Debug.LogException(e);
+                }
+                finally
+                {
+                    // Response
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    context.Response.ContentType = "text/plain";
+                    context.Response.ContentLength64 = buffer.Length;
+
+                    using(Stream s = context.Response.OutputStream)
+                    {
+                        s.Write(buffer, 0, buffer.Length);
+                    }
                 }
             }
         }
