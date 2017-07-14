@@ -28,18 +28,18 @@
             $(document).ready(function() {
                 
                 var controller = getUrlParameter('controller');
-                var editor;
                 
                 if(controller !== null)
-                    editor = new ControllerEditor('myController1');
+                    window.volplaneCE = new ControllerEditor('myController1');
                 else
-                    editor = new ControllerEditor();
+                    window.volplaneCE = new ControllerEditor();
                 
                 $(window).scroll(function() {
                     
                     $('#ce-controller-ctrlbar').css('left', -$(window).scrollLeft());
                     
                 });
+                
             });
             
             function getUrlParameter(name) {

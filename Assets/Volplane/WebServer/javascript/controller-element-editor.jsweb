@@ -135,7 +135,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.text = '';
             element.font = '';
             element.fontSize = 12;
-            element.fontColor = '#rgb(248, 248, 236)';
+            element.fontColor = 'rgb(248, 248, 236)';
             element.highlightImage = 'img/button-highlight.png';
             break;
         
@@ -146,7 +146,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.text = '';
             element.font = '';
             element.fontSize = 12;
-            element.fontColor = '#rgb(248, 248, 236)';
+            element.fontColor = 'rgb(248, 248, 236)';
             element.handlerImage = 'none';
             element.upHighlightImage = 'img/dpad-highlight-up.png';
             element.downHighlightImage = 'img/dpad-highlight-down.png';
@@ -165,7 +165,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.text = '';
             element.font = '';
             element.fontSize = 12;
-            element.fontColor = '#rgb(248, 248, 236)';
+            element.fontColor = 'rgb(248, 248, 236)';
             element.highlightImage = 'img/swipe.png';
             break;
         
@@ -173,7 +173,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.text = '';
             element.font = '';
             element.fontSize = 12;
-            element.fontColor = '#rgb(248, 248, 236)';
+            element.fontColor = 'rgb(248, 248, 236)';
             break;
         
         case 'text':

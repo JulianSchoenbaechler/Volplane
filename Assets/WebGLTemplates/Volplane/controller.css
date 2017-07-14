@@ -1,0 +1,57 @@
+/**
+ * Volplane Controller Style Sheet
+ * Copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
+ * Version      v1.0.0
+ * License      GPL v3
+ */
+
+/* FONTS */
+/*
+@font-face {
+    font-family: 'Montserrat Alternates';
+    src: url('fonts/MontserratAlternates-Medium.eot');
+    src: url('fonts/MontserratAlternates-Medium.eot?#iefix') format('embedded-opentype'),
+        url('fonts/MontserratAlternates-Medium.woff2') format('woff2'),
+        url('fonts/MontserratAlternates-Medium.woff') format('woff'),
+        url('fonts/MontserratAlternates-Medium.ttf') format('truetype'),
+        url('fonts/MontserratAlternates-Medium.svg#MontserratAlternates-Medium') format('svg');
+    font-weight: 500;
+    font-style: normal;
+}
+*/
+
+textarea:invalid,
+input:invalid,
+input:focus,
+select:focus,
+option:focus {
+    outline: none;
+	box-shadow: none;
+}
+textarea::-moz-focus-inner,
+input::-moz-focus-inner {
+    outline: none;
+    border: none;
+}
+select:-moz-focusring,
+option:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #F8F8EC;
+}
+
+/* MAIN ELEMENTS */
+html, body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 16px;
+    color: #F8F8EC;
+    background-color: #000000;
+}

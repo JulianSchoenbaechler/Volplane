@@ -331,10 +331,21 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
                 
                 instance.editorPopupInstance.prompt('Add New View', 'Enter a name identifier for this view:', true, function(name) {
                     
-                    instance.controllerObject.views[name] = { content: [] };
-                    instance.saveController(function() {
-                        instance.loadViewSelection(controllerName, viewArray.length);
-                    });
+                    if(typeof instance.controllerObject.views[name] == 'undefined') {
+                        
+                        instance.controllerObject.views[name] = { content: [] };
+                        instance.saveController(function() {
+                            instance.loadViewSelection(controllerName, viewArray.length);
+                        });
+                        
+                    } else {
+                        
+                        instance.editorPopupInstance.alert('Naming Error', 'This name already exists for a view on this controller ' +
+                            'or does not correlate with the element name conventions!<br />' +
+                            'An element name must be at least three characters long and must not have any special characters ' +
+                            'with the exception of &#91;-&#93; and &#91;_&#93;.');
+                        
+                    }
                     
                 });
                 
@@ -702,9 +713,9 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                                     viewObject.content[index][key] = obj[key];
                                 } else {
                                     instance.editorPopupInstance.alert('Naming Error', 'This name already exists for an element in the current view ' +
-                                                              'or does not correlate with the element name conventions!<br />' +
-                                                              'An element name must be at least three characters long and must not have any special characters ' +
-                                                              'with the exception of &#91;-&#93; and &#91;_&#93;.');
+                                        'or does not correlate with the element name conventions!<br />' +
+                                        'An element name must be at least three characters long and must not have any special characters ' +
+                                        'with the exception of &#91;-&#93; and &#91;_&#93;.');
                                     $(ControllerEditor.SIDEPANELTOP + ' > .ce-edit-name > input').val(viewObject.content[index][key]);
                                 }
                                 break;

@@ -56,6 +56,7 @@ function Agent(gameContainer, screenRatio, loadingBar) {
         this.setupWebsocket();
         
     }
+    
 }
 
 /*
@@ -193,21 +194,21 @@ Agent.prototype.setupWebsocket = function() {
         instance.unityIsReady(false);
         instance.initAirConsole();
         
-    }
+    };
     
     instance.socket.onclose = function() {
         
         console.log('socket closed...');
         
-    }
+    };
     
     instance.socket.onmessage = function(msg) {
         
         instance.processData(msg.data);
         
-    }
+    };
     
-}
+};
 
 /*
  * Send data to Unity as JSON object.
