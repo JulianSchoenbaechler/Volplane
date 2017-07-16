@@ -182,7 +182,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.font = '';
             element.fontSize = 12;
             element.fontColor = 'rgb(248, 248, 236)';
-            element.highlightImage = 'img/swipe.png';
+            element.highlightImage = 'img/swipe-highlight.png';
             break;
         
         case 'touch':

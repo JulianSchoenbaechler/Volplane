@@ -239,6 +239,7 @@ input::selection {
 
 /* INPUT ELEMENTS */
 input {
+    max-height: 22px;
     margin: 4px 10px;
     font-family: 'Montserrat';
     font-weight: 200;
@@ -277,6 +278,7 @@ input[type="color"] {
     cursor: pointer;
 }
 select {
+    height: 22px;
     max-width: 200px;
     margin: 4px 10px;
     padding: 0 14px 0 0;
