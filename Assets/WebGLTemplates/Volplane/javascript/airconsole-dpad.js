@@ -96,10 +96,14 @@ function DPad(el, opts) {
   me.elements[DPad.LEFT] = el.getElementsByClassName("dpad-arrow-left")[0];
   me.elements[DPad.RIGHT] = el.getElementsByClassName("dpad-arrow-right")[0];
   me.resetState();
-
+  
+  // Volplane edit: adding Volplane classes
+  me.initial_container_classes = me.container.className;
+  
   this.bindEvents();
   var mode = me.is_relative ? DPad.SWIPE : DPad.TAP;
   this.setMode(mode);
+  
 };
 
 /**
@@ -126,8 +130,9 @@ DPad.prototype.setMode = function(mode) {
     child_ele.style.position = "static";
     container_class = this.container.className.replace(/relative/g, class_name);
   }
-
-  this.container.className = container_class;
+  
+  // Volplane edit: adding Volplane classes
+  this.container.className = this.initial_container_classes + ' ' + container_class;
 };
 
 /**

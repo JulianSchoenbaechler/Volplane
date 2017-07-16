@@ -1,6 +1,6 @@
 ﻿{
     "name" : "myController1",
-    "lastEdit" : 1500061047,
+    "lastEdit" : 1500240380,
     "layout" : "landscape",
     "deviceMotion" : false,
     "views" : {
@@ -9,7 +9,7 @@
                 {
                     "type" : "dpad",
                     "name" : "dpad",
-                    "width" : 44,
+                    "width" : 42,
                     "height" : 100,
                     "x" : 4,
                     "y" : 0,
@@ -31,9 +31,9 @@
                 {
                     "type" : "button",
                     "name" : "button-top",
-                    "width" : 40,
+                    "width" : 42,
                     "height" : 50,
-                    "x" : 56,
+                    "x" : 54,
                     "y" : 0,
                     "image" : "img/button.png",
                     "hidden" : false,
@@ -46,9 +46,9 @@
                 {
                     "type" : "button",
                     "name" : "button-bottom",
-                    "width" : 40,
+                    "width" : 42,
                     "height" : 50,
-                    "x" : 56,
+                    "x" : 54,
                     "y" : 50,
                     "image" : "img/button.png",
                     "hidden" : false,
@@ -57,12 +57,139 @@
                     "fontSize" : 20,
                     "fontColor" : "rgb(248, 248, 236)",
                     "highlightImage" : "img/button-highlight.png"
+                },
+                {
+                    "type" : "text",
+                    "name" : "text-dpad",
+                    "width" : 50,
+                    "height" : 10,
+                    "x" : 0,
+                    "y" : 90,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "DPad",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 16,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)",
+            "grid" : false
+        },
+        "view2" : {
+            "content" : [
+                {
+                    "type" : "joystick",
+                    "name" : "joystick",
+                    "width" : 42,
+                    "height" : 100,
+                    "x" : 4,
+                    "y" : 0,
+                    "image" : "img/joystick.png",
+                    "hidden" : false,
+                    "relative" : false,
+                    "stickImage" : "img/joystick-stick.png",
+                    "thumbImage" : "img/joystick-relative-thumb.png",
+                    "stickSize" : 50,
+                    "thumbSize" : 20
+                },
+                {
+                    "type" : "joystick",
+                    "name" : "joystick-relative",
+                    "width" : 42,
+                    "height" : 100,
+                    "x" : 54,
+                    "y" : 0,
+                    "image" : "img/joystick.png",
+                    "hidden" : false,
+                    "relative" : true,
+                    "stickImage" : "img/joystick-relative-stick.png",
+                    "thumbImage" : "img/joystick-relative-thumb.png",
+                    "stickSize" : 50,
+                    "thumbSize" : 20
+                },
+                {
+                    "type" : "text",
+                    "name" : "text-joystick",
+                    "width" : 50,
+                    "height" : 10,
+                    "x" : 0,
+                    "y" : 90,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Joystick",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 16,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                },
+                {
+                    "type" : "text",
+                    "name" : "text-joystick-relative",
+                    "width" : 50,
+                    "height" : 10,
+                    "x" : 50,
+                    "y" : 90,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Joystick Relative",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 16,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)",
+            "grid" : false
+        },
+        "view3" : {
+            "content" : [
+                {
+                    "type" : "swipe",
+                    "name" : "swipe",
+                    "width" : 42,
+                    "height" : 100,
+                    "x" : 4,
+                    "y" : 0,
+                    "image" : "img/swipe.png",
+                    "hidden" : false,
+                    "analog" : true,
+                    "text" : "Swipe Field",
+                    "font" : "",
+                    "fontSize" : 16,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/swipe-highlight.png"
+                },
+                {
+                    "type" : "touch",
+                    "name" : "touch",
+                    "width" : 42,
+                    "height" : 100,
+                    "x" : 54,
+                    "y" : 0,
+                    "image" : "img/touch.png",
+                    "hidden" : false,
+                    "text" : "Touch Area",
+                    "font" : "",
+                    "fontSize" : 16,
+                    "fontColor" : "rgb(248, 248, 236)"
                 }
             ],
             "gridX" : 4,
             "gridY" : 50,
             "color" : "rgb(31, 29, 42)",
-            "grid" : true
+            "grid" : false
         }
     }
 }
