@@ -783,7 +783,9 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                                       '.ce-edit-font-color,' +
                                       '.ce-edit-font-size,' +
                                       '.ce-edit-handler-image,' +
-                                      '.ce-edit-thumb-image').show();
+                                      '.ce-edit-thumb-image,' +
+                                      '.ce-edit-stick-size,' +
+                                      '.ce-edit-thumb-size').show();
                                     
                                 } else {
                                     
@@ -793,7 +795,9 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                                       '.ce-edit-font-color,' +
                                       '.ce-edit-font-size,' +
                                       '.ce-edit-handler-image,' +
-                                      '.ce-edit-thumb-image').hide();
+                                      '.ce-edit-thumb-image,' +
+                                      '.ce-edit-stick-size,' +
+                                      '.ce-edit-thumb-size').hide();
                                     
                                 }
                                 
@@ -810,6 +814,13 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                                 
                                 viewObject.content[index][key] = obj[key];
                                 $el.children('div').css('background-image', 'url(\'../' + obj[key] + '\')');
+                                break;
+                            
+                            case 'stickSize':
+                            case 'thumbSize':
+                                
+                                viewObject.content[index][key] = obj[key];
+                                $el.children('div').css('width', viewObject.content[index].stickSize.toString() + '%');
                                 break;
                             
                             case 'text':

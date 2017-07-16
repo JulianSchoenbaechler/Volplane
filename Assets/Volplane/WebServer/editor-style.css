@@ -826,7 +826,7 @@ label.align-right div span:last-of-type::after { left: -5px; }
 	margin: 0;
 	padding: 0;
 	text-align: center;
-	font-family: Helvetica,Arial,sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12pt;
 	overflow: visible;
 	white-space: normal;
@@ -835,6 +835,7 @@ label.align-right div span:last-of-type::after { left: -5px; }
 .ce-content-element div p.no-vertical-align {
     top: 0;
     line-height: normal;
+    box-sizing: border-box;
 }
 .ce-content-element-border {
 	box-sizing: border-box;

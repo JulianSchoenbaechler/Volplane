@@ -107,6 +107,20 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
         }
     }
     
+    // Relative joystick should scale its stick by the stickSize property
+    if(elementObject.type == 'joystick') {
+        
+        if(elementObject.relative) {
+            
+            $el.children('div').css({
+                'position': 'relative',
+                'margin': '0 auto',
+                'width': (elementObject.stickSize || 50).toString() + '%'
+            });
+            
+        }
+    }
+    
     return $el;
 };
 
@@ -157,7 +171,9 @@ ElementEditor.prototype.createNewElement = function(type, name) {
         case 'joystick':
             element.relative = false;
             element.stickImage = 'img/joystick-stick.png';
-            element.thumbImage = 'img/joystick-thumb.png';
+            element.thumbImage = 'img/joystick-relative-thumb.png';
+            element.stickSize = 50;
+            element.thumbSize = 20;
             break;
         
         case 'swipe':
@@ -177,6 +193,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             break;
         
         case 'text':
+            element.image = 'img/transparent.png';
             element.text = 'Custom Text';
             element.textAlign = 'center';
             element.font = '';
@@ -479,10 +496,20 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'stickImage');
             }).addClass('ce-edit-stick-image').appendTo($selector);
             
+            input.getNumberInput('Stick Size', elementObject.stickSize || 50, 95, 5, '%', function() {
+                elementObject.stickSize = parseInt($(this).val(), 10);
+                callback(elementObject, 'stickSize');
+            }).addClass('ce-edit-stick-size').appendTo($selector);
+            
             input.getDropdownInput('Thumb Image', imageKV, filename(elementObject.thumbImage) || 'None', function() {
                 elementObject.thumbImage = $(this).val();
                 callback(elementObject, 'thumbImage');
             }).addClass('ce-edit-thumb-image').appendTo($selector);
+            
+            input.getNumberInput('Thumb Size', elementObject.thumbSize || 20, 95, 5, '%', function() {
+                elementObject.thumbSize = parseInt($(this).val(), 10);
+                callback(elementObject, 'thumbSize');
+            }).addClass('ce-edit-thumb-size').appendTo($selector);
             
             break;
         
@@ -607,7 +634,9 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
           '.ce-edit-font-color,' +
           '.ce-edit-font-size,' +
           '.ce-edit-handler-image,' +
-          '.ce-edit-thumb-image').hide();
+          '.ce-edit-thumb-image,' +
+          '.ce-edit-stick-size,' +
+          '.ce-edit-thumb-size').hide();
         
     }
     
