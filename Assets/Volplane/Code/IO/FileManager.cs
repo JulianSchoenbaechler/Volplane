@@ -61,12 +61,13 @@ namespace Volplane.IO
         /// If the given path leads to a directory instead of a file, the data must contain a 'name' property
         /// which will be used for file creation.
         /// </summary>
+        /// <returns>The name property of the JSON data, or null if no name property is specified.</returns>
         /// <param name="inputStream">Input stream.</param>
         /// <param name="filePath">File path.</param>
         /// <param name="prettify">If set to <c>true</c> prettify JSON output.</param>
-        public static void WriteJSON(Stream inputStream, string filePath, bool prettify = true)
+        public static string WriteJSON(Stream inputStream, string filePath, bool prettify = true)
         {
-            StringBuilder sbContent = new StringBuilder(65535);
+            StringBuilder sbContent = new StringBuilder(1024);
 
             // Read file from stream
             using(StreamReader reader = new StreamReader(inputStream, Encoding.UTF8))
@@ -77,7 +78,7 @@ namespace Volplane.IO
                 }
             }
 
-            WriteJSON(JSON.Parse(sbContent.ToString()), filePath, prettify);
+            return WriteJSON(JSON.Parse(sbContent.ToString()), filePath, prettify);
         }
 
         /// <summary>
@@ -85,12 +86,13 @@ namespace Volplane.IO
         /// If the given path leads to a directory instead of a file, the data must contain a 'name' property
         /// which will be used for file creation.
         /// </summary>
+        /// <returns>The name property of the JSON data, or null if no name property is specified.</returns>
         /// <param name="jsonData">JSON data.</param>
         /// <param name="filePath">File path.</param>
         /// <param name="prettify">If set to <c>true</c> prettify JSON output.</param>
-        public static void WriteJSON(JSONNode jsonData, string filePath, bool prettify = true)
+        public static string WriteJSON(JSONNode jsonData, string filePath, bool prettify = true)
         {
-            StringBuilder sbContent = new StringBuilder(65535);
+            StringBuilder sbContent = new StringBuilder(1024);
 
             if(prettify)
                 sbContent.Insert(0, jsonData.ToString(4));
@@ -105,7 +107,7 @@ namespace Volplane.IO
                     if(Config.DebugLog == (int)DebugState.All)
                         UnityEngine.Debug.LogError("[Volplane (FileManager)] Invalid file path. Could not write file.");
 
-                    return;
+                    return null;
                 }
 
                 filePath = String.Format("{0:G}/{1:G}.json", filePath, jsonData["name"].Value);
@@ -117,6 +119,35 @@ namespace Volplane.IO
             {
                 writer.Write(sbContent);
             }
+
+            return jsonData["name"] != null ? jsonData["name"].Value : null;
+        }
+
+        /// <summary>
+        /// Reads JSON data from a file.
+        /// </summary>
+        /// <param name="filePath">File path.</param>
+        public static JSONNode ReadJSON(string filePath)
+        {
+            filePath = filePath.Replace('/', '\\');
+
+            if(!File.Exists(filePath))
+                return null;
+            
+            StringBuilder sbContent = new StringBuilder(1024);
+
+            using(FileStream fileStream = File.OpenRead(filePath))
+            {
+                using(StreamReader reader = new StreamReader(fileStream, Encoding.UTF8))
+                {
+                    while(!reader.EndOfStream)
+                    {
+                        sbContent.Append(reader.ReadLine());
+                    }
+                }
+            }
+
+            return JSON.Parse(sbContent.ToString());
         }
     }
 }

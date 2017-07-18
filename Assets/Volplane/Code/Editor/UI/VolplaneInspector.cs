@@ -109,10 +109,16 @@ namespace Volplane.Editor.UI
                 }
             }
 
-            GUILayout.Space(30f);
-
             // Controller Editor
-            GUILayout.Label("Controller Editor");
+            if(Config.SelectedController != null)
+            {
+                if(GUILayout.Button("Open Controller Editor"))
+                {
+                    Application.OpenURL(String.Format("http://localhost:{0:D}/volplane/controller-editor.html?controller={1:G}",
+                                                  Config.LocalServerPort,
+                                                  Config.SelectedController));
+                }
+            }
 
         }
 
@@ -157,20 +163,20 @@ namespace Volplane.Editor.UI
 
             // Write image list
             FileManager.WriteJSON(
-                FileManager.GetFileListFromDirectory(Application.dataPath + Config.WebTemplatePath + "/img", "img"),
-                Application.dataPath + Config.WebServerPath + "/data/img-list.json"
+                FileManager.GetFileListFromDirectory(String.Format("{0:G}{1:G}/img", Application.dataPath, Config.WebTemplatePath), "img"),
+                String.Format("{0:G}{1:G}/data/img-list.json", Application.dataPath, Config.WebServerPath)
             );
 
             // Write font list
             FileManager.WriteJSON(
-                FileManager.GetFileListFromDirectory(Application.dataPath + Config.WebTemplatePath + "/fonts", "fonts"),
-                Application.dataPath + Config.WebServerPath + "/data/font-list.json"
+                FileManager.GetFileListFromDirectory(String.Format("{0:G}{1:G}/fonts", Application.dataPath, Config.WebTemplatePath), "fonts"),
+                String.Format("{0:G}{1:G}/data/font-list.json", Application.dataPath, Config.WebServerPath)
             );
 
             // Write controller list
             FileManager.WriteJSON(
                 jsonControllerList,
-                Application.dataPath + Config.WebServerPath + "/data/controller-list.json"
+                String.Format("{0:G}{1:G}/data/controller-list.json", Application.dataPath, Config.WebServerPath)
             );
         }
     }

@@ -100,7 +100,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
     .append(
         $('<div/>')
         .css({
-            'background-image': elementObject.relative ? "url('" + (elementObject.upHighlightImage || 'img/transparent.png') + "')" : 'none'
+            'background-image': elementObject.relative ? "url('" + (elementObject.handlerImage || 'img/transparent.png') + "')" : 'none'
         })
         .append(
             $('<div/>', {
