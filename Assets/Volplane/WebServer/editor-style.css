@@ -498,6 +498,16 @@ label.align-right div span:last-of-type::after { left: -5px; }
     padding: 10px 0 0;
     margin: 10px 0;
 }
+.ce-popup-box iframe {
+    position: relative;
+    display: inline-block;
+    width: 640px;
+    height: 360px;
+    margin: 10px 0;
+    outline: none;
+    border: 2px solid #7A2F34;
+    border-radius: 4px;
+}
 .ce-popup-box form {
     position: relative;
     display: inline-block;

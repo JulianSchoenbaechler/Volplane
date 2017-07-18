@@ -184,6 +184,45 @@ EditorPopup.prototype.prompt = function(title, text, isName, callback) {
     
 };
 
+/**
+ * iframe popup.
+ * @param {String} title - The title displayed as header of the popup.
+ * @param {String} src - The page source for the iframe.
+ */
+EditorPopup.prototype.iframe = function(title, src) {
+    
+    var instance = this;
+    
+    if(typeof title == 'undefined') {
+        alert(src);
+        return;
+    }
+    
+    var closePopup = function($p) {
+        return function(e) {
+            e.preventDefault();
+            instance.closePopup($p);
+        };
+    };
+    
+    var $popup = instance.getPopup(title);
+    var $inputs = $('<form/>', {
+        submit: closePopup($popup)
+    });
+    var $default = $('<input/>', {
+        type: 'submit',
+        value: 'OK'
+    });
+    
+    $popup.append('<iframe src="' + src + '"></iframe>');
+    $inputs.append($default);
+    $popup.append($inputs);
+    
+    instance.openPopup($popup);
+    $default.focus();
+    
+};
+
 
 /**
  * PRIVATE FUNCTIONS
@@ -247,5 +286,6 @@ EditorPopup.prototype.init = function() {
     $.proxy(instance.alert, instance);
     $.proxy(instance.confirm, instance);
     $.proxy(instance.prompt, instance);
+    $.proxy(instance.iframe, instance);
     
 };

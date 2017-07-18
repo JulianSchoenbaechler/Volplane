@@ -15,8 +15,8 @@
  * Gateway object to the controller object.
  * @constructor
  */
-function VolplaneController() {
-    this.init();
+function VolplaneController(standardView, controllerData) {
+    this.init(standardView, controllerData);
 }
 
 
@@ -229,7 +229,6 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
         .appendTo($viewSelector);
         
         new JoystickRelative($elementSelector.attr('id'), {
-            'distance': elementObject.distance || 10,
             'base_stick_size_percent': elementObject.stickSize || 50,
             'stick_size_percent': elementObject.thumbSize || 20,
             'touchstart': function() {
@@ -291,7 +290,9 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
         
         new SwipeDigital($elementSelector.attr('id'), {
             'min_swipe_distance': elementObject.distance || 30,
-            'allowed_directions': SwipeDigital.ALLOWED_DIRECTIONS.ALL,
+            'allowed_directions': (elementObject.diagonal || false) ?
+                                  SwipeDigital.ALLOWED_DIRECTIONS.FOURWAY :
+                                  SwipeDigital.ALLOWED_DIRECTIONS.EIGHTWAY,
             'onTrigger': function(directionMap) {},
             'touchstart': function(e) {},
             'touchend': function(e, hadDirections) {}
@@ -461,7 +462,8 @@ VolplaneController.prototype.loadController = function() {
         }
         
         // Hide view
-        $viewSelector.hide();
+        if(instance.standardView !== views[i])
+            $viewSelector.hide();
         
     }
     
@@ -471,15 +473,18 @@ VolplaneController.prototype.loadController = function() {
  * Initializes the controller.
  * @private
  */
-VolplaneController.prototype.init = function() {
+VolplaneController.prototype.init = function(standardView, controllerData) {
     
     var instance = this;
+    
+    instance.standardView = standardView || '';
+    instance.controllerData = controllerData || '../controller';
     
     // Proxy object functions
     $.proxy(instance.loadController, instance);
     
     // Load controller data
-    $.get('../controller.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
+    $.get(instance.controllerData + '.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
         
         instance.controllerObject = data;
         
@@ -491,13 +496,21 @@ VolplaneController.prototype.init = function() {
                              undefined
         });
         
-        instance.rateLimiter = RateLimiter(instance.airconsole);
+        instance.rateLimiter = new RateLimiter(instance.airconsole);
         
         instance.loadController();
         
     }, 'json').fail(function() {
         
-        throw new Error('Volplane Controller Error: Failed to load controller data.');
+        console.log('Volplane Controller: Failed to load controller data.');
+        
+        instance.airconsole = new AirConsole({
+            'orientation': window.config.orientation || 'portrait',
+            'synchronize_time': window.config.synchronizeTime || true,
+            'device_motion': window.config.deviceMotion || undefined
+        });
+        
+        instance.rateLimiter = new RateLimiter(instance.airconsole);
         
     });
     

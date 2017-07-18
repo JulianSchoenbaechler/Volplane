@@ -170,6 +170,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
         
         case 'joystick':
             element.relative = false;
+            element.distance = 10;
             element.stickImage = 'img/joystick-stick.png';
             element.thumbImage = 'img/joystick-relative-thumb.png';
             element.stickSize = 50;
@@ -178,6 +179,8 @@ ElementEditor.prototype.createNewElement = function(type, name) {
         
         case 'swipe':
             element.analog = true;
+            element.distance = 30;
+            element.diagonal = false;
             element.text = '';
             element.font = '';
             element.fontSize = 12;
@@ -491,6 +494,11 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'relative');
             }).addClass('ce-edit-relative').appendTo($selector);
             
+            input.getNumberInput('Distance', elementObject.distance || 10, 640, 1, 'px', function() {
+                elementObject.distance = parseInt($(this).val(), 10);
+                callback(elementObject, 'distance');
+            }).addClass('ce-edit-jdistance').appendTo($selector);
+            
             input.getDropdownInput('Stick Image', imageKV, filename(elementObject.stickImage) || 'None', function() {
                 elementObject.stickImage = $(this).val();
                 callback(elementObject, 'stickImage');
@@ -521,6 +529,11 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'highlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
             
+            input.getNumberInput('Min. Swipe Distance', elementObject.distance || 30, 640, 1, 'px', function() {
+                elementObject.distance = parseInt($(this).val(), 10);
+                callback(elementObject, 'distance');
+            }).addClass('ce-edit-distance').appendTo($selector);
+            
             input.getTextInput('Text', elementObject.text || '', false, function() {
                 elementObject.text = $(this).val();
                 callback(elementObject, 'text');
@@ -545,6 +558,11 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 elementObject.analog = $(this).is(':checked');
                 callback(elementObject, 'analog');
             }).addClass('ce-edit-analog').appendTo($selector);
+            
+            input.getToggleInput('8-Way', elementObject.diagonal, function() {
+                elementObject.diagonal = $(this).is(':checked');
+                callback(elementObject, 'diagonal');
+            }).addClass('ce-edit-diagonal').appendTo($selector);
             
             break;
         
@@ -637,6 +655,17 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
           '.ce-edit-thumb-image,' +
           '.ce-edit-stick-size,' +
           '.ce-edit-thumb-size').hide();
+        
+    } else {
+        
+        $('.ce-edit-jdistance').hide();
+        
+    }
+    
+    // Disable or enable elements based on analog element
+    if(typeof elementObject.analog != 'undefined' ? elementObject.analog : false) {
+        
+        $('.ce-edit-diagonal').hide();
         
     }
     

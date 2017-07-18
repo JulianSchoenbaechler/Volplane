@@ -30,7 +30,7 @@
                 var controller = getUrlParameter('controller');
                 
                 if(controller !== null)
-                    window.volplaneCE = new ControllerEditor('myController1');
+                    window.volplaneCE = new ControllerEditor(controller);
                 else
                     window.volplaneCE = new ControllerEditor();
                 

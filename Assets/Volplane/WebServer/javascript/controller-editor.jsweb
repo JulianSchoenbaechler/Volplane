@@ -528,7 +528,7 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
     $(ControllerEditor.WORKSPACE).addClass(instance.controllerObject.layout);
     instance.drawControllerGrid();
     
-    // Empt and setup controlbar (options / save)
+    // Empty and setup controlbar (options / save / preview)
     $(ControllerEditor.CONTROLBAR).empty();
     $(ControllerEditor.CONTROLBAR).append(instance.getNewButton('', 'Controller Settings', 'img/options.png', { w: 32, h: 32 })
     .click(function() {
@@ -537,6 +537,13 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
     $(ControllerEditor.CONTROLBAR).append(instance.getNewButton('', 'Save Controller', 'img/save-controller.png', { w: 32, h: 32 })
     .click(function() {
         instance.saveController();
+    }));
+    $(ControllerEditor.CONTROLBAR).append(instance.getNewButton('', 'Preview View', 'img/preview-view.png', { w: 32, h: 32 })
+    .click(function() {
+        instance.saveController(function() {
+            console.log('../controller.html?view=' + viewName + '&data=volplane/data/controller/' + instance.controllerObject.name);
+            instance.editorPopupInstance.iframe('Preview', '../controller.html?view=' + viewName + '&data=volplane/data/controller/' + instance.controllerObject.name);
+        });
     }));
     
     // Load view properties
@@ -786,6 +793,8 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                                       '.ce-edit-thumb-image,' +
                                       '.ce-edit-stick-size,' +
                                       '.ce-edit-thumb-size').show();
+                                      
+                                      $('.ce-edit-jdistance').hide();
                                     
                                 } else {
                                     
@@ -798,9 +807,25 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
                                       '.ce-edit-thumb-image,' +
                                       '.ce-edit-stick-size,' +
                                       '.ce-edit-thumb-size').hide();
+                                      
+                                      $('.ce-edit-jdistance').show();
                                     
                                 }
                                 
+                                break;
+                            
+                            case 'analog':
+                                
+                                // Disable or enable elements based on analog state
+                                if(obj.analog) {
+                                    
+                                    $('.ce-edit-diagonal').hide();
+                                    
+                                } else {
+                                    
+                                    $('.ce-edit-diagonal').show();
+                                    
+                                }
                                 break;
                             
                             case 'image':
