@@ -413,7 +413,7 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
             
             instance.inputElementsInstance.getDropdownInput('Orientation', { portrait: 'portrait', landscape: 'landscape' }, instance.controllerObject.layout || 'portrait', function() {
                 instance.controllerObject.layout = $(this).val();
-                $(ControllerEditor.WORKSPACE).removeClass("portrait landscape").addClass($(this).val());
+                $(ControllerEditor.WORKSPACE).removeClass('portrait landscape').addClass($(this).val());
             }).addClass('ce-edit-layout').appendTo($optionsForm);
             
             instance.inputElementsInstance.getToggleInput('Synchronize Time', instance.controllerObject.synchronizeTime || true, function() {
@@ -449,7 +449,12 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
                 $optionsForm.children('.ce-edit-device-motion-sensitivity').hide();
             }
             
-            if(typeof instance.controllerObject.layout == 'undefined') $(ControllerEditor.OPTIONS).fadeIn(200);
+            if(typeof instance.controllerObject.layout == 'undefined') {
+                instance.controllerObject.layout = 'portrait';
+                instance.controllerObject.synchronizeTime = true;
+                instance.controllerObject.deviceMotion = false;
+                $(ControllerEditor.OPTIONS).fadeIn(200);
+            }
             
         });
         
