@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
- * https://github.com/JulianSchoenbaechler/*
+ * https://github.com/JulianSchoenbaechler/Volplane
  * 
  * This file is part of the Volplane project.
  * 
@@ -33,17 +33,22 @@ namespace Volplane.Editor.UI
         /// <summary>
         /// This window instance.
         /// </summary>
-        protected static NewControllerWindow window;
+		public static NewControllerWindow window;
 
         private string tempName;
+		private string errorString;
         private Regex namingConventions;
-        private GUIStyle labelFormat, buttonFormat, inputFormat;
+        private GUIStyle labelFormat, errorFormat, buttonFormat, inputFormat;
+
+		/// <summary>
+		/// Occurs when a new controller was created.
+		/// </summary>
+		public event Action<string> ControllerCreated;
 
         /// <summary>
         /// Init this instance.
         /// </summary>
-        [MenuItem("Window/Popup Volplane")]
-        static void Init()
+        public static void Init()
         {
             Rect position = new Rect(400f, 400f, 400f, 140f);
             NewControllerWindow.window = EditorWindow.GetWindowWithRect<NewControllerWindow>(position, true, "Create New Controller", true);
@@ -55,6 +60,8 @@ namespace Volplane.Editor.UI
         protected virtual void OnEnable()
         {
             namingConventions = new Regex(@"([^a-zA-Z0-9_-]+)");
+			tempName = "";
+			errorString = "";
         }
 
         /// <summary>
@@ -66,6 +73,10 @@ namespace Volplane.Editor.UI
             labelFormat = new GUIStyle();
             labelFormat.alignment = TextAnchor.MiddleCenter;
             labelFormat.fontSize = 12;
+
+			// Label error style
+			errorFormat = new GUIStyle(labelFormat);
+			errorFormat.normal.textColor = Color.red;
 
             // Input style
             inputFormat = new GUIStyle(GUI.skin.textField);
@@ -79,16 +90,24 @@ namespace Volplane.Editor.UI
             buttonFormat.fixedWidth = 100;
 
 
-
+			// Name
             GUILayout.Space(10f);
             EditorGUILayout.LabelField("Enter a name for this controller:", labelFormat);
             GUILayout.Space(10f);
-            tempName = EditorGUILayout.TextField("", inputFormat);
-            GUILayout.Space(20f);
 
+			// Input
+			tempName = EditorGUILayout.TextField(tempName, inputFormat);
+            GUILayout.Space(14f);
+
+			// Error
+			EditorGUILayout.LabelField(errorString, errorFormat);
+			GUILayout.Space(20f);
+
+			// Buttons
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
+			// Cancel button
             if(GUILayout.Button("Cancel", buttonFormat))
             {
                 NewControllerWindow.window.Close();
@@ -96,63 +115,41 @@ namespace Volplane.Editor.UI
 
             GUILayout.FlexibleSpace();
 
+			// Create new controller
             if(GUILayout.Button("OK", buttonFormat))
-            {
+			{
+				// Check length
                 if(tempName.Length >= 3)
-                {
-                    if(!namingConventions.Match(tempName).Success)
-                    {
-                        JSONNode controller = new JSONObject();
-                        controller["name"] = tempName;
+				{
+					// Check for special chars
+					if(!namingConventions.Match(tempName).Success)
+					{
+						JSONNode controller = new JSONObject();
+						controller["name"] = tempName;
+						controller["views"] = new JSONArray();
 
-                        FileManager.WriteJSON(controller, String.Format("{0:G}{1:G}/data/controller/{1:G}.json", Application.dataPath, Config.WebServerPath, tempName));
-                    }
-                }
+						FileManager.WriteJSON(controller, String.Format("{0:G}{1:G}/data/controller/{2:G}.json", Application.dataPath, Config.WebServerPath, tempName));
+
+						// Fire controller created event
+						if(ControllerCreated != null)
+							ControllerCreated(tempName);
+
+						NewControllerWindow.window.Close();
+					}
+					else
+					{
+						errorString = "The controller name must not have any special characters\nwith the exception of '-' and '_'.";
+					}
+				}
+				else
+				{
+					errorString = "The controller name must be at least three characters long.";
+				}
             }
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
-            /*
-            tempServerPort = EditorGUILayout.IntField("Local Webserver Port:", Config.LocalServerPort);
-            tempWebsocketPort = EditorGUILayout.IntField("Local Websocket Port:", Config.LocalWebsocketPort);
-            tempDebugLog = (int)(DebugState)EditorGUILayout.EnumPopup("Debug Messages:", (DebugState)Config.DebugLog);
-
-            GUILayout.Space(40f);
-
-            if(Extensions.LocalWebserver.IsRunning)
-            {
-                GUILayout.Label("Local webserver is running...");
-
-                if(GUILayout.Button("Stop Server"))
-                    Extensions.LocalWebserver.Stop();
-            }
-            else
-            {
-                GUILayout.Label("Local webserver has stopped.");
-
-                if(GUILayout.Button("Restart Server"))
-                    Extensions.LocalWebserver.Start();
-            }
-
-            // Saving edited preferences
-            if(tempServerPort != Config.LocalServerPort)
-            {
-                Config.LocalServerPort = tempServerPort;
-                EditorPrefs.SetInt("LocalServerPort", tempServerPort);
-            }
-
-            if(tempWebsocketPort != Config.LocalWebsocketPort)
-            {
-                Config.LocalWebsocketPort = tempWebsocketPort;
-                EditorPrefs.SetInt("LocalWebsocketPort", tempWebsocketPort);
-            }
-
-            if(tempDebugLog != Config.LocalServerPort)
-            {
-                Config.DebugLog = tempDebugLog;
-                EditorPrefs.SetInt("DebugLog", tempDebugLog);
-            }
-            */
+            
         }
     }
 }

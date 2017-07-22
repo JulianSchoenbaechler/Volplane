@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
- * https://github.com/JulianSchoenbaechler/*
+ * https://github.com/JulianSchoenbaechler/Volplane
  * 
  * This file is part of the Volplane project.
  * 
@@ -41,6 +41,7 @@ namespace Volplane.Editor.UI
         private string[] controllerPaths;
         private string[] controllerList;
         private string tempSelectedController;
+		private Action<string> OnControllerCreated;
 
         /// <summary>
         /// Inspector GUI draw call.
@@ -83,33 +84,12 @@ namespace Volplane.Editor.UI
             // Current controller changed
             if(tempSelectedController != Config.SelectedController)
             {
-                // Copy controller to WebGL template
-                if(tempSelectedController != "None")
-                {
-                    Config.SelectedController = tempSelectedController;
-                    EditorPrefs.SetString("SelectedController", tempSelectedController);
-
-                    // Copy selected controller data into WebGL template
-                    File.Copy(controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1],
-                              controllerDestinationPath,
-                              true);
-                }
-                else
-                {
-                    Config.SelectedController = null;
-                    EditorPrefs.SetString("SelectedController", null);
-
-                    // Delete current controller data from WebGL template
-                    if(File.Exists(controllerDestinationPath))
-                        File.Delete(controllerDestinationPath);
-
-                    // Delete corresponding meta file
-                    if(File.Exists(controllerDestinationPath + ".meta"))
-                        File.Delete(controllerDestinationPath + ".meta");
-                }
+				// Reload controller data
+				ReloadControllerData();
             }
 
             // Controller Editor
+			// Delete controller
             if(Config.SelectedController != null)
             {
                 if(GUILayout.Button("Open Controller Editor"))
@@ -118,8 +98,40 @@ namespace Volplane.Editor.UI
                                                   Config.LocalServerPort,
                                                   Config.SelectedController));
                 }
+
+				if(GUILayout.Button("Delete Current Controller"))
+				{
+					if(EditorUtility.DisplayDialog("Delete Controller",
+					                               "Are you sure you want to delete this controller?",
+					                               "Yes",
+					                               "No"))
+					{
+						string controllerPath = controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1];
+
+						// Delete controller
+						if(File.Exists(controllerPath))
+							File.Delete(controllerPath);
+						
+						if(File.Exists(controllerPath + ".meta"))
+							File.Delete(controllerPath + ".meta");
+
+						// Reload controller list, image-, font- and controller data
+						// Reload controller data
+						ReloadControllerList();
+						ReloadControllerData();
+					}
+				}
             }
 
+			// Add new controller
+			if(GUILayout.Button("Add New Controller"))
+			{
+				NewControllerWindow.Init();
+
+				// Subscribe controller created event
+				NewControllerWindow.window.ControllerCreated -= OnControllerCreated;
+				NewControllerWindow.window.ControllerCreated += OnControllerCreated;
+			}
         }
 
 
@@ -133,7 +145,23 @@ namespace Volplane.Editor.UI
             controllerDestinationPath = String.Format("{0:G}{1:G}/controller.json", Application.dataPath, Config.WebTemplatePath).Replace('/', '\\');
 
             // Reload controller list, image-, font- and controller data
+			// Reload controller data
             ReloadControllerList();
+			ReloadControllerData();
+
+			// Set delegate for creating new controller
+			OnControllerCreated = delegate(string name) {
+				
+				// Reload controller list, image-, font- and controller data
+				ReloadControllerList();
+
+				// Switch to new controller
+				tempSelectedController = name;
+
+				// Reload controller data
+				ReloadControllerData();
+
+			};
         }
 
         /// <summary>
@@ -179,5 +207,36 @@ namespace Volplane.Editor.UI
                 String.Format("{0:G}{1:G}/data/controller-list.json", Application.dataPath, Config.WebServerPath)
             );
         }
+
+		/// <summary>
+		/// Updates the controller data in the WebGL template.
+		/// </summary>
+		private void ReloadControllerData()
+		{
+			// Copy controller to WebGL template
+			if(tempSelectedController != "None")
+			{
+				Config.SelectedController = tempSelectedController;
+				EditorPrefs.SetString("SelectedController", tempSelectedController);
+
+				// Copy selected controller data into WebGL template
+				File.Copy(controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1],
+				              controllerDestinationPath,
+				              true);
+			}
+			else
+			{
+				Config.SelectedController = null;
+				EditorPrefs.SetString("SelectedController", null);
+
+				// Delete current controller data from WebGL template
+				if(File.Exists(controllerDestinationPath))
+					File.Delete(controllerDestinationPath);
+
+				// Delete corresponding meta file
+				if(File.Exists(controllerDestinationPath + ".meta"))
+					File.Delete(controllerDestinationPath + ".meta");
+			}
+		}
     }
 }

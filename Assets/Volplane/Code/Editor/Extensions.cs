@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
- * https://github.com/JulianSchoenbaechler/*
+ * https://github.com/JulianSchoenbaechler/Volplane
  * 
  * This file is part of the Volplane project.
  * 

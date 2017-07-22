@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
- * https://github.com/JulianSchoenbaechler/*
+ * https://github.com/JulianSchoenbaechler/Volplane
  * 
  * This file is part of the Volplane project.
  * 
@@ -104,6 +104,15 @@ namespace Volplane.Net
                 try
                 {
                     controllerName = FileManager.WriteJSON(request.InputStream, String.Format("{0:G}{1:G}/data/controller", localPath, Config.WebServerPath));
+
+					// If the controller is currently used
+					if(Config.SelectedController == controllerName)
+					{
+						// Copy selected controller data into WebGL template
+						File.Copy(String.Format("{0:G}{1:G}/data/controller/{2:G}.json", localPath, Config.WebServerPath, controllerName),
+						          String.Format("{0:G}{1:G}/controller.json", localPath, Config.WebTemplatePath),
+						          true);
+					}
                 }
                 catch(Exception e)
                 {
@@ -115,15 +124,6 @@ namespace Volplane.Net
                 }
                 finally
                 {
-                    // If the controller is currently used
-                    if(Config.SelectedController == controllerName)
-                    {
-                        // Copy selected controller data into WebGL template
-                        File.Copy(String.Format("{0:G}{1:G}/data/controller/{2:G}.json", localPath, Config.WebServerPath, controllerName),
-                                  String.Format("{0:G}{1:G}/controller.json", localPath, Config.WebTemplatePath),
-                                  true);
-                    }
-
                     // Response
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
                     context.Response.ContentType = "text/plain";
