@@ -82,7 +82,7 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-                Debug.Log("[Volplane (Websocket Service)] Socket connection opened on port: " + Config.LocalWebsocketPort.ToString("D") + ".");
+				Debug.LogFormat("[Volplane (Websocket Service)] Socket connection opened on port: {0:D}.", Config.LocalWebsocketPort);
             }
         }
 
@@ -98,7 +98,7 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-                Debug.Log("[Volplane (Websocket Service)] Socket connection closed. Code:" + e.Code.ToString("D") + ".");
+				Debug.LogFormat("[Volplane (Websocket Service)] Socket connection closed. Code:{0:D}.", e.Code);
             }
         }
 
@@ -112,7 +112,7 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-				Debug.LogError("[Volplane (Websocket Service)] " + e.Message);
+				Debug.LogErrorFormat("[Volplane (Websocket Service)] {0:G}", e.Message);
                 Debug.LogException(e.Exception);
             }
         }
