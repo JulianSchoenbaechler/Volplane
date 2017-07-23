@@ -21,8 +21,9 @@
 
 namespace Volplane.Net
 {
-    using System.IO;
-    using System.Net;
+	using System;
+	using System.IO;
+	using System.Net;
 
 
     public class WebServer
@@ -100,6 +101,7 @@ namespace Volplane.Net
             HttpListenerRequest request = context.Request;
             string filePath = localPath + request.Url.LocalPath;
 
+            filePath = Uri.UnescapeDataString(filePath);
             filePath = filePath.Replace('/', '\\');
 
             if(File.Exists(filePath))
@@ -158,7 +160,7 @@ namespace Volplane.Net
                     return "image/png";
 
                 case ".jpg":
-                case "jpeg":
+                case ".jpeg":
                     return "image/jpeg";
 
                 case ".bmp":
@@ -178,8 +180,29 @@ namespace Volplane.Net
                     return "text/css";
 
                 case ".js":
-                case ".jslib":
-                    return "application/javascript";
+                case ".jsweb":
+					return "application/javascript";
+
+				case ".svg":
+					return "image/svg+xml";
+
+				case ".ttf":
+					return "application/x-font-truetype";
+
+				case ".otf":
+					return "application/x-font-opentype";
+
+				case ".woff":
+					return "application/font-woff";
+
+				case ".woff2":
+					return "application/font-woff2";
+
+				case ".eot":
+					return "application/vnd.ms-fontobject";
+
+				case ".sfnt":
+					return "application/font-sfnt";
 
                 default:
                     return "application/octet-stream";
