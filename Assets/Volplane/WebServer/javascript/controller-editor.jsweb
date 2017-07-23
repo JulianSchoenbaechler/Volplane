@@ -1179,6 +1179,7 @@ ControllerEditor.prototype.loadController = function(name, callback) {
     $.get(ControllerEditor.DATAPATH + 'controller/' + name + '.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
         
         instance.controllerObject = data;
+        instance.controllerObject.fontList = instance.fontList;
         
     }, 'json').fail(function() {
         
@@ -1254,9 +1255,80 @@ ControllerEditor.prototype.reloadFontList = function(callback) {
     
     var instance = this;
     
+    // Cut path and extension -> plain file name
+    var filename = function(path) {
+        if(typeof path == 'undefined') return;
+        path = path.includes('/') ? path.substr(path.lastIndexOf('/') + 1) : path;
+        return path.includes('.') ? path.substr(0, path.lastIndexOf('.')) : path;
+    };
+    
+    var fontFaceStyle = '';
+    var fontFaceCreated = [];
+    
     $.get(ControllerEditor.DATAPATH + 'font-list.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
         
         instance.fontList = data;
+        
+        // Iterate through font list
+        for(var i = 0; i < instance.fontList.length; i++) {
+            
+            var fontName = filename(instance.fontList[i]);
+            var fontFolder = '../' + instance.fontList[i];
+            fontFolder = fontFolder.substring(0, fontFolder.search(fontName));
+            
+            // No font-face for this font created?
+            if($.inArray(fontName, fontFaceCreated) == -1) {
+                
+                var fontFace = "@font-face {\nfont-family: '" + fontName + "';\n";
+                
+                // EOT (used as default) exists?
+                if($.inArray(fontFolder + fontName + '.eot', instance.fontList)) {
+                    fontFace += "src: url('" + fontFolder + fontName + ".eot');\n";
+                    fontFace += "src: url('" + fontFolder + fontName + ".eot') format('embedded-opentype'),";
+                } else {
+                    fontFace += "src: ";
+                }
+                
+                // TTF exists?
+                if($.inArray(fontFolder + fontName + '.ttf', instance.fontList)) {
+                    fontFace += "url('" + fontFolder + fontName + ".ttf') format('truetype'),";
+                }
+                
+                // OTF exists?
+                if($.inArray(fontFolder + fontName + '.otf', instance.fontList)) {
+                    fontFace += "url('" + fontFolder + fontName + ".otf') format('opentype'),";
+                }
+                
+                // WOFF exists?
+                if($.inArray(fontFolder + fontName + '.woff', instance.fontList)) {
+                    fontFace += "url('" + fontFolder + fontName + ".woff') format('woff'),";
+                }
+                
+                // WOFF2 exists?
+                if($.inArray(fontFolder + fontName + '.woff2', instance.fontList)) {
+                    fontFace += "url('" + fontFolder + fontName + ".woff2') format('woff2'),";
+                }
+                
+                // SVG exists?
+                if($.inArray(fontFolder + fontName + '.svg', instance.fontList)) {
+                    fontFace += "url('" + fontFolder + fontName + ".svg') format('svg'),";
+                }
+                
+                // Slice last comma
+                fontFace = fontFace.slice(0, -1);
+                
+                fontFace += ";\nfont-weight: normal;\nfont-style: normal;\n}\n";
+                
+                // Add font-face
+                fontFaceStyle += fontFace;
+                fontFaceCreated.push(fontName);
+                
+            }
+            
+        }
+        
+        // Add font-face to css style sheet
+        $('<style/>').append(fontFaceStyle).appendTo($('head'));
         
     }, 'json').fail(function() {
         

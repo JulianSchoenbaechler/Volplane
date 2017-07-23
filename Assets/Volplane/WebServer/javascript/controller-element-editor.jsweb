@@ -41,6 +41,7 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
     if((typeof elementObject == 'undefined') || (elementObject === null))
         return;
     
+    
     var $el = $('<div class="ce-content-element noselect"></div>');
     $el.css({
         'width': elementObject.width.toString() + '%',
@@ -83,8 +84,12 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
     }
     
     // Element of type 'text' should not have a vertically aligned paragraph.
-    if(elementObject.type == 'text')
+    // Also this elements padding must be loaded.
+    if(elementObject.type == 'text') {
         $el.children('p').addClass('no-vertical-align');
+        $el.children('p').css('padding', (elementObject.paddingVertical || 2).toString() + 'pt ' +
+                                         (elementObject.paddingHorizontal || 2).toString() + 'pt');
+    }
     
     // Relative d-pad should intend its handler by the distance property
     if(elementObject.type == 'dpad') {
@@ -363,7 +368,7 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
     // key -> filename without extension
     // value -> path
     for(i = 0; i < fontList.length; i++) {
-        fontKV[fontname(fontList[i])] = fontList[i];
+        fontKV[fontname(fontList[i])] = "'" + fontname(fontList[i]) + "'";
     }
     
     
@@ -404,7 +409,7 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
-            input.getDropdownInput('Font', fontKV, fontname(elementObject.font || 'Helvetica'), function() {
+            input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
@@ -469,7 +474,7 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
-            input.getDropdownInput('Font', fontKV, fontname(elementObject.font || 'Helvetica'), function() {
+            input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
@@ -539,7 +544,7 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
-            input.getDropdownInput('Font', fontKV, fontname(elementObject.font || 'Helvetica'), function() {
+            input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
@@ -574,7 +579,7 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
-            input.getDropdownInput('Font', fontKV, fontname(elementObject.font || 'Helvetica'), function() {
+            input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
@@ -604,7 +609,7 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
-            input.getDropdownInput('Font', fontKV, fontname(elementObject.font || 'Helvetica'), function() {
+            input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
