@@ -546,7 +546,6 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
     $(ControllerEditor.CONTROLBAR).append(instance.getNewButton('', 'Preview View', 'img/preview-view.png', { w: 32, h: 32 })
     .click(function() {
         instance.saveController(function() {
-            console.log('../controller.html?view=' + viewName + '&data=volplane/data/controller/' + instance.controllerObject.name);
             instance.editorPopupInstance.iframe('Preview', '../controller.html?view=' + viewName + '&data=volplane/data/controller/' + instance.controllerObject.name);
         });
     }));
