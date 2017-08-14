@@ -550,7 +550,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
                 type: 'touch',
                 data: {
                     state: true,
-                    move; false,
+                    move: false,
                     x: position.x,
                     y: 1 - position.y,
                     timeStamp: instance.airconsole.getServerTime()
@@ -565,7 +565,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
                 type: 'touch',
                 data: {
                     state: true,
-                    move; true,
+                    move: true,
                     x: position.x,
                     y: 1 - position.y
                 }
@@ -579,7 +579,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
                 type: 'touch',
                 data: {
                     state: false,
-                    move; false,
+                    move: false,
                     x: position.x,
                     y: 1 - position.y,
                     timeStamp: instance.airconsole.getServerTime()
@@ -650,6 +650,10 @@ VolplaneController.prototype.editElement = function(name, properties) {
     
     var propertyNames = Object.getOwnPropertyNames(properties);
     var $selector = $('#volplane-' + instance.getActiveView() + '-' + name + '.volplane-controller-element');
+    
+    // This element does not exist
+    if(typeof $selector == 'undefined')
+        return;
     
     // Iterate through all properties
     for(var i = 0; i < propertyNames.length; i++) {
@@ -840,6 +844,37 @@ VolplaneController.prototype.resetView = function(name) {
         
     }
     
+};
+
+/**
+ * Switches to another view (hide/show)
+ * @param {String} name - The name of the to switching view.
+ */
+VolplaneController.prototype.switchView = function(name) {
+    
+    if(typeof name == 'undefined')
+        return;
+    
+    // View name or index number?
+    if(typeof name == 'string') {
+    
+        $viewSelector = $('#volplane-view-' + name + '.volplane-view')
+        
+        if(typeof $viewSelector == 'undefined')
+            return;
+    
+    } else {
+        
+        $viewSelector = $('.volplane-view:nth-child(' + max(0, parseInt(name, 10) - 1) + ')');
+        
+        if(typeof $viewSelector == 'undefined')
+            return;
+        
+    }
+    
+    // Hide visible views and show specified one
+    $('.volplane-view:visible').hide();
+    $viewSelector.show();
 };
 
 
@@ -1053,6 +1088,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         
         instance.rateLimiter = new RateLimiter(instance.airconsole);
         
+        // Load controller
         instance.loadController();
         
     }, 'json').fail(function() {
