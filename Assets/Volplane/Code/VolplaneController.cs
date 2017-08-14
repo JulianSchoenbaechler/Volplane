@@ -29,8 +29,9 @@ namespace Volplane
     using WebSocketSharp;
     using WebSocketSharp.Server;
 
-    public class VolplaneController : MonoBehaviour
+    public sealed class VolplaneController : MonoBehaviour
     {
+        // This object
         public static VolplaneController VolplaneSingleton;
 
         #if UNITY_EDITOR
@@ -38,18 +39,27 @@ namespace Volplane
 		private VolplaneWebsocketService websocketService;
         #endif
         private AirConsoleAgent agent;
+        private ACInput inputHandler;
 
-
+        // Implemented AirConsole agent
         public AirConsoleAgent AirConsole
         {
             get { return this.agent; }
         }
 
+        /// <summary>
+        /// Gateway method for AirConsole events.
+        /// </summary>
+        /// <param name="data">JSON formatted data sent from clients implemented AirConsole API.</param>
         public void ProcessData(string data)
         {
 			agent.ProcessData(JSON.Parse(data));
         }
 
+        /// <summary>
+        /// Method for sending data to AirConsole API.
+        /// </summary>
+        /// <param name="data">JSON data.</param>
         public void Send(JSONObject data)
         {
             #if UNITY_EDITOR
@@ -65,17 +75,26 @@ namespace Volplane
             #endif
         }
 
+        /// <summary>
+        /// On awake.
+        /// </summary>
         private void Awake()
         {
+            // Use this object as singleton
             if((VolplaneSingleton != null) && (VolplaneSingleton != this))
                 Destroy(this.gameObject);
 
             VolplaneSingleton = this;
             DontDestroyOnLoad(this.gameObject);
 
+            // AirConsole agent
             agent = new AirConsoleAgent(this);
+            inputHandler = new ACInput(agent);
         }
 
+        /// <summary>
+        /// On start.
+        /// </summary>
         private void Start()
         {
             Application.runInBackground = true;
@@ -84,6 +103,7 @@ namespace Volplane
 
             if(Application.isEditor)
             {
+                // Websocket management
                 websocketServer = new WebSocketServer(Config.LocalWebsocketPort);
                 websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate(VolplaneWebsocketService websocketService)
                 {
@@ -103,6 +123,9 @@ namespace Volplane
 
         #if UNITY_EDITOR
 
+        /// <summary>
+        /// On application quit.
+        /// </summary>
         private void OnApplicationQuit()
         {
 			if(websocketServer == null)
@@ -110,8 +133,14 @@ namespace Volplane
 
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
+
+            inputHandler.Dispose();
+            agent.Dispose();
         }
 
+        /// <summary>
+        /// On disable this component.
+        /// </summary>
         private void OnDisable()
 		{
 			if(websocketServer == null)

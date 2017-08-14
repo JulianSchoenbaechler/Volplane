@@ -652,7 +652,7 @@ VolplaneController.prototype.editElement = function(name, properties) {
     var $selector = $('#volplane-' + instance.getActiveView() + '-' + name + '.volplane-controller-element');
     
     // This element does not exist
-    if(typeof $selector == 'undefined')
+    if($selector.length == 0)
         return;
     
     // Iterate through all properties
@@ -860,14 +860,14 @@ VolplaneController.prototype.switchView = function(name) {
     
         $viewSelector = $('#volplane-view-' + name + '.volplane-view')
         
-        if(typeof $viewSelector == 'undefined')
+        if($viewSelector.length == 0)
             return;
     
     } else {
         
-        $viewSelector = $('.volplane-view:nth-child(' + max(0, parseInt(name, 10) - 1) + ')');
+        $viewSelector = $('.volplane-view:nth-child(' + Math.max(1, parseInt(name, 10) + 1) + ')');
         
-        if(typeof $viewSelector == 'undefined')
+        if($viewSelector.length == 0)
             return;
         
     }
@@ -1090,6 +1090,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         
         // Load controller
         instance.loadController();
+        instance.switchView(0);     // Debug
         
     }, 'json').fail(function() {
         
