@@ -303,12 +303,21 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("getMasterControllerDeviceId()"))
                 return -1;
 
-            ICollection<int> controllerIds = GetControllerDeviceIds();
+            ICollection<int> premiumIds = GetPremiumDeviceIds();
 
-            if(controllerIds.Count > 0)
-                return controllerIds.ElementAt(0);
+            if(premiumIds.Count > 0)
+            {
+                return premiumIds.ElementAt(0);
+            }
             else
-                return -1;
+            {
+                ICollection<int> controllerIds = GetControllerDeviceIds();
+
+                if(controllerIds.Count > 0)
+                    return controllerIds.ElementAt(0);
+            }
+
+            return -1;
         }
 
         /// <summary>
@@ -954,7 +963,7 @@ namespace Volplane.AirConsole
 				if(acDevices.AsArray[i].AsObject.Count > 0)
 					this.acDevices.Add(i, acDevices.AsArray[i]);
 			}
-            
+
             if(onReady != null)
                 onReady(acGameCode);
         }
