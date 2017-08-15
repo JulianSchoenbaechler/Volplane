@@ -200,7 +200,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
                 type: 'dpad',
                 data: {
                     state: false,
-                    hadDirections: hadDirections,
+                    hadDirections: (elementObject.relative || false) ? hadDirections : true,
                     timeStamp: instance.airconsole.getServerTime()
                 }
             };
