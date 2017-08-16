@@ -38,6 +38,7 @@ namespace Volplane
     public static class Config
     {
         public const string Version                         = "v0.0.0";
+        public const string AirConsoleVersion               = "1.7";
 
         public static int BrowserStart                      = (int)BrowserStartMode.Standard;
         public static bool AutoScaleCanvas                  = true;

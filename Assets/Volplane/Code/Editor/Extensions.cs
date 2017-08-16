@@ -125,11 +125,11 @@ namespace Volplane.Editor
                     return;
             }
 
-            url.AppendFormat("http://{0}:{1:D}/?unity-editor-websocket-port={2:D}&unity-plugin-version={3}",
+            url.AppendFormat("http://{0}:{1:D}/?unity-editor-websocket-port={2:D}&unity-plugin-version={3:G}",
                              GetLocalIPAddress(),
                              Config.LocalServerPort,
                              Config.LocalWebsocketPort,
-                             "1.6");
+                             Config.AirConsoleVersion);
             
             Application.OpenURL(url.ToString());
         }
