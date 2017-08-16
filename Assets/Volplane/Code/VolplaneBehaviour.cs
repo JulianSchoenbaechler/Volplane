@@ -27,6 +27,9 @@ namespace Volplane
 
     public abstract class VolplaneBehaviour : MonoBehaviour
     {
-        
+        private void Initialize()
+        {
+            print("Initialized");
+        }
     }
 }

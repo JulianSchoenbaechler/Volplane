@@ -23,6 +23,7 @@ namespace Volplane
 {
     using SimpleJSON;
     using System;
+    using System.Reflection;
     using UnityEngine;
     using Volplane.AirConsole;
     using Volplane.Net;
@@ -32,20 +33,19 @@ namespace Volplane
     public sealed class VolplaneController : MonoBehaviour
     {
         // This object
+        // TODO after implementing to recommended JS -> WebGL communication,
+        //      maybe also update 'Extensions.cs' and make this object private
         public static VolplaneController VolplaneSingleton;
 
         #if UNITY_EDITOR
         private WebSocketServer websocketServer;
 		private VolplaneWebsocketService websocketService;
         #endif
-        private AirConsoleAgent agent;
-        private ACInput inputHandler;
+        //private ACInput inputHandler;
 
         // Implemented AirConsole agent
-        public AirConsoleAgent AirConsole
-        {
-            get { return this.agent; }
-        }
+        public static AirConsoleAgent AirConsole { get; private set; }
+        public static VolplaneAgent Main { get; private set; }
 
         /// <summary>
         /// Gateway method for AirConsole events.
@@ -53,7 +53,7 @@ namespace Volplane
         /// <param name="data">JSON formatted data sent from clients implemented AirConsole API.</param>
         public void ProcessData(string data)
         {
-			agent.ProcessData(JSON.Parse(data));
+            VolplaneController.AirConsole.ProcessData(JSON.Parse(data));
         }
 
         /// <summary>
@@ -88,8 +88,20 @@ namespace Volplane
             DontDestroyOnLoad(this.gameObject);
 
             // AirConsole agent
-            agent = new AirConsoleAgent(this);
-            inputHandler = new ACInput(agent);
+            VolplaneController.AirConsole = new AirConsoleAgent(this);
+
+            // Volplane agent
+            VolplaneController.Main = new VolplaneAgent();
+
+            // Initialize all VolplaneBehaviours in the Scene
+            VolplaneBehaviour[] volplaneInstances = Resources.FindObjectsOfTypeAll<VolplaneBehaviour>();
+
+            // Invoke initialization on every VolplaneBehaviour instance
+            for(int i = 0; i < volplaneInstances.Length; i++)
+            {
+                typeof(VolplaneBehaviour).GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Invoke(volplaneInstances[0], null);
+            }
         }
 
         /// <summary>
@@ -134,8 +146,8 @@ namespace Volplane
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
 
-            inputHandler.Dispose();
-            agent.Dispose();
+            VolplaneController.AirConsole.Dispose();
+            VolplaneController.AirConsole = null;
         }
 
         /// <summary>
@@ -148,6 +160,9 @@ namespace Volplane
 			
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
+
+            VolplaneController.AirConsole.Dispose();
+            VolplaneController.AirConsole = null;
         }
 
         #endif
@@ -156,7 +171,21 @@ namespace Volplane
         {
             if(Input.GetKeyDown(KeyCode.Space))
             {
-                print(agent.GetMasterControllerDeviceId());
+                VolplaneController.AirConsole.SetActivePlayers(10);
+            }
+
+            if(Input.GetKeyDown(KeyCode.A))
+            {
+                System.Collections.Generic.ICollection<int> gaga = VolplaneController.AirConsole.GetActivePlayerDeviceIds();
+                foreach(int id in gaga)
+                    Debug.Log(id);
+            }
+
+            if(Input.GetKeyDown(KeyCode.S))
+            {
+                System.Collections.Generic.ICollection<int> gaga = VolplaneController.AirConsole.GetControllerDeviceIds();
+                foreach(int id in gaga)
+                    Debug.Log(id);
             }
         }
     }

@@ -31,25 +31,28 @@ namespace Volplane
 
     public sealed class ACInput : IDisposable
     {
-        private static Dictionary<string, BasicInput> inputs;
+        //private static Dictionary<string, ElementInput> inputs;
         private AirConsoleAgent agent;
 
         public ACInput(AirConsoleAgent agent)
         {
             this.agent = agent;
-            this.agent.onMessage += CheckACMessage;
+            //this.agent.onMessage += CheckACMessage;
         }
-
-        private static Dictionary<string, BasicInput> Inputs
+        /*
+        private static Dictionary<string, ElementInput> Inputs
         {
             get
             {
                 if(ACInput.inputs == null)
-                    ACInput.inputs = new Dictionary<string, BasicInput>();
+                    ACInput.inputs = new Dictionary<string, ElementInput>();
 
                 return ACInput.inputs;
             }
         }
+
+        //public static bool GetButton(string name
+        */
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -61,9 +64,9 @@ namespace Volplane
         /// collector can reclaim the memory that the <see cref="Volplane.ACInput"/> was occupying.</remarks>
         public void Dispose()
         {
-            this.agent.onMessage -= CheckACMessage;
+            //this.agent.onMessage -= CheckACMessage;
         }
-
+        /*
         private void CheckACMessage(int acDeviceIdSender, JSONNode data)
         {
             // Ignore screen
@@ -82,167 +85,180 @@ namespace Volplane
 
         private void ProcessInput(string elementName, JSONNode inputData)
         {
-            BasicInput element;
+            ElementInput element;
+            Vector2 coordinates;
 
+            // First, never occured input?
+            if(!ACInput.Inputs.ContainsKey(elementName))
+            {
+                element = new ElementInput();
+                ACInput.Inputs.Add(elementName, element);
+            }
+            else
+            {
+                element = ACInput.Inputs[elementName];
+            }
+
+            // Handling data according to type
             switch(inputData["type"].Value)
             {
                 case "dpad":
 
-                    // First, never occured input?
-                    if(!ACInput.Inputs.ContainsKey(elementName))
+                    if(inputData["data"]["x"] == null)
                     {
-                        element = new DPadInput();
-                        ACInput.Inputs.Add(elementName, element);
+                        element.State = inputData["data"]["state"].AsBool;
+                        element.HadDirections = element.State ? false : inputData["data"]["hadDirections"].AsBool;
                     }
                     else
                     {
-                        element = ACInput.Inputs[elementName];
+                        // Set direction?
+                        if(inputData["data"]["state"].AsBool)
+                        {
+                            // Set direction...
+                            coordinates = element.Coordinates;
+                            coordinates.Set(
+                                inputData["data"]["x"].AsInt == 0 ? coordinates.x : inputData["data"]["x"].AsFloat, // Affected x axis
+                                inputData["data"]["y"].AsInt == 0 ? coordinates.y : inputData["data"]["y"].AsFloat  // Affected y axis
+                            );
+                            element.Coordinates = coordinates;
+                        }
+                        else
+                        {
+                            // Reset direction...
+                            coordinates = element.Coordinates;
+                            coordinates.Set(
+                                inputData["data"]["x"].AsInt == 0 ? coordinates.x : 0,                              // Affected x axis
+                                inputData["data"]["y"].AsInt == 0 ? coordinates.y : 0                               // Affected y axis
+                            );
+                            element.Coordinates = coordinates;
+                        }
                     }
 
-                    ((DPadInput)element).coordinates = Vector2.up;
-
                     break;
-                
+
                 case "joystick":
 
-                    // First, never occured input?
-                    if(!ACInput.Inputs.ContainsKey(elementName))
-                    {
-                        element = new JoystickInput();
-                        ACInput.Inputs.Add(elementName, element);
-                    }
-                    else
-                    {
-                        element = ACInput.Inputs[elementName];
-                    }
-
                     break;
-                
+
                 case "swipe":
 
-                    // First, never occured input?
-                    if(!ACInput.Inputs.ContainsKey(elementName))
-                    {
-                        element = new SwipeInput();
-                        ACInput.Inputs.Add(elementName, element);
-                    }
-                    else
-                    {
-                        element = ACInput.Inputs[elementName];
-                    }
-
                     break;
-                
+
                 case "touch":
 
-                    // First, never occured input?
-                    if(!ACInput.Inputs.ContainsKey(elementName))
-                    {
-                        element = new TouchInput();
-                        ACInput.Inputs.Add(elementName, element);
-                    }
-                    else
-                    {
-                        element = ACInput.Inputs[elementName];
-                    }
-
                     break;
-                
+
                 default:
 
-                    // First, never occured input?
-                    if(!ACInput.Inputs.ContainsKey(elementName))
-                    {
-                        element = new BasicInput();
-                        ACInput.Inputs.Add(elementName, element);
-                    }
-                    else
-                    {
-                        element = ACInput.Inputs[elementName];
-                    }
-
-                    element.state = inputData["state"].AsBool;
-                    element.delay = (int)(agent.GetServerTime() - inputData["timeStamp"].AsLong);
-
+                    element.State = inputData["data"]["state"].AsBool;
                     break;
 
-
             }
+
+            // Timestamp
+            if(inputData["data"]["timeStamp"].AsLong != 0)
+                element.Delay = (int)(agent.GetServerTime() - inputData["data"]["timeStamp"].AsLong);
         }
 
 
-        private class BasicInput
+        private class ElementInput
         {
-            public bool state;
-            public int delay;
             protected bool oldState;
-            protected bool stateDown;
-            protected bool stateUp;
+            protected Vector2 oldCoordinates;
 
-            public BasicInput()
+            public ElementInput()
             {
-                this.state = false;
                 this.oldState = false;
-                this.stateDown = false;
-                this.stateUp = false;
-                this.delay = 0;
+                this.oldCoordinates = Vector2.zero;
+
+                this.State = false;
+                this.Coordinates = Vector2.zero;
+                this.HadDirections = false;
+                this.Distance = 0f;
+                this.Angle = 0f;
+                this.Degree = 0f;
+                this.Rotation = Quaternion.identity;
+                this.Speed = 0f;
+                this.Move = false;
+                this.Delay = 0;
+            }
+
+            public enum InputDirection
+            {
+                Up,
+                Down,
+                Right,
+                Left
+            }
+
+            public bool State { get; set; }
+            public Vector2 Coordinates { get; set; }
+            public bool HadDirections { get; set; }
+            public float Distance { get; set; }
+            public float Angle { get; set; }
+            public float Degree { get; set; }
+            public Quaternion Rotation { get; set; }
+            public float Speed { get; set; }
+            public bool Move { get; set; }
+            public int Delay { get; set; }
+
+            public bool StateDown
+            {
+                get
+                {
+                    return State && !oldState ? true : false;
+                }
+            }
+
+            public bool StateUp
+            {
+                get
+                {
+                    return oldState && !State ? true : false;
+                }
+            }
+
+            public bool CoordinatesDown(InputDirection dir)
+            {
+                switch(dir)
+                {
+                    case InputDirection.Up:
+                        return (oldCoordinates.y == 0) && (Coordinates.y > 0);
+
+                    case InputDirection.Down:
+                        return (oldCoordinates.y == 0) && (Coordinates.y < 0);
+
+                    case InputDirection.Right:
+                        return (oldCoordinates.x == 0) && (Coordinates.x > 0);
+
+                    default:
+                        return (oldCoordinates.x == 0) && (Coordinates.x < 0);
+                }
+            }
+
+            public bool CoordinatesUp(InputDirection dir)
+            {
+                switch(dir)
+                {
+                    case InputDirection.Up:
+                        return (Coordinates.y == 0) && (oldCoordinates.y > 0);
+
+                    case InputDirection.Down:
+                        return (Coordinates.y == 0) && (oldCoordinates.y < 0);
+
+                    case InputDirection.Right:
+                        return (Coordinates.x == 0) && (oldCoordinates.x > 0);
+
+                    default:
+                        return (Coordinates.x == 0) && (oldCoordinates.x < 0);
+                }
             }
 
             public virtual void Update()
             {
-                stateDown = state && !oldState ? true : false;
-                stateUp = oldState && !state ? true : false;
-                oldState = state;
+                oldState = State;
+                oldCoordinates = Coordinates;
             }
-        }
-
-        private class DPadInput : BasicInput
-        {
-            public Vector2 coordinates;
-
-            public DPadInput() : base()
-            {
-                this.coordinates = Vector2.zero;
-            }
-        }
-
-        private class JoystickInput : DPadInput
-        {
-            public bool hadDirections;
-
-            public JoystickInput() : base()
-            {
-                this.hadDirections = false;
-            }
-        }
-
-        private class SwipeInput : JoystickInput
-        {
-            public float distance;
-            public float angle;
-            public float degree;
-            public Quaternion rotation;
-            public float speed;
-
-
-            public SwipeInput() : base()
-            {
-                this.distance = 0f;
-                this.angle = 0f;
-                this.degree = 0f;
-                this.rotation = Quaternion.identity;
-                this.speed = 0f;
-            }
-        }
-
-        private class TouchInput : DPadInput
-        {
-            public bool move;
-
-            public TouchInput() : base()
-            {
-                this.move = false;
-            }
-        }
+        }*/
     }
 }

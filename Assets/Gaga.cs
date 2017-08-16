@@ -5,7 +5,12 @@ using Volplane;
 
 public class Gaga : VolplaneBehaviour
 {
+    VolplaneAgent agent;
+
     void Start()
     {
+        agent = VolplaneController.Main;
+
+        //VolplaneAgent.GetPlayer(0);
     }
 }
