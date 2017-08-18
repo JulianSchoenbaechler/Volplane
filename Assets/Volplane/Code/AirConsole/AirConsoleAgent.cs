@@ -1,19 +1,19 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
  * https://github.com/JulianSchoenbaechler/Volplane
- * 
+ *
  * This file is part of the Volplane project.
- * 
+ *
  * The Volplane project is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * The Volplane project is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with the Volplane project.
  * If not, see http://www.gnu.org/licenses/.
@@ -34,8 +34,8 @@ namespace Volplane.AirConsole
         protected bool isConnectionReady = false;
         protected IDictionary<int, JSONNode> acDevices;
         protected IList<int> acPlayerNumbers;
-		protected int acServerTimeOffset;
-		protected string acGameLocation;
+        protected int acServerTimeOffset;
+        protected string acGameLocation;
 
         private DateTime epochTime;
 
@@ -46,10 +46,10 @@ namespace Volplane.AirConsole
         public AirConsoleAgent(VolplaneController singleton)
         {
             this.controllerSingleton = singleton;
-			this.acDevices = new Dictionary<int, JSONNode>();
+            this.acDevices = new Dictionary<int, JSONNode>();
             this.acPlayerNumbers = new List<int>();
             this.epochTime = new DateTime(1970, 1, 1);
-		}
+        }
 
         #region AirConsole Events
 
@@ -358,18 +358,18 @@ namespace Volplane.AirConsole
         }
 
         /// <summary>
-        /// AirConsole API: setCustomDeviceSate function.
+        /// AirConsole API: setCustomDeviceState function.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="data">Custom device state data.</param>
-        public void SetCustomDeviceSate(JSONNode data)
+        public void SetCustomDeviceState(JSONNode data)
         {
-            if(!IsConnectionReady("setCustomDeviceSate()"))
+            if(!IsConnectionReady("setCustomDeviceState()"))
                 return;
 
             JSONObject stream = new JSONObject();
-            stream["action"] = "setCustomDeviceSate";
+            stream["action"] = "setCustomDeviceState";
             stream["data"] = data;
 
             if(acDevices.Count > 0)
@@ -533,7 +533,7 @@ namespace Volplane.AirConsole
 
             if((acPlayerNumber >= 0) && (acPlayerNumber < acPlayerNumbers.Count))
                 return acPlayerNumbers[acPlayerNumber];
-            
+
             return -1;
         }
 
@@ -688,7 +688,7 @@ namespace Volplane.AirConsole
         {
             if(!IsConnectionReady("requestPersistentData()"))
                 return;
-            
+
             RequestPersistentData(new string[] { uid });
         }
 
@@ -905,40 +905,40 @@ namespace Volplane.AirConsole
 
         #region AirConsole Data Processing
 
-		/// <summary>
-		/// AirConsole API: onConnect callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <summary>
+        /// AirConsole API: onConnect callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void OnConnect(int acDeviceId)
         {
-			if(onConnect != null)
+            if(onConnect != null)
                 onConnect(acDeviceId);
         }
 
-		/// <summary>
-		/// AirConsole API: onDisconnect callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <summary>
+        /// AirConsole API: onDisconnect callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void OnDisconnect(int acDeviceId)
         {
-			if(onDisconnect != null)
+            if(onDisconnect != null)
                 onDisconnect(acDeviceId);
         }
 
-		/// <summary>
-		/// AirConsole API: onReady callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acGameCode">AirConsole game code.</param>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
-		/// <param name="acDevices">AirConsole connected devices.</param>
-		/// <param name="acServerTimeOffset">AirConsole server time offset.</param>
-		/// <param name="acLocation">AirConsole game url.</param>
+        /// <summary>
+        /// AirConsole API: onReady callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acGameCode">AirConsole game code.</param>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <param name="acDevices">AirConsole connected devices.</param>
+        /// <param name="acServerTimeOffset">AirConsole server time offset.</param>
+        /// <param name="acLocation">AirConsole game url.</param>
         protected void OnReady(string acGameCode,
                                int acDeviceId,
                                JSONNode acDevices,
@@ -946,189 +946,187 @@ namespace Volplane.AirConsole
                                string acLocation)
         {
             if((acDeviceId != 0) || (acDevices == null))
-				return;
-			
+                return;
+
             if(!isConnectionReady)
                 isConnectionReady = true;
 
-			this.acServerTimeOffset = acServerTimeOffset;
-			this.acGameLocation = acLocation;
-			this.acDevices.Clear();
+            this.acServerTimeOffset = acServerTimeOffset;
+            this.acGameLocation = acLocation;
+            this.acDevices.Clear();
 
-			for(int i = 0; i < acDevices.Count; i++)
-			{
+            for(int i = 0; i < acDevices.Count; i++)
+            {
                 if(acDevices.AsArray[i].AsObject == null)
                     continue;
-                
-				if(acDevices.AsArray[i].AsObject.Count > 0)
-					this.acDevices.Add(i, acDevices.AsArray[i]);
-			}
+
+                if(acDevices.AsArray[i].AsObject.Count > 0)
+                    this.acDevices.Add(i, acDevices.AsArray[i]);
+            }
 
             if(onReady != null)
                 onReady(acGameCode);
         }
 
-		/// <summary>
-		/// AirConsole API: onMessage callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceIdSender">AirConsole device identifier sender.</param>
-		/// <param name="data">Message data.</param>
+        /// <summary>
+        /// AirConsole API: onMessage callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceIdSender">AirConsole device identifier sender.</param>
+        /// <param name="data">Message data.</param>
         protected void OnMessage(int acDeviceIdSender, JSONNode data)
         {
             //Debug.Log(data.ToString(4));
-			/*
-			switch(data["someKey"].Value)
-			{
-				case "someVolplaneAction":
-					// redirect
-					break;
+            /*
+            switch(data["someKey"].Value)
+            {
+                case "someVolplaneAction":
+                    // redirect
+                    break;
 
-				default:
-					break;
-			}
-			*/
+                default:
+                    break;
+            }
+            */
 
             if(onMessage != null)
                 onMessage(acDeviceIdSender, data);
         }
 
-		/// <summary>
-		/// AirConsole API: onDeviceStateChange callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
-		/// <param name="state">Devic state.</param>
+        /// <summary>
+        /// AirConsole API: onDeviceStateChange callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <param name="state">Devic state.</param>
         protected void OnDeviceStateChange(int acDeviceId, JSONNode state)
         {
-			if(acDevices.ContainsKey(acDeviceId))
-				acDevices[acDeviceId] = state;
-			else
-				acDevices.Add(acDeviceId, state);
+            if(acDevices.ContainsKey(acDeviceId))
+                acDevices[acDeviceId] = state;
+            else
+                acDevices.Add(acDeviceId, state);
 
             if(onDeviceStateChange != null)
                 onDeviceStateChange(acDeviceId, state);
         }
 
-		/// <summary>
-		/// AirConsole API: onCustomDeviceStateChange callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <summary>
+        /// AirConsole API: onCustomDeviceStateChange callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void OnCustomDeviceStateChange(int acDeviceId)
         {
-			JSONNode customState = acDeviceId;
-
             if(onCustomDeviceStateChange != null)
-				onCustomDeviceStateChange(acDeviceId, customState);
+                onCustomDeviceStateChange(acDeviceId, GetCustomDeviceState(acDeviceId));
         }
 
-		/// <summary>
-		/// AirConsole API: onDeviceProfileChange callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <summary>
+        /// AirConsole API: onDeviceProfileChange callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void OnDeviceProfileChange(int acDeviceId)
         {
             if(onDeviceProfileChange != null)
                 onDeviceProfileChange(acDeviceId);
         }
 
-		/// <summary>
-		/// AirConsole API: onAdShow callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
+        /// <summary>
+        /// AirConsole API: onAdShow callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
         protected void OnAdShow()
         {
             if(onAdShow != null)
                 onAdShow();
         }
 
-		/// <summary>
-		/// AirConsole API: onAdComplete callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acAdWasShown">If set to <c>true</c> AirConsole ad was shown.</param>
+        /// <summary>
+        /// AirConsole API: onAdComplete callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acAdWasShown">If set to <c>true</c> AirConsole ad was shown.</param>
         protected void OnAdComplete(bool acAdWasShown)
         {
             if(onAdComplete != null)
                 onAdComplete(acAdWasShown);
         }
 
-		/// <summary>
-		/// AirConsole API: onPremium callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <summary>
+        /// AirConsole API: onPremium callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void OnPremium(int acDeviceId)
         {
             if(onPremium != null)
                 onPremium(acDeviceId);
         }
 
-		/// <summary>
-		/// AirConsole API: onPersistentDataLoaded callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="data">Loaded data.</param>
+        /// <summary>
+        /// AirConsole API: onPersistentDataLoaded callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="data">Loaded data.</param>
         protected void OnPersistentDataLoaded(JSONNode data)
         {
             if(onPersistentDataLoaded != null)
                 onPersistentDataLoaded(data);
         }
 
-		/// <summary>
-		/// AirConsole API: onPersistentDataStored callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acUid">Unique user identifier.</param>
+        /// <summary>
+        /// AirConsole API: onPersistentDataStored callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acUid">Unique user identifier.</param>
         protected void OnPersistentDataStored(string acUid)
         {
             if(onPersistentDataStored != null)
                 onPersistentDataStored(acUid);
         }
 
-		/// <summary>
-		/// AirConsole API: onHighScores callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acHighscoreData">AirConsole highscore data.</param>
+        /// <summary>
+        /// AirConsole API: onHighScores callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acHighscoreData">AirConsole highscore data.</param>
         protected void OnHighScores(JSONNode acHighscoreData)
         {
             if(onHighScores != null)
                 onHighScores(acHighscoreData);
         }
 
-		/// <summary>
-		/// AirConsole API: onHighScoreStored callback.
-		/// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
-		/// for the AirConsole documentation.
-		/// </summary>
-		/// <param name="acNewRecordData">AirConsole new highscore record data.</param>
+        /// <summary>
+        /// AirConsole API: onHighScoreStored callback.
+        /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
+        /// for the AirConsole documentation.
+        /// </summary>
+        /// <param name="acNewRecordData">AirConsole new highscore record data.</param>
         protected void OnHighScoreStored(JSONNode acNewRecordData)
         {
             if(onHighScoreStored != null)
                 onHighScoreStored(acNewRecordData);
         }
 
-		/// <summary>
-		/// AirConsole: Game browser window closed.
-		/// </summary>
+        /// <summary>
+        /// AirConsole: Game browser window closed.
+        /// </summary>
         protected void OnGameEnd()
         {
             if(isConnectionReady)
                 isConnectionReady = false;
-            
+
             if(onGameEnd != null)
                 onGameEnd();
         }
