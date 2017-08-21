@@ -74,7 +74,7 @@ VolplaneController.prototype.newButton = function(elementObject, viewName, $view
     .appendTo($viewSelector);
     
     new Button($elementSelector.attr('id'), {
-        'down': function() {
+        'down': function() {instance.airconsole.setCustomDeviceStateProperty('controller', Math.random());
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -759,6 +759,9 @@ VolplaneController.prototype.editElement = function(name, properties) {
 */
 VolplaneController.prototype.getActiveView = function() {
     
+    if($('.volplane-view:visible').length == 0)
+        return;
+    
     var id = $('.volplane-view:visible')[0].getAttribute('id');
     
     return id.replace('volplane-view-', '');
@@ -848,11 +851,16 @@ VolplaneController.prototype.resetView = function(name) {
 
 /**
  * Switches to another view (hide/show)
- * @param {String} name - The name of the to switching view.
+ * @param {String} name - The name of the view switching to.
  */
-VolplaneController.prototype.switchView = function(name) {
+VolplaneController.prototype.changeView = function(name) {
     
     if(typeof name == 'undefined')
+        return;
+    
+    var instance = this;
+    
+    if(typeof name == instance.getActiveView())
         return;
     
     // View name or index number?
@@ -1072,12 +1080,16 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
     $.proxy(instance.newText, instance);
     $.proxy(instance.loadController, instance);
     $.proxy(instance.editElement, instance);
+    $.proxy(instance.getActiveView, instance);
+    $.proxy(instance.resetView, instance);
+    $.proxy(instance.changeView, instance);
     
     // Load controller data
     $.get(instance.controllerData + '.json?t=' + (Date.now() / 1000 | 0).toString(), function(data) {
         
         instance.controllerObject = data;
         
+        // Initialize AirConsole with controller settings
         instance.airconsole = new AirConsole({
             'orientation': instance.controllerObject.layout || 'portrait',
             'synchronize_time': instance.controllerObject.synchronizeTime || true,
@@ -1090,12 +1102,36 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         
         // Load controller
         instance.loadController();
-        instance.switchView(0);     // Debug
         
+        
+        // Callback function - onCustomDeviceStateChange event
+        instance.airconsole.onCustomDeviceStateChange = function(deviceId, data)
+        {
+            // Controller view
+            var view = data.volplane.views[instance.airconsole.getDeviceId()];
+            
+            // Sender
+            switch(deviceId)
+            {
+                case AirConsole.SCREEN:
+                    
+                    // Change view
+                    instance.changeView(view);
+                        
+                    break;
+                
+                default:
+                    break;
+            }
+            
+        };
+        
+    // Controller data could not be loaded
     }, 'json').fail(function() {
         
         console.log('Volplane Controller: Failed to load controller data.');
         
+        // Initialize AirConsole
         instance.airconsole = new AirConsole({
             'orientation': window.config.orientation || 'portrait',
             'synchronize_time': window.config.synchronizeTime || true,
