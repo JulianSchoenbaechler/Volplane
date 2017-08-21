@@ -191,7 +191,7 @@ namespace Volplane.AirConsole
                     break;
 
                 case "onCustomDeviceStateChange":
-                    OnCustomDeviceStateChange(data["device_id"].AsInt);
+                    OnCustomDeviceStateChange(data["device_id"].AsInt, data["custom_data"]);
                     break;
 
                 case "onDeviceProfileChange":
@@ -1018,10 +1018,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnCustomDeviceStateChange(int acDeviceId)
+        protected void OnCustomDeviceStateChange(int acDeviceId, JSONNode state)
         {
             if(onCustomDeviceStateChange != null)
-                onCustomDeviceStateChange(acDeviceId, GetCustomDeviceState(acDeviceId));
+                onCustomDeviceStateChange(acDeviceId, state);
         }
 
         /// <summary>

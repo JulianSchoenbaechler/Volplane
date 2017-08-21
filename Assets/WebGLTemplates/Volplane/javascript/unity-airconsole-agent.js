@@ -112,10 +112,11 @@ Agent.prototype.initAirConsole = function() {
         });
     };
     
-    instance.airconsole.onCustomDeviceStateChange = function(device_id) {
+    instance.airconsole.onCustomDeviceStateChange = function(device_id, custom_data) {
         instance.sendToUnity({
             'action': 'onCustomDeviceStateChange',
-            'device_id': device_id
+            'device_id': device_id,
+            'custom_data': custom_data
         });
     };
     
@@ -264,7 +265,7 @@ Agent.prototype.dequeueToUnity = function() {
  * @param {string} jsonData - Data as JSON string.
  */
 Agent.prototype.processData = function(jsonData) {
-    console.log(jsonData);
+    
     var data = JSON.parse(jsonData);
     
     switch(data.action) {
