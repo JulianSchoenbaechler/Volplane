@@ -64,8 +64,7 @@ namespace Volplane
         {
             #if UNITY_EDITOR
 
-			if(Application.isEditor)
-				websocketService.Message(data);
+			websocketService.Message(data);
 
             #else
 
