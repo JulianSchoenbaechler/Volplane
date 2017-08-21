@@ -74,7 +74,8 @@ VolplaneController.prototype.newButton = function(elementObject, viewName, $view
     .appendTo($viewSelector);
     
     new Button($elementSelector.attr('id'), {
-        'down': function() {instance.airconsole.setCustomDeviceStateProperty('controller', Math.random());
+        'down': function() {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -87,6 +88,7 @@ VolplaneController.prototype.newButton = function(elementObject, viewName, $view
             instance.airconsole.message(AirConsole.SCREEN, data);
         },
         'up': function() {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -168,6 +170,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
         'distance': elementObject.distance || 10,
         'diagonal': elementObject.diagonal || false,
         'directionchange': function(key, pressed) {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -182,6 +185,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
             instance.airconsole.message(AirConsole.SCREEN, data);
         },
         'touchstart': function() {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -194,6 +198,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
             instance.airconsole.message(AirConsole.SCREEN, data);
         },
         'touchend': function(hadDirections) {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -247,6 +252,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
         new Joystick($elementSelector.attr('id'), {
             'distance': elementObject.distance || 10,
             'touchstart': function() {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -259,6 +265,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                 instance.rateLimiter.message(AirConsole.SCREEN, data);
             },
             'touchmove': function(position) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -272,6 +279,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                 instance.rateLimiter.message(AirConsole.SCREEN, data);
             },
             'touchend': function() {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -326,6 +334,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
             'base_stick_size_percent': elementObject.stickSize || 50,
             'stick_size_percent': elementObject.thumbSize || 20,
             'touchstart': function() {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -338,6 +347,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                 instance.rateLimiter.message(AirConsole.SCREEN, data);
             },
             'touchmove': function(position) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -351,6 +361,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                 instance.rateLimiter.message(AirConsole.SCREEN, data);
             },
             'touchend': function(hadDirections) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -415,6 +426,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
         new SwipeAnalog($elementSelector.attr('id'), {
             'min_swipe_distance': elementObject.distance || 30,
             'onTrigger': function(directionVector) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -433,6 +445,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                 instance.airconsole.message(AirConsole.SCREEN, data);
             },
             'touchstart': function() {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -445,6 +458,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                 instance.airconsole.message(AirConsole.SCREEN, data);
             },
             'touchend': function(e, hadDirections) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -467,6 +481,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                                   SwipeDigital.ALLOWED_DIRECTIONS.FOURWAY :
                                   SwipeDigital.ALLOWED_DIRECTIONS.EIGHTWAY,
             'onTrigger': function(directionMap) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -481,6 +496,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                 instance.airconsole.message(AirConsole.SCREEN, data);
             },
             'touchstart': function(e) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -493,6 +509,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                 instance.airconsole.message(AirConsole.SCREEN, data);
             },
             'touchend': function(e, hadDirections) {
+                if(!instance.active) return;    // Disable input?
                 var data = {};
                 data[elementObject.name] = {
                     volplane: 'input',
@@ -544,6 +561,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
     
     new TouchArea($elementSelector.attr('id'), {
         'touchstart': function(position) {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -559,6 +577,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
             instance.rateLimiter.message(AirConsole.SCREEN, data);
         },
         'touchmove': function(position) {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -573,6 +592,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
             instance.rateLimiter.message(AirConsole.SCREEN, data);
         },
         'touchend': function(position) {
+            if(!instance.active) return;    // Disable input?
             var data = {};
             data[elementObject.name] = {
                 volplane: 'input',
@@ -1070,6 +1090,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
     
     instance.standardView = standardView || '';
     instance.controllerData = controllerData || '../controller';
+    instance.active = true;
     
     // Proxy object functions
     $.proxy(instance.newButton, instance);
@@ -1105,19 +1126,39 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         
         
         // Callback function - onCustomDeviceStateChange event
-        instance.airconsole.onCustomDeviceStateChange = function(deviceId, data)
-        {
+        instance.airconsole.onCustomDeviceStateChange = function(deviceId, data) {
+            
+            if(typeof data.volplane == 'undefined')
+                return;
+            
+            if(deviceId != AirConsole.SCREEN)
+                return;
+            
             // Controller view
             var view = data.volplane.views[instance.airconsole.getDeviceId()];
             
-            // Sender
-            switch(deviceId)
+            // Change view
+            instance.changeView(view);
+            
+            // Set active or inactive
+            instance.active = data.volplane.active[instance.airconsole.getDeviceId()];
+            
+        };
+        
+        // Callback function - onMessage event
+        instance.airconsole.onMessage = function(deviceId, data) {
+            
+            if(typeof data.volplane == 'undefined')
+                return;
+            
+            if(deviceId != AirConsole.SCREEN)
+                return;
+            
+            // Action
+            switch(data.volplane)
             {
-                case AirConsole.SCREEN:
+                case 'vibrate':
                     
-                    // Change view
-                    instance.changeView(view);
-                        
                     break;
                 
                 default:
@@ -1125,6 +1166,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
             }
             
         };
+        
         
     // Controller data could not be loaded
     }, 'json').fail(function() {

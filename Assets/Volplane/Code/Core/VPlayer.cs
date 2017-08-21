@@ -66,12 +66,19 @@ namespace Volplane
             VolplaneController.AirConsole.onAdComplete += AdCompleted;
         }
 
+        public event Action<bool> stateChangeEvent;
+
         public enum PlayerState
         {
             Inactive,
             Active,
             Pending,
             WaitingForAd
+        }
+
+        public int PlayerId
+        {
+            get { return VolplaneController.Main.GetPlayerId(this); }
         }
 
         public PlayerState State
@@ -83,21 +90,38 @@ namespace Volplane
 
             protected set
             {
-                if((currentPlayerState != PlayerState.Pending) ||
+                // Only overwrite old state if new state is not -> pending or waiting
+                if((currentPlayerState != PlayerState.Pending) &&
                    (currentPlayerState != PlayerState.WaitingForAd))
                     oldPlayerState = currentPlayerState;
                 
                 currentPlayerState = value;
+
+                // Fire state change event
+                if(stateChangeEvent != null)
+                    stateChangeEvent(value == PlayerState.Active);
             }
         }
 
-
-        public string CurrentView
+        public bool IsActive
         {
             get
             {
-                return VolplaneController.Main.GetCurrentView(this);
+                if((currentPlayerState != PlayerState.Pending) &&
+                   (currentPlayerState != PlayerState.WaitingForAd))
+                {
+                    return currentPlayerState == PlayerState.Active;
+                }
+                else
+                {
+                    return oldPlayerState == PlayerState.Active;
+                }
             }
+        }
+
+        public string CurrentView
+        {
+            get { return VolplaneController.Main.GetCurrentView(this); }
         }
 
         public int DeviceId { get; protected set; }
@@ -123,6 +147,29 @@ namespace Volplane
             ProfilePicture = www.texture;
             www.Dispose();
             www = null;
+        }
+
+        /// <summary>
+        /// Sets this player active or inactive.
+        /// You will not receive any input from inactive players.
+        /// </summary>
+        /// <remarks>If the player lost connection or is waiting for an advertisement to complete, the state change will
+        /// be delayed.</remarks>
+        /// <param name="value">Activate (<c>true</c>) or deactivate (<c>false</c>) this player.</param>
+        public void SetActive(bool value)
+        {
+            if((currentPlayerState != PlayerState.Pending) &&
+               (currentPlayerState != PlayerState.WaitingForAd))
+            {
+                // Set new player state and fire event
+                State = value ? PlayerState.Active : PlayerState.Inactive;
+            }
+            else
+            {
+                // Overwrite old state
+                // After 'WaitingForAd' or 'Pending', old state will be reloaded
+                oldPlayerState = value ? PlayerState.Active : PlayerState.Inactive;
+            }
         }
 
         /// <summary>
