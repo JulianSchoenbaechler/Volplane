@@ -52,6 +52,7 @@ namespace Volplane
             this.UID = VolplaneController.AirConsole.GetUID(acDeviceId);
             this.Nickname = VolplaneController.AirConsole.GetNickname(acDeviceId);
             this.ProfilePicture = null;
+            this.Email = null;
 
             // Change to standard view
             this.ChangeView(VolplaneAgent.StandardView);
@@ -61,7 +62,7 @@ namespace Volplane
             VolplaneController.AirConsole.onDisconnect += Disconnect;
             VolplaneController.AirConsole.onPremium += Hero;
             VolplaneController.AirConsole.onDeviceStateChange += UpdateSettings;
-            VolplaneController.AirConsole.onDeviceProfileChange += UpdateNickname;
+            VolplaneController.AirConsole.onDeviceProfileChange += UpdateProfile;
             VolplaneController.AirConsole.onAdShow += WaitForAd;
             VolplaneController.AirConsole.onAdComplete += AdCompleted;
         }
@@ -132,6 +133,7 @@ namespace Volplane
         public string UID { get; protected set; }
         public string Nickname { get; protected set; }
         public Texture2D ProfilePicture { get; protected set; }
+        public string Email { get; protected set; }
 
 
         /// <summary>
@@ -147,6 +149,14 @@ namespace Volplane
             ProfilePicture = www.texture;
             www.Dispose();
             www = null;
+        }
+
+        public void RequestEmailAddress()
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"] = "email";
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
         /// <summary>
@@ -182,6 +192,22 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Vibrate the controller of this player for a specified amount of time.
+        /// Maximum time is 10 seconds.
+        /// </summary>
+        /// <param name="time">Time in seconds.</param>
+        public void VibrateController(float time)
+        {
+            int milliseconds = time > 10f ? 10000 : (int)(time * 1000f);
+
+            JSONNode data = new JSONObject();
+            data["volplane"] = "vibrate";
+            data["time"] = milliseconds;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
@@ -196,7 +222,7 @@ namespace Volplane
             VolplaneController.AirConsole.onDisconnect -= Disconnect;
             VolplaneController.AirConsole.onPremium -= Hero;
             VolplaneController.AirConsole.onDeviceStateChange -= UpdateSettings;
-            VolplaneController.AirConsole.onDeviceProfileChange -= UpdateNickname;
+            VolplaneController.AirConsole.onDeviceProfileChange -= UpdateProfile;
             VolplaneController.AirConsole.onAdShow -= WaitForAd;
             VolplaneController.AirConsole.onAdComplete -= AdCompleted;
         }
@@ -249,7 +275,7 @@ namespace Volplane
         {
             if(data == null)
                 return;
-            
+            Debug.Log(data.ToString(2));
             if(acDeviceId == DeviceId)
             {
                 UID = data["uid"].Value;
@@ -262,7 +288,7 @@ namespace Volplane
         /// When this player device updates its nickname.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void UpdateNickname(int acDeviceId)
+        protected void UpdateProfile(int acDeviceId)
         {
             if(acDeviceId == DeviceId)
             {

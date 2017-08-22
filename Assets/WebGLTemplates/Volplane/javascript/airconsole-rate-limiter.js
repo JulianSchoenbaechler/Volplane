@@ -3,6 +3,9 @@
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
  * 
+ * This script has been slightly modified for its purpose.
+ * Edited by Julian Schoenbaechler for integration in the Volplane project.
+ * 
  * An object containing a configuration for the RateLimiter constructor.
  * @typedef {object} RateLimiterConfig
  * @property {number|undefined} rate_limit - Maximum amount of AirConsole calls
@@ -161,10 +164,35 @@ RateLimiter.prototype.setCustomDeviceState_ = function(data, clear) {
 RateLimiter.prototype.mergeData_ = function(add, data) {
   for (var key in add) {
     if (add.hasOwnProperty(key)) {
-      data[key] = add[key];
+      // Volplane edit: Do not overwrite volplane object
+      if (key == "volplane") {
+        if ((!!data.volplane) && (data.volplane.constructor === Array)) {
+          data.volplane.push(add.volplane);
+        } else if ((!!data.volplane) && (data.volplane.constructor === Object)) {
+          var temp_data = data.volplane;
+          data.volplane = [temp_data, add.volplane];
+        } else {
+          data.volplane = add.volplane;
+        }
+      } else {
+        data[key] = add[key];
+      }
     }
   }
 };
+/*
+Volplane edit:
+The official rate-limiter replaces all data of a duplicate key. This addition will let the
+rate-limiter making an exception for the key named 'volplane'. If 'volplane'-keys must be
+merged in one message, it will chain all object data in an array and apply that to the this
+key instead.
+
+data.volplane   -> Object / original data
++
+add.volplane    -> Object / incoming data
+=
+data.volplane   -> Array / [data1, data2, ... , dataN]
+*/
 
 /**
  * @private

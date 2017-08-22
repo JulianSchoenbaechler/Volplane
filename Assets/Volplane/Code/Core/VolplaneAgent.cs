@@ -236,6 +236,38 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Vibrate the controller of a player for a specified amount of time.
+        /// Maximum time is 10 seconds.
+        /// </summary>
+        /// <param name="time">Time in seconds.</param>
+        public void VibrateController(int playerId, float time)
+        {
+            VibrateController(GetPlayer(playerId), time);
+        }
+
+        /// <summary>
+        /// Vibrate the controller of a player for a specified amount of time.
+        /// Maximum time is 10 seconds.
+        /// </summary>
+        /// <param name="time">Time in seconds.</param>
+        public void VibrateController(VPlayer player, float time)
+        {
+            if(player != null)
+                player.VibrateController(time);
+        }
+
+        public void RequestEmailAddress(int playerId)
+        {
+            RequestEmailAddress(GetPlayer(playerId));
+        }
+
+        public void RequestEmailAddress(VPlayer player)
+        {
+            if(player != null)
+                player.RequestEmailAddress();
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>

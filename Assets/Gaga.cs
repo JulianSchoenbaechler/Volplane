@@ -53,6 +53,9 @@ public class Gaga : VolplaneBehaviour
             player.SetActive(false);
             VolplaneController.Main.SetActive(1, true);
         }
+
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+            VolplaneController.Main.RequestEmailAddress(0);
     }
 
     /*
