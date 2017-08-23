@@ -256,7 +256,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
         
         new Joystick($elementSelector.attr('id'), {
             'distance': elementObject.distance || 10,
-            'touchstart': function() {console.log('start touch');
+            'touchstart': function() {
                 if(!instance.active) return;    // Disable input?
                 var data = {};
                 data.volplane = {
@@ -285,7 +285,7 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                 };
                 instance.rateLimiter.message(AirConsole.SCREEN, data);
             },
-            'touchend': function() {console.log('end touch');
+            'touchend': function() {
                 if(!instance.active) return;    // Disable input?
                 var data = {};
                 data.volplane = {
@@ -707,6 +707,12 @@ VolplaneController.prototype.editElement = function(name, properties) {
                     $selector.hide();
                 else
                     $selector.show();
+                
+                break;
+            
+            case 'toggle':
+                
+                $selector.toggle();
                 
                 break;
             
@@ -1163,7 +1169,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
             // Controller view
             var view = data.volplane.views[instance.airconsole.getDeviceId()];
             
-            // Change view
+            // Change view (if needed)
             instance.changeView(view);
             
             // Set active or inactive
@@ -1181,39 +1187,30 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
                 return;
             
             // Action
-            switch(data.volplane)
-            {
+            switch(data.volplane.action) {
+                
                 // Vibrate controller
                 case 'vibrate':
                     
-                    if(typeof data.time == 'number')
-                    {
+                    if(typeof data.volplane.time == 'number') {
                         if('vibrate' in navigator)
-                            navigator.vibrate(data.time);
+                            navigator.vibrate(data.volplane.time);
                         else
-                            instance.airconsole.vibrate(data.time);
+                            instance.airconsole.vibrate(data.volplane.time);
                     }
                     
                     break;
                 
-                // Request email address
-                case 'email':
+                // Edit element
+                case 'element':
                     
-                    instance.airconsole.requestEmailAddress();
+                    instance.editElement(data.volplane.name, data.volplane.properties);
                     
                     break;
                 
                 default:
                     break;
             }
-            
-        };
-        
-        // Callback function - onEmailAddress event
-        instance.airconsole.onEmailAddress = function(email) {
-            
-            var data = { 'volplane': 'email', 'email': email };
-            instance.airconsole.message(AirConsole.SCREEN, data);
             
         };
         

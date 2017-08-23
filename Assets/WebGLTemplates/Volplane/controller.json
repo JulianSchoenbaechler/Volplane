@@ -1,6 +1,6 @@
 ﻿{
     "name" : "myController1",
-    "lastEdit" : 1502726878,
+    "lastEdit" : 1503505654,
     "layout" : "landscape",
     "deviceMotion" : false,
     "views" : {
@@ -205,7 +205,7 @@
                     "text" : "Custom Text",
                     "textAlign" : "center",
                     "font" : "'Diane de France'",
-                    "fontSize" : 72,
+                    "fontSize" : 120,
                     "paddingVertical" : 16,
                     "paddingHorizontal" : 2,
                     "fontColor" : "rgb(248, 248, 236)"
