@@ -58,103 +58,103 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int> onConnect;
+        public event Action<int> OnConnect;
 
         /// <summary>
         /// AirConsole API: onDisconnect callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int> onDisconnect;
+        public event Action<int> OnDisconnect;
 
         /// <summary>
         /// AirConsole API: onReady callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<string> onReady;
+        public event Action<string> OnReady;
 
         /// <summary>
         /// AirConsole API: onMessage callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> onMessage;
+        public event Action<int, JSONNode> OnMessage;
 
         /// <summary>
         /// AirConsole API: onDeviceStateChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> onDeviceStateChange;
+        public event Action<int, JSONNode> OnDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onCustomDeviceStateChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> onCustomDeviceStateChange;
+        public event Action<int, JSONNode> OnCustomDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onDeviceProfileChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int> onDeviceProfileChange;
+        public event Action<int> OnDeviceProfileChange;
 
         /// <summary>
         /// AirConsole API: onAdShow callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action onAdShow;
+        public event Action OnAdShow;
 
         /// <summary>
         /// AirConsole API: onAdComplete callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<bool> onAdComplete;
+        public event Action<bool> OnAdComplete;
 
         /// <summary>
         /// AirConsole API: onPremium callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int> onPremium;
+        public event Action<int> OnPremium;
 
         /// <summary>
         /// AirConsole API: onConnect callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> onPersistentDataLoaded;
+        public event Action<JSONNode> OnPersistentDataLoaded;
 
         /// <summary>
         /// AirConsole API: onPersistentDataStored callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<string> onPersistentDataStored;
+        public event Action<string> OnPersistentDataStored;
 
         /// <summary>
         /// AirConsole API: onHighScores callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> onHighScores;
+        public event Action<JSONNode> OnHighScores;
 
         /// <summary>
         /// AirConsole API: onHighScoreStored callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> onHighScoreStored;
+        public event Action<JSONNode> OnHighScoreStored;
 
         /// <summary>
         /// Occurs when the game browser window is being closed.
         /// </summary>
-        public event Action onGameEnd;
+        public event Action OnGameEnd;
 
         #endregion
 
@@ -167,67 +167,67 @@ namespace Volplane.AirConsole
             switch(data["action"].Value)
             {
                 case "onConnect":
-                    OnConnect(data["device_id"].AsInt);
+                    OnConnectInternal(data["device_id"].AsInt);
                     break;
 
                 case "onDisconnect":
-                    OnDisconnect(data["device_id"].AsInt);
+                    OnDisconnectInternal(data["device_id"].AsInt);
                     break;
 
                 case "onReady":
-                    OnReady(data["code"].Value,
-                            data["device_id"].AsInt,
-                            data["devices"].AsArray,
-                            data["server_time_offset"].AsInt,
-                            data["location"].Value);
+                    OnReadyInternal(data["code"].Value,
+                                    data["device_id"].AsInt,
+                                    data["devices"].AsArray,
+                                    data["server_time_offset"].AsInt,
+                                    data["location"].Value);
                     break;
 
                 case "onMessage":
-                    OnMessage(data["from"].AsInt, data["data"]);
+                    OnMessageInternal(data["from"].AsInt, data["data"]);
                     break;
 
                 case "onDeviceStateChange":
-                    OnDeviceStateChange(data["device_id"].AsInt, data["device_data"]);
+                    OnDeviceStateChangeInternal(data["device_id"].AsInt, data["device_data"]);
                     break;
 
                 case "onCustomDeviceStateChange":
-                    OnCustomDeviceStateChange(data["device_id"].AsInt, data["custom_data"]);
+                    OnCustomDeviceStateChangeInternal(data["device_id"].AsInt, data["custom_data"]);
                     break;
 
                 case "onDeviceProfileChange":
-                    OnDeviceProfileChange(data["device_id"].AsInt);
+                    OnDeviceProfileChangeInternal(data["device_id"].AsInt);
                     break;
 
                 case "onAdShow":
-                    OnAdShow();
+                    OnAdShowInternal();
                     break;
 
                 case "onAdComplete":
-                    OnAdComplete(data["ad_was_shown"].AsBool);
+                    OnAdCompleteInternal(data["ad_was_shown"].AsBool);
                     break;
 
                 case "onPremium":
-                    OnPremium(data["device_id"].AsInt);
+                    OnPremiumInternal(data["device_id"].AsInt);
                     break;
 
                 case "onPersistentDataLoaded":
-                    OnPersistentDataLoaded(data["data"]);
+                    OnPersistentDataLoadedInternal(data["data"]);
                     break;
 
                 case "onPersistentDataStored":
-                    OnPersistentDataStored(data["uid"].Value);
+                    OnPersistentDataStoredInternal(data["uid"].Value);
                     break;
 
                 case "onHighScores":
-                    OnHighScores(data["highscores"]);
+                    OnHighScoresInternal(data["highscores"]);
                     break;
 
                 case "onHighScoreStored":
-                    OnHighScoreStored(data["highscore"]);
+                    OnHighScoreStoredInternal(data["highscore"]);
                     break;
 
                 case "onGameEnd":
-                    OnGameEnd();
+                    OnGameEndInternal();
                     break;
 
                 default:
@@ -885,21 +885,21 @@ namespace Volplane.AirConsole
         /// collector can reclaim the memory that the <see cref="Volplane.AirConsole.AirConsoleAgent"/> was occupying.</remarks>
         public void Dispose()
         {
-            onConnect = null;
-            onDisconnect = null;
-            onReady = null;
-            onMessage = null;
-            onDeviceStateChange = null;
-            onCustomDeviceStateChange = null;
-            onDeviceProfileChange = null;
-            onAdShow = null;
-            onAdComplete = null;
-            onPremium = null;
-            onPersistentDataLoaded = null;
-            onPersistentDataStored = null;
-            onHighScores = null;
-            onHighScoreStored = null;
-            onGameEnd = null;
+            OnConnect = null;
+            OnDisconnect = null;
+            OnReady = null;
+            OnMessage = null;
+            OnDeviceStateChange = null;
+            OnCustomDeviceStateChange = null;
+            OnDeviceProfileChange = null;
+            OnAdShow = null;
+            OnAdComplete = null;
+            OnPremium = null;
+            OnPersistentDataLoaded = null;
+            OnPersistentDataStored = null;
+            OnHighScores = null;
+            OnHighScoreStored = null;
+            OnGameEnd = null;
         }
 
 
@@ -911,10 +911,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnConnect(int acDeviceId)
+        protected void OnConnectInternal(int acDeviceId)
         {
-            if(onConnect != null)
-                onConnect(acDeviceId);
+            if(OnConnect != null)
+                OnConnect(acDeviceId);
         }
 
         /// <summary>
@@ -923,10 +923,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnDisconnect(int acDeviceId)
+        protected void OnDisconnectInternal(int acDeviceId)
         {
-            if(onDisconnect != null)
-                onDisconnect(acDeviceId);
+            if(OnDisconnect != null)
+                OnDisconnect(acDeviceId);
         }
 
         /// <summary>
@@ -939,11 +939,11 @@ namespace Volplane.AirConsole
         /// <param name="acDevices">AirConsole connected devices.</param>
         /// <param name="acServerTimeOffset">AirConsole server time offset.</param>
         /// <param name="acLocation">AirConsole game url.</param>
-        protected void OnReady(string acGameCode,
-                               int acDeviceId,
-                               JSONNode acDevices,
-                               int acServerTimeOffset,
-                               string acLocation)
+        protected void OnReadyInternal(string acGameCode,
+                                       int acDeviceId,
+                                       JSONNode acDevices,
+                                       int acServerTimeOffset,
+                                       string acLocation)
         {
             if((acDeviceId != 0) || (acDevices == null))
                 return;
@@ -964,8 +964,8 @@ namespace Volplane.AirConsole
                     this.acDevices.Add(i, acDevices.AsArray[i]);
             }
 
-            if(onReady != null)
-                onReady(acGameCode);
+            if(OnReady != null)
+                OnReady(acGameCode);
         }
 
         /// <summary>
@@ -975,9 +975,9 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <param name="acDeviceIdSender">AirConsole device identifier sender.</param>
         /// <param name="data">Message data.</param>
-        protected void OnMessage(int acDeviceIdSender, JSONNode data)
+        protected void OnMessageInternal(int acDeviceIdSender, JSONNode data)
         {
-            //Debug.Log(data.ToString(2));
+            Debug.Log(data.ToString(2));
             /*
             switch(data["someKey"].Value)
             {
@@ -990,8 +990,8 @@ namespace Volplane.AirConsole
             }
             */
 
-            if(onMessage != null)
-                onMessage(acDeviceIdSender, data);
+            if(OnMessage != null)
+                OnMessage(acDeviceIdSender, data);
         }
 
         /// <summary>
@@ -1001,15 +1001,15 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         /// <param name="state">Devic state.</param>
-        protected void OnDeviceStateChange(int acDeviceId, JSONNode state)
+        protected void OnDeviceStateChangeInternal(int acDeviceId, JSONNode state)
         {
             if(acDevices.ContainsKey(acDeviceId))
                 acDevices[acDeviceId] = state;
             else
                 acDevices.Add(acDeviceId, state);
 
-            if(onDeviceStateChange != null)
-                onDeviceStateChange(acDeviceId, state);
+            if(OnDeviceStateChange != null)
+                OnDeviceStateChange(acDeviceId, state);
         }
 
         /// <summary>
@@ -1018,10 +1018,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnCustomDeviceStateChange(int acDeviceId, JSONNode state)
+        protected void OnCustomDeviceStateChangeInternal(int acDeviceId, JSONNode state)
         {
-            if(onCustomDeviceStateChange != null)
-                onCustomDeviceStateChange(acDeviceId, state);
+            if(OnCustomDeviceStateChange != null)
+                OnCustomDeviceStateChange(acDeviceId, state);
         }
 
         /// <summary>
@@ -1030,10 +1030,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnDeviceProfileChange(int acDeviceId)
+        protected void OnDeviceProfileChangeInternal(int acDeviceId)
         {
-            if(onDeviceProfileChange != null)
-                onDeviceProfileChange(acDeviceId);
+            if(OnDeviceProfileChange != null)
+                OnDeviceProfileChange(acDeviceId);
         }
 
         /// <summary>
@@ -1041,10 +1041,10 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        protected void OnAdShow()
+        protected void OnAdShowInternal()
         {
-            if(onAdShow != null)
-                onAdShow();
+            if(OnAdShow != null)
+                OnAdShow();
         }
 
         /// <summary>
@@ -1053,10 +1053,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acAdWasShown">If set to <c>true</c> AirConsole ad was shown.</param>
-        protected void OnAdComplete(bool acAdWasShown)
+        protected void OnAdCompleteInternal(bool acAdWasShown)
         {
-            if(onAdComplete != null)
-                onAdComplete(acAdWasShown);
+            if(OnAdComplete != null)
+                OnAdComplete(acAdWasShown);
         }
 
         /// <summary>
@@ -1065,10 +1065,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnPremium(int acDeviceId)
+        protected void OnPremiumInternal(int acDeviceId)
         {
-            if(onPremium != null)
-                onPremium(acDeviceId);
+            if(OnPremium != null)
+                OnPremium(acDeviceId);
         }
 
         /// <summary>
@@ -1077,10 +1077,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="data">Loaded data.</param>
-        protected void OnPersistentDataLoaded(JSONNode data)
+        protected void OnPersistentDataLoadedInternal(JSONNode data)
         {
-            if(onPersistentDataLoaded != null)
-                onPersistentDataLoaded(data);
+            if(OnPersistentDataLoaded != null)
+                OnPersistentDataLoaded(data);
         }
 
         /// <summary>
@@ -1089,10 +1089,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acUid">Unique user identifier.</param>
-        protected void OnPersistentDataStored(string acUid)
+        protected void OnPersistentDataStoredInternal(string acUid)
         {
-            if(onPersistentDataStored != null)
-                onPersistentDataStored(acUid);
+            if(OnPersistentDataStored != null)
+                OnPersistentDataStored(acUid);
         }
 
         /// <summary>
@@ -1101,10 +1101,10 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acHighscoreData">AirConsole highscore data.</param>
-        protected void OnHighScores(JSONNode acHighscoreData)
+        protected void OnHighScoresInternal(JSONNode acHighscoreData)
         {
-            if(onHighScores != null)
-                onHighScores(acHighscoreData);
+            if(OnHighScores != null)
+                OnHighScores(acHighscoreData);
         }
 
         /// <summary>
@@ -1113,22 +1113,22 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acNewRecordData">AirConsole new highscore record data.</param>
-        protected void OnHighScoreStored(JSONNode acNewRecordData)
+        protected void OnHighScoreStoredInternal(JSONNode acNewRecordData)
         {
-            if(onHighScoreStored != null)
-                onHighScoreStored(acNewRecordData);
+            if(OnHighScoreStored != null)
+                OnHighScoreStored(acNewRecordData);
         }
 
         /// <summary>
         /// AirConsole: Game browser window closed.
         /// </summary>
-        protected void OnGameEnd()
+        protected void OnGameEndInternal()
         {
             if(isConnectionReady)
                 isConnectionReady = false;
 
-            if(onGameEnd != null)
-                onGameEnd();
+            if(OnGameEnd != null)
+                OnGameEnd();
         }
 
         #endregion
