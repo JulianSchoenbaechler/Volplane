@@ -30,7 +30,6 @@ namespace Volplane
 
     public class VPlayer : IDisposable
     {
-
         protected PlayerState oldPlayerState, currentPlayerState;
 
         /// <summary>
@@ -39,6 +38,7 @@ namespace Volplane
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         public VPlayer(int acDeviceId)
         {
+            // Standard values
             this.oldPlayerState = VolplaneController.AirConsole.GetMasterControllerDeviceId() == acDeviceId ? 
                 PlayerState.Active :
                 PlayerState.Inactive;
@@ -48,27 +48,37 @@ namespace Volplane
             this.IsUsingBrowser = true;
             this.IsConnected = true;
             this.IsHero = VolplaneController.AirConsole.IsPremium(acDeviceId);
+            this.IsLoggedIn = VolplaneController.AirConsole.IsUserLoggedIn(acDeviceId);
             this.HasSlowConnection = false;
             this.UID = VolplaneController.AirConsole.GetUID(acDeviceId);
             this.Nickname = VolplaneController.AirConsole.GetNickname(acDeviceId);
             this.ProfilePicture = null;
-            this.Email = null;
 
             // Change to standard view
             this.ChangeView(VolplaneAgent.StandardView);
 
             // Subscribe events
-            VolplaneController.AirConsole.onConnect += Connect;
-            VolplaneController.AirConsole.onDisconnect += Disconnect;
-            VolplaneController.AirConsole.onPremium += Hero;
-            VolplaneController.AirConsole.onDeviceStateChange += UpdateSettings;
-            VolplaneController.AirConsole.onDeviceProfileChange += UpdateProfile;
-            VolplaneController.AirConsole.onAdShow += WaitForAd;
-            VolplaneController.AirConsole.onAdComplete += AdCompleted;
+            VolplaneController.AirConsole.OnConnect += Connect;
+            VolplaneController.AirConsole.OnDisconnect += Disconnect;
+            VolplaneController.AirConsole.OnPremium += Hero;
+            VolplaneController.AirConsole.OnDeviceStateChange += UpdateSettings;
+            VolplaneController.AirConsole.OnDeviceProfileChange += UpdateProfile;
+            VolplaneController.AirConsole.OnAdShow += WaitForAd;
+            VolplaneController.AirConsole.OnAdComplete += AdCompleted;
         }
 
-        public event Action<bool> stateChangeEvent;
+        #region Player Events
 
+        /// <summary>
+        /// Occurs when player state changes.
+        /// </summary>
+        public event Action<bool> OnStateChange;
+
+        #endregion
+
+        /// <summary>
+        /// Player state.
+        /// </summary>
         public enum PlayerState
         {
             Inactive,
@@ -77,11 +87,21 @@ namespace Volplane
             WaitingForAd
         }
 
+        #region Player Properties
+
+        /// <summary>
+        /// Gets the player identifier.
+        /// </summary>
+        /// <value>The player identifier.</value>
         public int PlayerId
         {
             get { return VolplaneController.Main.GetPlayerId(this); }
         }
 
+        /// <summary>
+        /// Gets the current player state.
+        /// </summary>
+        /// <value>The current player state.</value>
         public PlayerState State
         {
             get
@@ -99,11 +119,15 @@ namespace Volplane
                 currentPlayerState = value;
 
                 // Fire state change event
-                if(stateChangeEvent != null)
-                    stateChangeEvent(value == PlayerState.Active);
+                if(OnStateChange != null)
+                    OnStateChange(value == PlayerState.Active);
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this player is active.
+        /// </summary>
+        /// <value><c>true</c> if this player is active; otherwise, <c>false</c>.</value>
         public bool IsActive
         {
             get
@@ -120,21 +144,47 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Gets the current view displayed on this players controller.
+        /// </summary>
+        /// <value>The current view.</value>
         public string CurrentView
         {
             get { return VolplaneController.Main.GetCurrentView(this); }
         }
 
+        /// <summary>
+        /// Gets the device identifier.
+        /// </summary>
+        /// <value>The device identifier.</value>
         public int DeviceId { get; protected set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this player is connected through a browser.
+        /// </summary>
+        /// <value><c>true</c> if this player is connected through a browser; otherwise, <c>false</c>.</value>
         public bool IsUsingBrowser { get; protected set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this player is connected.
+        /// </summary>
+        /// <value><c>true</c> if this player is connected; otherwise, <c>false</c>.</value>
         public bool IsConnected { get; protected set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this player purchased AirConsole Hero.
+        /// </summary>
+        /// <value><c>true</c> if this player is Hero; otherwise, <c>false</c>.</value>
         public bool IsHero { get; protected set; }
+        public bool IsLoggedIn { get; protected set; }
         public bool HasSlowConnection { get; protected set; }
         public string UID { get; protected set; }
         public string Nickname { get; protected set; }
         public Texture2D ProfilePicture { get; protected set; }
-        public string Email { get; protected set; }
 
+        #endregion
+
+        #region Player Specific Methods
 
         /// <summary>
         /// Loads the profile picture of this player.
@@ -149,14 +199,6 @@ namespace Volplane
             ProfilePicture = www.texture;
             www.Dispose();
             www = null;
-        }
-
-        public void RequestEmailAddress()
-        {
-            JSONNode data = new JSONObject();
-            data["volplane"] = "email";
-
-            VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
         /// <summary>
@@ -182,6 +224,10 @@ namespace Volplane
             }
         }
 
+        #endregion
+
+        #region Player Controller View Management
+
         /// <summary>
         /// Changes the controller view of this player.
         /// </summary>
@@ -189,6 +235,113 @@ namespace Volplane
         public void ChangeView(string viewName)
         {
             VolplaneController.Main.ChangeView(this, viewName);
+        }
+
+        /// <summary>
+        /// Resets the controller view of this player to its initial state.
+        /// </summary>
+        /// <param name="viewName">View name.</param>
+        public void ResetView(string viewName)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "reset";
+            data["volplane"]["name"] = viewName;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        #endregion
+
+        #region Player Controller Elements / Function Management
+
+        /// <summary>
+        /// Hides and disables an element on the current view.
+        /// </summary>
+        /// <param name="elementName">Element name.</param>
+        public void HideElement(string elementName)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "element";
+            data["volplane"]["name"] = elementName;
+            data["volplane"]["properties"]["hidden"] = true;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
+        /// Shows and enables a hidden element on the current view.
+        /// </summary>
+        /// <param name="elementName">Element name.</param>
+        public void ShowElement(string elementName)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "element";
+            data["volplane"]["name"] = elementName;
+            data["volplane"]["properties"]["hidden"] = false;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
+        /// Toggles the visibility of an element on the current view.
+        /// </summary>
+        /// <param name="elementName">Element name.</param>
+        public void ToggleElement(string elementName)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "element";
+            data["volplane"]["name"] = elementName;
+            data["volplane"]["properties"]["toggle"] = true;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
+        /// Changes the text of an element on the current view.
+        /// </summary>
+        /// <param name="elementName">Element name.</param>
+        /// <param name="text">New text.</param>
+        public void ChangeElementText(string elementName, string text)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "element";
+            data["volplane"]["name"] = elementName;
+            data["volplane"]["properties"]["text"] = text;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
+        /// Changes the background image of an element on the current view.
+        /// Specified image must exist in the 'img' folder in the WebGL template:
+        /// 'Assets/WebGLTemplates/Volplane/img/'
+        /// </summary>
+        /// <param name="elementName">Element name.</param>
+        /// <param name="image">The image name (including extension).</param>
+        public void ChangeElementImage(string elementName, string image)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "element";
+            data["volplane"]["name"] = elementName;
+            data["volplane"]["properties"]["image"] = String.Format("img/{0:G}", image);
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
+        /// Changes multiple properties from an element on the current view at the same time.
+        /// Use this method for more advanced element manipulation.
+        /// </summary>
+        /// <param name="elementName">Element name.</param>
+        /// <param name="properties">Properties.</param>
+        public void ChangeElementProperties(string elementName, ElementProperties properties)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "element";
+            data["volplane"]["name"] = elementName;
+            data["volplane"]["properties"] = properties.Data;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
         /// <summary>
@@ -201,11 +354,13 @@ namespace Volplane
             int milliseconds = time > 10f ? 10000 : (int)(time * 1000f);
 
             JSONNode data = new JSONObject();
-            data["volplane"] = "vibrate";
-            data["time"] = milliseconds;
+            data["volplane"]["action"] = "vibrate";
+            data["volplane"]["time"] = milliseconds;
 
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
+
+        #endregion
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -218,15 +373,19 @@ namespace Volplane
         public void Dispose()
         {
             // Unsubscribe all events
-            VolplaneController.AirConsole.onConnect -= Connect;
-            VolplaneController.AirConsole.onDisconnect -= Disconnect;
-            VolplaneController.AirConsole.onPremium -= Hero;
-            VolplaneController.AirConsole.onDeviceStateChange -= UpdateSettings;
-            VolplaneController.AirConsole.onDeviceProfileChange -= UpdateProfile;
-            VolplaneController.AirConsole.onAdShow -= WaitForAd;
-            VolplaneController.AirConsole.onAdComplete -= AdCompleted;
+            VolplaneController.AirConsole.OnConnect -= Connect;
+            VolplaneController.AirConsole.OnDisconnect -= Disconnect;
+            VolplaneController.AirConsole.OnPremium -= Hero;
+            VolplaneController.AirConsole.OnDeviceStateChange -= UpdateSettings;
+            VolplaneController.AirConsole.OnDeviceProfileChange -= UpdateProfile;
+            VolplaneController.AirConsole.OnAdShow -= WaitForAd;
+            VolplaneController.AirConsole.OnAdComplete -= AdCompleted;
+
+            // Unassign won events
+            OnStateChange = null;
         }
 
+        #region Player Data Processing
 
         /// <summary>
         /// When this player device connects.
@@ -275,7 +434,7 @@ namespace Volplane
         {
             if(data == null)
                 return;
-            Debug.Log(data.ToString(2));
+            
             if(acDeviceId == DeviceId)
             {
                 UID = data["uid"].Value;
@@ -311,5 +470,7 @@ namespace Volplane
         {
             State = oldPlayerState;
         }
+
+        #endregion
     }
 }

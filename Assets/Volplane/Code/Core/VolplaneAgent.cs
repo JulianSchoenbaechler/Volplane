@@ -43,7 +43,7 @@ namespace Volplane
             if(VolplaneAgent.CustomState == null)
                 VolplaneAgent.CustomState = new JSONObject();
 
-            VolplaneController.AirConsole.onConnect += AddPlayer;
+            VolplaneController.AirConsole.OnConnect += AddPlayer;
         }
 
         public static string StandardView { get; set; }
@@ -236,6 +236,27 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Resets the controller view of a player to its initial state.
+        /// </summary>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="viewName">View name.</param>
+        public void ResetView(int playerId, string viewName)
+        {
+            ResetView(GetPlayer(playerId), viewName);
+        }
+
+        /// <summary>
+        /// Resets the controller view of a player to its initial state.
+        /// </summary>
+        /// <param name="player">Player object.</param>
+        /// <param name="viewName">View name.</param>
+        public void ResetView(VPlayer player, string viewName)
+        {
+            if(player != null)
+                player.ResetView(viewName);
+        }
+
+        /// <summary>
         /// Vibrate the controller of a player for a specified amount of time.
         /// Maximum time is 10 seconds.
         /// </summary>
@@ -256,17 +277,6 @@ namespace Volplane
                 player.VibrateController(time);
         }
 
-        public void RequestEmailAddress(int playerId)
-        {
-            RequestEmailAddress(GetPlayer(playerId));
-        }
-
-        public void RequestEmailAddress(VPlayer player)
-        {
-            if(player != null)
-                player.RequestEmailAddress();
-        }
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -277,7 +287,8 @@ namespace Volplane
         /// so the garbage collector can reclaim the memory that the <see cref="Volplane.VolplaneAgent"/> was occupying.</remarks>
         public void Dispose()
         {
-            VolplaneController.AirConsole.onConnect -= AddPlayer;
+            if(VolplaneController.AirConsole != null)
+                VolplaneController.AirConsole.OnConnect -= AddPlayer;
         }
 
 
@@ -340,7 +351,7 @@ namespace Volplane
                         VolplaneAgent.CustomState["active"][acDeviceId] = active;
                         VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
                     };
-                    newPlayer.stateChangeEvent += updateState;
+                    newPlayer.OnStateChange += updateState;
 
                     // Invoke 'updateState' delegate for initialization
                     updateState(newPlayer.State == VPlayer.PlayerState.Active);
@@ -359,7 +370,7 @@ namespace Volplane
                     VolplaneAgent.CustomState["active"][acDeviceId] = active;
                     VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
                 };
-                newPlayer.stateChangeEvent += updateState;
+                newPlayer.OnStateChange += updateState;
 
                 // Invoke 'updateState' delegate for initialization
                 updateState(newPlayer.State == VPlayer.PlayerState.Active);

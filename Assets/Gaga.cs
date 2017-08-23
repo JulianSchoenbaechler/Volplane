@@ -12,7 +12,7 @@ public class Gaga : VolplaneBehaviour
 
     void Start()
     {
-        VolplaneController.AirConsole.onConnect += Connect;
+        VolplaneController.AirConsole.OnConnect += Connect;
         VolplaneAgent.StandardView = "view2";
     }
 
@@ -55,34 +55,18 @@ public class Gaga : VolplaneBehaviour
         }
 
         if(Input.GetKeyDown(KeyCode.Alpha1))
-            VolplaneController.Main.RequestEmailAddress(0);
-    }
-
-    /*
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.F))
         {
-            player = new VPlayer(1);
-            StartCoroutine(player.LoadProfilePicture());
-            flag = true;
-        }
-
-        if(Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            Debug.Log(VolplaneController.AirConsole.GetCustomDeviceState(1).ToString(2));
+            player.ChangeView("view4");
         }
 
         if(Input.GetKeyDown(KeyCode.Alpha2))
         {
-            Debug.Log(VolplaneController.AirConsole.GetCustomDeviceState(2).ToString(2));
+            ElementProperties properties = new ElementProperties();
+            properties.FontColor = new Color(21f / 255f, 167f / 255f, 211f / 255f);
+            properties.FontSize = 60;
+            properties.Font = properties.WebFontToString(ElementProperties.WebFont.TrebuchetMS);
+            player.ChangeElementProperties("text", properties);
+            player.ChangeElementImage("dpad", "swipe.png");
         }
     }
-
-    void OnGUI()
-    {
-        if(flag)
-            GUI.DrawTexture(new Rect(10, 10, 256, 256), player.ProfilePicture);
-    }
-    */
 }
