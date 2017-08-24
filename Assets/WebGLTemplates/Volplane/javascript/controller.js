@@ -171,22 +171,6 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
         'relative': elementObject.relative || false,
         'distance': elementObject.distance || 10,
         'diagonal': elementObject.diagonal || false,
-        'directionchange': function(key, pressed) {
-            if(!instance.active) return;    // Disable input?
-            var data = {};
-            data.volplane = {
-                action: 'input',
-                name: elementObject.name,
-                type: 'dpad',
-                data: {
-                    x: key == DPad.RIGHT ? 1 : (key == DPad.LEFT ? -1 : 0),
-                    y: key == DPad.UP ? 1 : (key == DPad.DOWN ? -1 : 0),
-                    state: pressed,
-                    timeStamp: instance.airconsole.getServerTime()
-                }
-            };
-            instance.rateLimiter.message(AirConsole.SCREEN, data);
-        },
         'touchstart': function() {
             if(!instance.active) return;    // Disable input?
             var data = {};
@@ -200,6 +184,26 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
                 }
             };
             instance.rateLimiter.message(AirConsole.SCREEN, data);
+        },
+        'directionchange': function() {
+            if(!instance.active) return;    // Disable input?
+            var directions = {
+                x: this.state[DPad.RIGHT] ? 1 : (this.state[DPad.LEFT] ? -1 : 0),
+                y: this.state[DPad.UP] ? 1 : (this.state[DPad.DOWN] ? -1 : 0)
+            };
+            var data = {};
+            data.volplane = {
+                action: 'input',
+                name: elementObject.name,
+                type: 'dpad',
+                data: {
+                    x: directions.x,
+                    y: directions.y,
+                    state: (directions.x == 0) && (directions.y == 0) ? false : true,
+                    timeStamp: instance.airconsole.getServerTime()
+                }
+            };
+            instance.rateLimiter.message(AirConsole.SCREEN, data);console.log(data);
         },
         'touchend': function(hadDirections) {
             if(!instance.active) return;    // Disable input?

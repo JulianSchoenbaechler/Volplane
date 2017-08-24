@@ -35,7 +35,7 @@ public class Gaga : VolplaneBehaviour
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.U))
-            player.ChangeView("view3");
+            player.ChangeView("view2");
 
         if(Input.GetKeyDown(KeyCode.I))
         {
@@ -67,6 +67,38 @@ public class Gaga : VolplaneBehaviour
             properties.Font = properties.WebFontToString(ElementProperties.WebFont.TrebuchetMS);
             player.ChangeElementProperties("text", properties);
             player.ChangeElementImage("dpad", "swipe.png");
+        }
+
+        if(Input.GetKeyDown(KeyCode.Z))
+        {
+            SimpleJSON.JSONNode lala = new SimpleJSON.JSONObject();
+
+            lala["type"] = "swipe";
+
+            for(int i = 0; i < 16; i++)
+            {
+                for(int j = 0; j < 20; j++)
+                {
+                    lala["name"] = String.Format("{0:D}", UnityEngine.Random.Range(0, 65535));
+                    VolplaneController.InputHandling.ProcessInput(i, lala);
+                }
+            }
+            
+        }
+
+        if(VInput.GetDPadDown())
+        {
+            Debug.Log("DPad down");
+        }
+
+        if(VInput.GetDPad())
+        {
+            Debug.Log(VInput.GetDPadAxis());
+        }
+
+        if(VInput.GetDPadUp())
+        {
+            Debug.Log("DPad up");
         }
     }
 }

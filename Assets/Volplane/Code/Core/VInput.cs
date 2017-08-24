@@ -29,15 +29,16 @@ namespace Volplane
     using UnityEngine;
     using Volplane.AirConsole;
 
-    public sealed class ACInput : IDisposable
+    public sealed class VInput : IDisposable, IControllerUpdate
     {
-        //private static Dictionary<string, ElementInput> inputs;
-        private AirConsoleAgent agent;
+        private static List<Dictionary<string, ElementInput>> Inputs;
+        private static ElementInput TempInput;
 
-        public ACInput(AirConsoleAgent agent)
+        private ElementInput tempInput;
+
+        public VInput()
         {
-            this.agent = agent;
-            //this.agent.onMessage += CheckACMessage;
+            VInput.Inputs = new List<Dictionary<string, ElementInput>>(8);
         }
         /*
         private static Dictionary<string, ElementInput> Inputs
@@ -65,6 +66,110 @@ namespace Volplane
         public void Dispose()
         {
             //this.agent.onMessage -= CheckACMessage;
+        }
+
+        public void ControllerUpdate()
+        {
+            for(int i = 0; i < VInput.Inputs.Count; i++)
+                foreach(ElementInput input in VInput.Inputs[i].Values)
+                    input.Update();
+        }
+
+        public void ProcessInput(int playerId, JSONNode data)
+        {
+            int diffPlayerCount = playerId - VInput.Inputs.Count;
+
+            // First input from this player?
+            for(int i = 0; i <= diffPlayerCount; i++)
+                VInput.Inputs.Add(new Dictionary<string, ElementInput>());
+
+            // Get input object by name, or create new one if not specified yet
+            if(!VInput.Inputs[playerId].TryGetValue(data["name"].Value, out tempInput))
+            {
+                tempInput = new ElementInput();
+                Debug.LogFormat("Create new input: playerId {0:D} / name '{1:G}'", playerId, data["name"].Value);
+                VInput.Inputs[playerId].Add(data["name"].Value, tempInput);
+            }
+
+            switch(data["type"].Value)
+            {
+                case "dpad":
+                    tempInput.Type = ElementInput.InputType.DPad;
+                    tempInput.Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
+                    break;
+
+                case "joystick":
+                    tempInput.Type = ElementInput.InputType.Joystick;
+                    break;
+
+                case "swipe":
+                    tempInput.Type = ElementInput.InputType.SwipeField;
+                    break;
+
+                case "touch":
+                    tempInput.Type = ElementInput.InputType.TouchArea;
+                    break;
+
+                default:
+                    tempInput.Type = ElementInput.InputType.Button;
+                    //tempInput.
+                    break;
+            }
+
+            tempInput.State = data["data"]["state"].AsBool;
+            tempInput.Delay = (int)(VolplaneController.AirConsole.GetServerTime() - data["data"]["timeStamp"].AsLong);
+        }
+
+        public static Vector2 GetDPadAxis()
+        {
+            if(VInput.Inputs.Count > 1)
+            {
+                if(VInput.Inputs[0].TryGetValue("dpad", out VInput.TempInput))
+                {
+                    return VInput.TempInput.Coordinates;
+                }
+            }
+
+            return Vector2.zero;
+        }
+
+        public static bool GetDPad()
+        {
+            if(VInput.Inputs.Count > 0)
+            {
+                if(VInput.Inputs[0].TryGetValue("dpad", out VInput.TempInput))
+                {
+                    return VInput.TempInput.State;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool GetDPadUp()
+        {
+            if(VInput.Inputs.Count > 0)
+            {
+                if(VInput.Inputs[0].TryGetValue("dpad", out VInput.TempInput))
+                {
+                    return VInput.TempInput.StateUp;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool GetDPadDown()
+        {
+            if(VInput.Inputs.Count > 0)
+            {
+                if(VInput.Inputs[0].TryGetValue("dpad", out VInput.TempInput))
+                {
+                    return VInput.TempInput.StateDown;
+                }
+            }
+
+            return false;
         }
         /*
         private void CheckACMessage(int acDeviceIdSender, JSONNode data)
@@ -158,19 +263,18 @@ namespace Volplane
             // Timestamp
             if(inputData["data"]["timeStamp"].AsLong != 0)
                 element.Delay = (int)(agent.GetServerTime() - inputData["data"]["timeStamp"].AsLong);
-        }
+        }*/
 
 
         private class ElementInput
         {
             protected bool oldState;
-            protected Vector2 oldCoordinates;
 
             public ElementInput()
             {
                 this.oldState = false;
-                this.oldCoordinates = Vector2.zero;
 
+                this.Type = InputType.Button;
                 this.State = false;
                 this.Coordinates = Vector2.zero;
                 this.HadDirections = false;
@@ -183,14 +287,16 @@ namespace Volplane
                 this.Delay = 0;
             }
 
-            public enum InputDirection
+            public enum InputType
             {
-                Up,
-                Down,
-                Right,
-                Left
+                Button,
+                DPad,
+                Joystick,
+                SwipeField,
+                TouchArea
             }
 
+            public InputType Type { get; set; }
             public bool State { get; set; }
             public Vector2 Coordinates { get; set; }
             public bool HadDirections { get; set; }
@@ -218,47 +324,10 @@ namespace Volplane
                 }
             }
 
-            public bool CoordinatesDown(InputDirection dir)
-            {
-                switch(dir)
-                {
-                    case InputDirection.Up:
-                        return (oldCoordinates.y == 0) && (Coordinates.y > 0);
-
-                    case InputDirection.Down:
-                        return (oldCoordinates.y == 0) && (Coordinates.y < 0);
-
-                    case InputDirection.Right:
-                        return (oldCoordinates.x == 0) && (Coordinates.x > 0);
-
-                    default:
-                        return (oldCoordinates.x == 0) && (Coordinates.x < 0);
-                }
-            }
-
-            public bool CoordinatesUp(InputDirection dir)
-            {
-                switch(dir)
-                {
-                    case InputDirection.Up:
-                        return (Coordinates.y == 0) && (oldCoordinates.y > 0);
-
-                    case InputDirection.Down:
-                        return (Coordinates.y == 0) && (oldCoordinates.y < 0);
-
-                    case InputDirection.Right:
-                        return (Coordinates.x == 0) && (oldCoordinates.x > 0);
-
-                    default:
-                        return (Coordinates.x == 0) && (oldCoordinates.x < 0);
-                }
-            }
-
             public virtual void Update()
             {
                 oldState = State;
-                oldCoordinates = Coordinates;
             }
-        }*/
+        }
     }
 }

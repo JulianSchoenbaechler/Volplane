@@ -28,7 +28,7 @@ namespace Volplane
     using System.Linq;
     using Volplane.AirConsole;
 
-    public class VolplaneAgent : IDisposable
+    public class VolplaneAgent : IDisposable, IControllerUpdate
     {
         // Main player list
         // This list indices can be hardcoded
@@ -44,6 +44,7 @@ namespace Volplane
                 VolplaneAgent.CustomState = new JSONObject();
 
             VolplaneController.AirConsole.OnConnect += AddPlayer;
+            VolplaneController.AirConsole.OnMessage += ProcessMessages;
         }
 
         public static string StandardView { get; set; }
@@ -288,10 +289,15 @@ namespace Volplane
         public void Dispose()
         {
             if(VolplaneController.AirConsole != null)
+            {
                 VolplaneController.AirConsole.OnConnect -= AddPlayer;
+                VolplaneController.AirConsole.OnMessage -= ProcessMessages;
+            }
         }
 
-
+        public void ControllerUpdate()
+        {
+        }
 
         /// <summary>
         /// Gets the player identifier.
@@ -328,7 +334,7 @@ namespace Volplane
         }
 
         /// <summary>
-        /// Adds a new player to the list.
+        /// Adds a new player to the player list.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void AddPlayer(int acDeviceId)
@@ -379,6 +385,11 @@ namespace Volplane
                 VolplaneAgent.Players = new List<VPlayer>(8);
                 VolplaneAgent.Players.Add(newPlayer);
             }
+        }
+
+        protected void ProcessMessages(int acDeviceId, JSONNode data)
+        {
+            VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
         }
     }
 }

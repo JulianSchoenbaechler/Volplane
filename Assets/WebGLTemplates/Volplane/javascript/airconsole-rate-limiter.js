@@ -164,13 +164,39 @@ RateLimiter.prototype.setCustomDeviceState_ = function(data, clear) {
 RateLimiter.prototype.mergeData_ = function(add, data) {
   for (var key in add) {
     if (add.hasOwnProperty(key)) {
-      // Volplane edit: Do not overwrite volplane object
+      // Volplane edit: not overwriting volplane object
       if (key == "volplane") {
+        
+        // Current data exists and is an array?
         if ((!!data.volplane) && (data.volplane.constructor === Array)) {
-          data.volplane.push(add.volplane);
+          var merged = false;
+          
+          // Iterate through Array
+          for (var i = 0; i < data.volplane.length; i++) {
+            
+            // Deep merge: compare new and old datas 'action' and 'name' property
+            // When they are equal -> merge
+            if (data.volplane[i].action == add.volplane.action && data.volplane[i].name == add.volplane.name) {
+              data.volplane[i] = add.volplane;  // Merge
+              merged = true;
+            }
+          }
+          
+          if (!merged)
+            data.volplane.push(add.volplane);   // Could not merge -> push data to array
+        
+        // Current data exists and is an object?
         } else if ((!!data.volplane) && (data.volplane.constructor === Object)) {
-          var temp_data = data.volplane;
-          data.volplane = [temp_data, add.volplane];
+          
+          // Deep merge: compare new and old datas 'action' and 'name' property
+          // When they are equal -> merge
+          if (data.volplane.action != add.volplane.action || data.volplane.name != add.volplane.name) {
+            var temp_data = data.volplane;  // Create array
+            data.volplane = [temp_data, add.volplane];
+          } else {
+            data.volplane = add.volplane;   // Merge
+          }
+          
         } else {
           data.volplane = add.volplane;
         }

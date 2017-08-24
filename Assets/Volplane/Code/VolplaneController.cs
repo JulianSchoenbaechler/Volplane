@@ -41,11 +41,24 @@ namespace Volplane
         private WebSocketServer websocketServer;
 		private VolplaneWebsocketService websocketService;
         #endif
-        //private ACInput inputHandler;
 
-        // Implemented AirConsole agent
+        /// <summary>
+        /// AirConsole implementation.
+        /// </summary>
+        /// <value>AirConsole agent.</value>
         public static AirConsoleAgent AirConsole { get; private set; }
+
+        /// <summary>
+        /// All Volplane functionality.
+        /// </summary>
+        /// <value>Volplane agent.</value>
         public static VolplaneAgent Main { get; private set; }
+
+        /// <summary>
+        /// Controller input handling.
+        /// </summary>
+        /// <value>Implemented input handling object.</value>
+        public static VInput InputHandling { get; private set; }
 
         /// <summary>
         /// Gateway method for AirConsole events.
@@ -91,6 +104,9 @@ namespace Volplane
 
             // Volplane agent
             VolplaneController.Main = new VolplaneAgent();
+
+            // Input handling
+            VolplaneController.InputHandling = new VInput();
 
             // Initialize all VolplaneBehaviours in the Scene
             VolplaneBehaviour[] volplaneInstances = Resources.FindObjectsOfTypeAll<VolplaneBehaviour>();
@@ -171,30 +187,20 @@ namespace Volplane
                 VolplaneController.Main.Dispose();
                 VolplaneController.Main = null;
             }
+
+            if(VolplaneController.InputHandling != null)
+            {
+                VolplaneController.InputHandling.Dispose();
+                VolplaneController.InputHandling = null;
+            }
         }
 
         #endif
 
         void Update()
         {
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-                VolplaneController.AirConsole.SetActivePlayers(10);
-            }
-
-            if(Input.GetKeyDown(KeyCode.A))
-            {
-                System.Collections.Generic.ICollection<int> gaga = VolplaneController.AirConsole.GetActivePlayerDeviceIds();
-                foreach(int id in gaga)
-                    Debug.Log(id);
-            }
-
-            if(Input.GetKeyDown(KeyCode.S))
-            {
-                System.Collections.Generic.ICollection<int> gaga = VolplaneController.AirConsole.GetControllerDeviceIds();
-                foreach(int id in gaga)
-                    Debug.Log(id);
-            }
+            VolplaneController.Main.ControllerUpdate();
+            VolplaneController.InputHandling.ControllerUpdate();
         }
     }
 }

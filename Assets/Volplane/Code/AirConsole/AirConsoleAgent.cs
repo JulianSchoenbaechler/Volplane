@@ -977,7 +977,7 @@ namespace Volplane.AirConsole
         /// <param name="data">Message data.</param>
         protected void OnMessageInternal(int acDeviceIdSender, JSONNode data)
         {
-            Debug.Log(data.ToString(2));
+            //Debug.Log(data.ToString(2));
             /*
             switch(data["someKey"].Value)
             {

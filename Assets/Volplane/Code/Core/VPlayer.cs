@@ -176,10 +176,36 @@ namespace Volplane
         /// </summary>
         /// <value><c>true</c> if this player is Hero; otherwise, <c>false</c>.</value>
         public bool IsHero { get; protected set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this player is logged in.
+        /// </summary>
+        /// <value><c>true</c> if this player is logged in; otherwise, <c>false</c>.</value>
         public bool IsLoggedIn { get; protected set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this player has s slow connection.
+        /// </summary>
+        /// <value><c>true</c> if this player has a slow connection; otherwise, <c>false</c>.</value>
         public bool HasSlowConnection { get; protected set; }
+
+        /// <summary>
+        /// Gets the players unique identifier.
+        /// </summary>
+        /// <value>The players unique identifier.</value>
         public string UID { get; protected set; }
+
+        /// <summary>
+        /// Gets the players nickname.
+        /// </summary>
+        /// <value>The nickname.</value>
         public string Nickname { get; protected set; }
+
+        /// <summary>
+        /// Gets the profile picture. Make sure you have previously loaded the profile picture with
+        /// <see cref="Volplane.VPlayer.LoadProfilePicture(int)"/>.
+        /// </summary>
+        /// <value>The profile picture.</value>
         public Texture2D ProfilePicture { get; protected set; }
 
         #endregion
