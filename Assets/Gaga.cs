@@ -86,19 +86,17 @@ public class Gaga : VolplaneBehaviour
             
         }
 
-        if(VInput.GetDPadDown())
-        {
-            Debug.Log("DPad down");
-        }
 
-        if(VInput.GetDPad())
-        {
-            Debug.Log(VInput.GetDPadAxis());
-        }
+        transform.position += (Vector3)VInput.GetCoordinates(0, "dpad") * 0.1f;
 
-        if(VInput.GetDPadUp())
-        {
-            Debug.Log("DPad up");
-        }
+        if(VInput.GetButtonUp(0, "button-top"))
+            gameObject.GetComponent<Renderer>().material.color = new Color(
+                UnityEngine.Random.Range(0f, 1f),
+                UnityEngine.Random.Range(0f, 1f),
+                UnityEngine.Random.Range(0f, 1f)
+            );
+
+        if(VInput.GetButtonDown(0, "button-bottom"))
+            gameObject.GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f);
     }
 }
