@@ -35,7 +35,7 @@ public class Gaga : VolplaneBehaviour
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.U))
-            player.ChangeView("view2");
+            player.ChangeView("view3");
 
         if(Input.GetKeyDown(KeyCode.I))
         {
@@ -86,8 +86,12 @@ public class Gaga : VolplaneBehaviour
             
         }
 
-
-        transform.position += (Vector3)VInput.GetCoordinates(0, "dpad") * 0.1f;
+        if(VInput.GetTap(0, "swipe"))
+            gameObject.GetComponent<Renderer>().material.color = new Color(
+                UnityEngine.Random.Range(0f, 1f),
+                UnityEngine.Random.Range(0f, 1f),
+                UnityEngine.Random.Range(0f, 1f)
+            );
 
         if(VInput.GetButtonUp(0, "button-top"))
             gameObject.GetComponent<Renderer>().material.color = new Color(

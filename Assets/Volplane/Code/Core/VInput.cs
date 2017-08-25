@@ -118,19 +118,19 @@ namespace Volplane
                 case "dpad":
                     tempInput.Type = ElementInput.InputType.DPad;
                     tempInput.Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    tempInput.Tap = !data["data"]["hadDirections"].AsBool;
+                    tempInput.HadDirections = data["data"]["hadDirections"].AsBool;
                     break;
 
                 case "joystick":
                     tempInput.Type = ElementInput.InputType.Joystick;
                     tempInput.Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    tempInput.Tap = !data["data"]["hadDirections"].AsBool;
+                    tempInput.HadDirections = data["data"]["hadDirections"].AsBool;
                     break;
 
                 case "swipe":
                     tempInput.Type = ElementInput.InputType.SwipeField;
                     tempInput.Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    tempInput.Tap = !data["data"]["hadDirections"].AsBool;
+                    tempInput.HadDirections = data["data"]["hadDirections"].AsBool;
 
                     if(data["data"]["distance"].AsFloat != 0f)
                     {
@@ -595,7 +595,7 @@ namespace Volplane
                 this.Type = InputType.Button;
                 this.State = false;
                 this.Coordinates = Vector2.zero;
-                this.Tap = false;
+                this.HadDirections = true;
                 this.Distance = 0f;
                 this.Angle = 0f;
                 this.Degree = 0f;
@@ -603,6 +603,10 @@ namespace Volplane
                 this.Speed = 0f;
                 this.Move = false;
                 this.Delay = 0;
+
+                this.StateDown = false;
+                this.StateUp = false;
+                this.Tap = false;
             }
 
             /// <summary>
@@ -619,7 +623,7 @@ namespace Volplane
 
             public InputType Type { get; set; }
             public bool State { get; set; }
-            public bool Tap { get; set; }
+            public bool HadDirections { get; set; }
             public float Distance { get; set; }
             public float Angle { get; set; }
             public float Degree { get; set; }
@@ -636,20 +640,26 @@ namespace Volplane
 
             public bool StateDown { get; protected set; }
             public bool StateUp { get; protected set; }
+            public bool Tap { get; protected set; }
 
             /// <summary>
             /// Update must be called every frame.
             /// </summary>
             public virtual void Update()
             {
+                if(Tap)
+                    Tap = false;
+                
                 if(StateUp)
+                {
                     StateUp = false;
 
-                if(StateDown)
-                {
-                    StateDown = false;
-                    Tap = false;
+                    if(!HadDirections)
+                        Tap = true;
                 }
+
+                if(StateDown)
+                    StateDown = false;
                 
                 if(State && !oldState)
                     StateDown = true;
