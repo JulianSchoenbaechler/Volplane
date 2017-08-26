@@ -371,6 +371,22 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Enable or disable the tracking of physical motion data of the controller from this
+        /// player (acceleration and rotation).
+        /// Calling this method has no effect if the 'Track Device Motion' flag is not set for
+        /// this players controller.
+        /// </summary>
+        /// <param name="value">If set to <c>true</c> motion data will be tracked.</param>
+        public void TrackingControllerMotion(bool value)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "deviceMotion";
+            data["volplane"]["enable"] = value;
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
         /// Vibrate the controller of this player for a specified amount of time.
         /// Maximum time is 10 seconds.
         /// </summary>
