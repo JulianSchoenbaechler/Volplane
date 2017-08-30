@@ -126,7 +126,7 @@ namespace Volplane.Editor.UI
 					{
 						JSONNode controller = new JSONObject();
 						controller["name"] = tempName;
-						controller["views"] = new JSONArray();
+                        controller["views"] = new JSONObject();
 
 						FileManager.WriteJSON(controller, String.Format("{0:G}{1:G}/data/controller/{2:G}.json", Application.dataPath, Config.WebServerPath, tempName));
 
