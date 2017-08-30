@@ -799,7 +799,7 @@ VolplaneController.prototype.editElement = function(name, properties) {
 
 /**
  * @chapter
- * HELPER FUNCTIONS
+ * VIEW HANDLING
  * -------------------------------------------------------------------------
  */
 
@@ -1124,9 +1124,11 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
                         navigator.mozVibrate ||
                         navigator.msVibrate;
     
+    // Variables
     instance.standardView = standardView || '';
     instance.controllerData = controllerData || '../controller';
     instance.active = true;
+    instance.deviceMotion = false;
     
     // Proxy object functions
     $.proxy(instance.newButton, instance);
@@ -1160,6 +1162,30 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         // Load controller
         instance.loadController();
         
+        
+        // Callback function - onDeviceMotion event
+        instance.airconsole.onDeviceMotion = function(motionData) {
+            
+            if(!instance.deviceMotion || !instance.active)
+                return;
+            
+            var data = {};
+            data.volplane = {
+                action: 'input',
+                name: 'volplane-device-motion',
+                type: 'motion',
+                data: {
+                    x: motionData.x,
+                    y: motionData.y,
+                    z: motionData.z,
+                    alpha: motionData.alpha,
+                    beta: motionData.beta,
+                    gamma: motionData.gamma,
+                    timeStamp: instance.airconsole.getServerTime()
+                }
+            };
+            instance.rateLimiter.message(AirConsole.SCREEN, data);
+        };
         
         // Callback function - onCustomDeviceStateChange event
         instance.airconsole.onCustomDeviceStateChange = function(deviceId, data) {
@@ -1201,6 +1227,38 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
                             navigator.vibrate(data.volplane.time);
                         else
                             instance.airconsole.vibrate(data.volplane.time);
+                    }
+                    
+                    break;
+                
+                // Enable or disable device motion input
+                case 'deviceMotion':
+                    
+                    if(typeof data.volplane.enable == 'boolean') {
+                        
+                        instance.deviceMotion = data.volplane.enable;
+                        
+                        // Send reset data on disable
+                        if(!instance.deviceMotion) {
+                            
+                            var data = {};
+                            data.volplane = {
+                                action: 'input',
+                                name: 'volplane-device-motion',
+                                type: 'motion',
+                                data: {
+                                    x: 0,
+                                    y: 0,
+                                    z: 0,
+                                    alpha: 0,
+                                    beta: 0,
+                                    gamma: 0,
+                                    timeStamp: instance.airconsole.getServerTime()
+                                }
+                            };
+                            instance.rateLimiter.message(AirConsole.SCREEN, data);
+                            
+                        }
                     }
                     
                     break;

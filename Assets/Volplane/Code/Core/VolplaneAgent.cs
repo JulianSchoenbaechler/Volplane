@@ -258,6 +258,33 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Enable or disable the tracking of physical motion data of the controller from a
+        /// player (acceleration and rotation).
+        /// Calling this method has no effect if the 'Track Device Motion' flag is not set for
+        /// specified players controller.
+        /// </summary>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="value">If set to <c>true</c> motion data will be tracked.</param>
+        public void TrackingControllerMotion(int playerId, bool value)
+        {
+            TrackingControllerMotion(GetPlayer(playerId), value);
+        }
+
+        /// <summary>
+        /// Enable or disable the tracking of physical motion data of the controller from a
+        /// player (acceleration and rotation).
+        /// Calling this method has no effect if the 'Track Device Motion' flag is not set for
+        /// specified players controller.
+        /// </summary>
+        /// <param name="player">Player object.</param>
+        /// <param name="value">If set to <c>true</c> motion data will be tracked.</param>
+        public void TrackingControllerMotion(VPlayer player, bool value)
+        {
+            if(player != null)
+                player.TrackingControllerMotion(value);
+        }
+
+        /// <summary>
         /// Vibrate the controller of a player for a specified amount of time.
         /// Maximum time is 10 seconds.
         /// </summary>
