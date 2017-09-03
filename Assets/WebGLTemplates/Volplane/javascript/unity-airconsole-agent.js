@@ -5,17 +5,17 @@
  * @see https://github.com/JulianSchoenbaechler/* for the project source code.
  *
  * This file is part of the Volplane project.
- * 
+ *
  * The Volplane project is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * The Volplane project is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * @see the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with the Volplane project.
  * If not, see http://www.gnu.org/licenses/.
@@ -33,51 +33,62 @@
  * @param {Object} loadingBar - Properties of the loading bar.
  */
 function Agent(gameContainer, screenRatio, loadingBar) {
-    
+
+    this.compatibilityMode = false;
     this.isStandalone = this.getUrlParameter('unity-editor-websocket-port') != null ? false : true;
     this.isUnityReady = false;
     this.dataQueue = [];
-    
+
     if(this.isStandalone) {
-        
+
         this.screenRatio = screenRatio || { width: 16, height: 9 };
-        
-        // Setup UnityLoader
-        this.game = UnityLoader.instantiate(gameContainer, 'Build/game.json', this.screenRatio);
-        
+
+        if(document.getElementById(gameContainer).nodeName.toLowerCase() == 'canvas') {
+
+            // Unity 5.5 and older
+            this.game = document.getElementById(gameContainer);
+            this.compatibilityMode = true;
+
+        } else {
+
+            // Setup UnityLoader
+            this.game = UnityLoader.instantiate(gameContainer, 'Build/game.json', this.screenRatio);
+
+        }
+
         if(typeof loadingBar != 'undefined')
             console.log('loading bar stuff...');
-        
+
         this.resizeCanvas();
         this.initAirConsole();
-        
+
     } else {
-        
+
         this.setupWebsocket();
-        
+
     }
-    
+
 }
 
 /*
  * Initialize AirConsole API and register events.
  */
 Agent.prototype.initAirConsole = function() {
-    
+
     if(typeof this.airconsole != 'undefined')
         return;
-    
+
     var instance = this;
-    
+
     instance.airconsole = new AirConsole({ 'synchronize_time': true });
-    
+
     instance.airconsole.onConnect = function(device_id) {
         instance.sendToUnity({
             'action': 'onConnect',
             'device_id': device_id
         });
     };
-    
+
     instance.airconsole.onDisconnect = function(device_id) {
         instance.sendToUnity({
             'action': 'onDisconnect',
@@ -95,7 +106,7 @@ Agent.prototype.initAirConsole = function() {
             'location': window.location.href
         });
     };
-    
+
     instance.airconsole.onMessage = function(from, data) {
         instance.sendToUnity({
             'action': 'onMessage',
@@ -111,7 +122,7 @@ Agent.prototype.initAirConsole = function() {
             'device_data': device_data
         });
     };
-    
+
     instance.airconsole.onCustomDeviceStateChange = function(device_id, custom_data) {
         instance.sendToUnity({
             'action': 'onCustomDeviceStateChange',
@@ -119,20 +130,20 @@ Agent.prototype.initAirConsole = function() {
             'custom_data': custom_data
         });
     };
-    
+
     instance.airconsole.onDeviceProfileChange = function(device_id) {
         instance.sendToUnity({
             'action': 'onDeviceProfileChange',
             'device_id': device_id
         });
     };
-    
+
     instance.airconsole.onAdShow = function() {
         instance.sendToUnity({
             'action': 'onAdShow'
         });
     };
-    
+
     instance.airconsole.onAdComplete = function(ad_was_shown) {
         instance.sendToUnity({
             'action': 'onAdComplete',
@@ -174,41 +185,41 @@ Agent.prototype.initAirConsole = function() {
             'highscore': highscore
         });
     };
-    
+
 };
 
 /*
  * Setup websocket connection. Initializes AirConsole API when connection opens.
  */
 Agent.prototype.setupWebsocket = function() {
-    
+
     if(typeof this.socket != 'undefined')
         return;
-    
+
     var instance = this;
     var port = instance.getUrlParameter('unity-editor-websocket-port');
-    
+
     instance.socket = new WebSocket('ws://localhost:' + port + '/Volplane');
-    
+
     instance.socket.onopen = function() {
-        
+
         instance.unityIsReady(false);
         instance.initAirConsole();
-        
+
     };
-    
+
     instance.socket.onclose = function() {
-        
+
         console.log('socket closed...');
-        
+
     };
-    
+
     instance.socket.onmessage = function(msg) {
-        
+
         instance.processData(msg.data);
-        
+
     };
-    
+
 };
 
 /*
@@ -217,21 +228,29 @@ Agent.prototype.setupWebsocket = function() {
  * @param {Object} data - Data.
  */
 Agent.prototype.sendToUnity = function(data) {
-    
+
     if(this.isUnityReady) {
-        
-        if(this.isStandalone)
-            this.game.SendMessage('Volplane', 'ProcessData', JSON.stringify(data));
-        else
+
+        if(this.isStandalone) {
+
+            if(!this.compatibilityMode)
+                this.game.SendMessage('Volplane', 'ProcessData', JSON.stringify(data));
+            else
+                SendMessage('Volplane', 'ProcessData', JSON.stringify(data));
+
+        } else {
+
             this.socket.send(JSON.stringify(data));
-        
+
+        }
+
     } else {
-        
+
         // Enqueue data
         this.enqueueData(data);
-        
+
     }
-    
+
 };
 
 /*
@@ -239,25 +258,27 @@ Agent.prototype.sendToUnity = function(data) {
  * @param {Object} data - Data.
  */
 Agent.prototype.enqueueData = function(data) {
-    
-    if((this.dataQueue.length != 0) || (data.action != 'onReady'))
+
+    if((data.action == 'onReady') && (this.dataQueue.length > 0))
+        this.dataQueue.unshift(data);
+    else
         this.dataQueue.push(data);
-    
+
 };
 
 /*
  * Send enqueued data to Unity.
  */
 Agent.prototype.dequeueToUnity = function() {
-    
+
     for(var i = 0; i < this.dataQueue.length; i++) {
-        
+
         this.sendToUnity(this.dataQueue[i]);
-        
+
     }
-    
+
     this.dataQueue = [];
-    
+
 };
 
 /*
@@ -265,101 +286,123 @@ Agent.prototype.dequeueToUnity = function() {
  * @param {string} jsonData - Data as JSON string.
  */
 Agent.prototype.processData = function(jsonData) {
-    
+
     var data = JSON.parse(jsonData);
-    
+
     switch(data.action) {
-        
+
         case 'message':
             this.airconsole.message(data.to, data.data);
             break;
-        
+
         case 'broadcast':
             this.airconsole.broadcast(data.data);
             break;
-        
+
         case 'setCustomDeviceState':
             this.airconsole.setCustomDeviceState(data.data);
             break;
-        
+
         case 'setCustomDeviceStateProperty':
             this.airconsole.setCustomDeviceStateProperty(data.key, data.value);
             break;
-        
+
         case 'setActivePlayers':
             this.airconsole.setActivePlayers(data.max_players);
             break;
-            
+
         case 'showAd':
             this.airconsole.showAd();
             break;
-        
+
         case 'storePersistentData':
             this.airconsole.storePersistentData(data.key, data.value, data.uid);
             break;
-        
+
         case 'requestPersistentData':
             this.airconsole.requestPersistentData(data.uids);
             break;
-        
+
         case 'storeHighScore':
             this.airconsole.storeHighScore(data.level_name, data.level_version, data.score, data.uid, data.data, data.score_string);
             break;
-        
+
         case 'requestHighScores':
             this.airconsole.requestHighScores(data.level_name, data.level_version, data.uids, data.ranks, data.total, data.top);
             break;
-        
+
         case 'navigateHome':
             this.airconsole.navigateHome();
             break;
-        
+
         case 'navigateTo':
             this.airconsole.navigateTo(data.data);
             break;
-        
+
         case 'showDefaultUI':
             this.airconsole.showDefaultUI(data.data);
             break;
-        
+
         default:
             console.log('[Volplane] Debug: ', data.data);
             break;
-        
+
     }
-    
+
 };
 
 /*
  * Resize game container element to fit screen with specified ratio.
  */
 Agent.prototype.resizeCanvas = function() {
-    
+
     if((typeof this.screenRatio.width == 'undefined') ||
         (typeof this.screenRatio.height == 'undefined'))
         return;
-    
-    var aspectRatio = this.screenRatio.width / this.screenRatio.height;
-    var width, height;
-    
-    // Fill window
-    if((window.innerWidth / aspectRatio) > window.innerHeight) {
-        
-        // Stretch by height
-        width = window.innerHeight * aspectRatio;
-        height = window.innerHeight;
-        
+
+    if(!this.compatibilityMode) {
+
+        var aspectRatio = this.screenRatio.width / this.screenRatio.height;
+        var width, height;
+
+        // Fill window
+        if((window.innerWidth / aspectRatio) > window.innerHeight) {
+
+            // Stretch by height
+            width = window.innerHeight * aspectRatio;
+            height = window.innerHeight;
+
+        } else {
+
+            // Stretch by width
+            width = window.innerWidth;
+            height = window.innerWidth / aspectRatio;
+
+        }
+
+        this.game.container.style.width = width.toString() + 'px';
+        this.game.container.style.height = height.toString() + 'px';
+
     } else {
-        
-        // Stretch by width
-        width = window.innerWidth;
-        height = window.innerWidth / aspectRatio;
-        
+
+        var aspectRatio = this.screenRatio.width / this.screenRatio.height;
+
+        document.body.style.height = '100%';
+        document.body.style.width = '100%';
+        document.body.style.margin = 0;
+        document.body.style.overflow = 'hidden';
+        this.game.style.width = '100vw';
+        this.game.style.height = (100 / aspectRatio).toString() + 'vw';
+        this.game.style.maxWidth = (100 * aspectRatio).toString() + 'vh';
+        this.game.style.maxHeight = '100vh';
+        this.game.style.margin = 'auto';
+        this.game.style.top = 0;
+        this.game.style.bottom = 0;
+        this.game.style.left = 0;
+        this.game.style.right = 0;
+
     }
-    
-    this.game.container.style.width = width.toString() + 'px';
-    this.game.container.style.height = height.toString() + 'px';
-    
+
 };
 
 /*
@@ -368,23 +411,23 @@ Agent.prototype.resizeCanvas = function() {
  * @returns {string} - The resolved parameter.
  */
 Agent.prototype.getUrlParameter = function(name) {
-    
+
     var result = null;
     var tmp = [];
-    
+
     window.location.search
         .substr(1)
         .split('&')
         .forEach(function(item) {
             tmp = item.split('=');
-            
+
             if(tmp[0] === name)
                 result = decodeURIComponent(tmp[1]);
-            
+
         });
-        
+
     return result;
-    
+
 };
 
 /*
@@ -393,17 +436,17 @@ Agent.prototype.getUrlParameter = function(name) {
  * @param {boolean} autoScaleCanvas - true when canvas should scale automatically. Otherwise false.
  */
 Agent.prototype.unityIsReady = function(autoScaleCanvas) {
-    
+
     var instance = this;
-    
+
     instance.isUnityReady = true;
     instance.dequeueToUnity();
-    
+
     if(typeof autoScaleCanvas === true) {
-        
+
         window.addEventListener('resize', function() { instance.resizeCanvas() });
         instance.resizeCanvas();
-        
+
     }
-    
+
 };

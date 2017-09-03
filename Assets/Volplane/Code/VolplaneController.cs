@@ -24,6 +24,7 @@ namespace Volplane
     using SimpleJSON;
     using System;
     using System.Reflection;
+    using System.Runtime.InteropServices;
     using UnityEngine;
     using Volplane.AirConsole;
     using Volplane.Net;
@@ -36,11 +37,6 @@ namespace Volplane
         // TODO after implementing to recommended JS -> WebGL communication,
         //      maybe also update 'Extensions.cs' and make this object private
         public static VolplaneController VolplaneSingleton;
-
-        #if UNITY_EDITOR
-        private WebSocketServer websocketServer;
-		private VolplaneWebsocketService websocketService;
-        #endif
 
         /// <summary>
         /// AirConsole implementation.
@@ -59,6 +55,17 @@ namespace Volplane
         /// </summary>
         /// <value>Implemented input handling object.</value>
         public static VInput InputHandling { get; private set; }
+
+        /// <summary>
+        /// Hello() external WebGL call.
+        /// </summary>
+        [DllImport("__Internal")]
+        private static extern void Hello(bool test);
+
+        #if UNITY_EDITOR
+        private WebSocketServer websocketServer;
+        private VolplaneWebsocketService websocketService;
+        #endif
 
         /// <summary>
         /// Gateway method for AirConsole events.
@@ -82,7 +89,10 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
+            {
                 Application.ExternalCall("window.volplane.processData", data.ToString());
+                Hello(true);
+            }
 
             #endif
         }
@@ -143,7 +153,10 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
+            {
                 Application.ExternalCall("window.volplane.unityIsReady", Config.AutoScaleCanvas);
+                Hello(false);
+            }
 
             #endif
         }
