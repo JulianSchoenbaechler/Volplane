@@ -99,6 +99,34 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Gets the master player.
+        /// </summary>
+        /// <returns>A player.</returns>
+        public VPlayer GetMaster()
+        {
+            int playerId = GetMasterId();
+
+            if(playerId >= 0)
+                return VolplaneAgent.Players[playerId];
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the master player identifier.
+        /// </summary>
+        /// <returns>The player identifier.</returns>
+        public int GetMasterId()
+        {
+            int acDeviceId = VolplaneController.AirConsole.GetMasterControllerDeviceId();
+
+            if(VolplaneAgent.Players != null)
+                return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == acDeviceId);
+
+            return -1;
+        }
+
+        /// <summary>
         /// Sets the specified amount of players active.
         /// This method will pick the earliest connected players.
         /// </summary>

@@ -57,10 +57,17 @@ namespace Volplane
         public static VInput InputHandling { get; private set; }
 
         /// <summary>
-        /// Hello() external WebGL call.
+        /// SendData() external WebGL call.
         /// </summary>
         [DllImport("__Internal")]
-        private static extern void Hello(bool test);
+        private static extern void SendData(string data);
+
+        /// <summary>
+        /// UnityIsReady() external WebGL call.
+        /// </summary>
+        /// <param name="autoScale">If set to <c>true</c> auto scale.</param>
+        [DllImport("__Internal")]
+        private static extern void UnityIsReady(bool autoScale);
 
         #if UNITY_EDITOR
         private WebSocketServer websocketServer;
@@ -89,10 +96,7 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
-            {
-                Application.ExternalCall("window.volplane.processData", data.ToString());
-                Hello(true);
-            }
+                SendData(data.ToString());
 
             #endif
         }
@@ -153,10 +157,7 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
-            {
-                Application.ExternalCall("window.volplane.unityIsReady", Config.AutoScaleCanvas);
-                Hello(false);
-            }
+                UnityIsReady(Config.AutoScaleCanvas);
 
             #endif
         }

@@ -5,10 +5,14 @@
  * @version 0.1.0
  * @license GPL v3
  */
- var AirConsoleAgent = {
-    Hello: function(aBool)
+var AirConsoleAgent = {
+    SendData: function(data)
     {
-        console.log(aBool);
+        window.volplane.processData(Pointer_stringify(data));
+    },
+    UnityIsReady: function(autoScale)
+    {
+        window.volplane.unityIsReady(autoScale ? true : false);
     }
 };
 
