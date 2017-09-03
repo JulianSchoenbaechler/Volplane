@@ -9,8 +9,9 @@ public class Gaga : VolplaneBehaviour
 {
     VPlayer player;
     bool flag = false;
+    int connections = 0;
 
-    void Start()
+    void Awake()
     {
         VolplaneController.AirConsole.OnConnect += Connect;
         VolplaneAgent.StandardView = "view2";
@@ -19,6 +20,7 @@ public class Gaga : VolplaneBehaviour
     void Connect(int id)
     {
         player = VolplaneController.Main.GetPlayer(0);
+
 
         Debug.LogFormat("View: {0:G}", player.CurrentView);
         Debug.LogFormat("Browser: {0:F}", player.IsUsingBrowser);
@@ -29,7 +31,12 @@ public class Gaga : VolplaneBehaviour
         Debug.LogFormat("Nickname: {0:G}", player.Nickname);
 
         if(player.CurrentView != "view3")
-            VolplaneController.Main.ChangeView(0, "view1");
+            VolplaneController.Main.ChangeView(player, "view1");
+    }
+
+    void OnGUI()
+    {
+        GUI.TextField(new Rect(10f, 10f, 200f, 200f), String.Format("Connections: {0:D}", connections));
     }
 
     void Update()
@@ -102,5 +109,7 @@ public class Gaga : VolplaneBehaviour
 
         if(VInput.GetButtonDown(0, "button-bottom"))
             gameObject.GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f);
+
+        transform.transform.position += new Vector3(VInput.GetAxis(0, "dpad", VInput.Axis.Horizontal), 0f, VInput.GetAxis(0, "dpad", VInput.Axis.Vertical)) * 0.1f;
     }
 }

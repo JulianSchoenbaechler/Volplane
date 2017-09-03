@@ -30,32 +30,32 @@ namespace Volplane
     public sealed partial class VInput : IDisposable, IControllerUpdate
     {
         /// <summary>
-        /// Button events active?.
+        /// Button events active?
         /// </summary>
         public static bool ButtonEvents = true;
 
         /// <summary>
-        /// DPad events active?.
+        /// DPad events active?
         /// </summary>
         public static bool DPadEvents = true;
 
         /// <summary>
-        /// Joystick events active?.
+        /// Joystick events active?
         /// </summary>
         public static bool JoystickEvents = true;
 
         /// <summary>
-        /// Swipe events active?.
+        /// Swipe events active?
         /// </summary>
         public static bool SwipeEvents = true;
 
         /// <summary>
-        /// Touch events active?.
+        /// Touch events active?
         /// </summary>
         public static bool TouchEvents = true;
 
         /// <summary>
-        /// Motion events active?.
+        /// Motion events active?
         /// </summary>
         public static bool MotionEvents = true;
 
