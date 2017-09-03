@@ -8,8 +8,6 @@ using Volplane;
 public class Gaga : VolplaneBehaviour
 {
     VPlayer player;
-    bool flag = false;
-    int connections = 0;
 
     void Awake()
     {
@@ -19,7 +17,7 @@ public class Gaga : VolplaneBehaviour
 
     void Connect(int id)
     {
-        player = VolplaneController.Main.GetPlayer(0);
+        player = VolplaneController.Main.GetMaster();
 
 
         Debug.LogFormat("View: {0:G}", player.CurrentView);
@@ -32,11 +30,6 @@ public class Gaga : VolplaneBehaviour
 
         if(player.CurrentView != "view3")
             VolplaneController.Main.ChangeView(player, "view1");
-    }
-
-    void OnGUI()
-    {
-        GUI.TextField(new Rect(10f, 10f, 200f, 200f), String.Format("Connections: {0:D}", connections));
     }
 
     void Update()

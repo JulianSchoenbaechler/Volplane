@@ -147,7 +147,6 @@ namespace Volplane
 
                 case Axis.Vertical:
                     return VInput.GetCoordinates(playerId, elementName).y;
-                    break;
 
                 default:
                     return 0f;
