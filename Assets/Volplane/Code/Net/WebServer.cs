@@ -123,22 +123,6 @@ namespace Volplane.Net
                 context.Response.ContentLength64 = 0;
                 context.Response.Close();
             }
-
-            /*
-            if(context.Request.HasEntityBody)
-                Debug.Log("Client data available!");
-
-            if(context.Request.IsLocal)
-                Debug.Log("Request sent from local machine!");
-
-            Debug.Log(context.Request.Url.LocalPath);
-            Debug.Log(context.Request.RawUrl);
-
-            foreach(string key in context.Request.QueryString.AllKeys)
-            {
-                Debug.Log(key + ": " + context.Request.QueryString[key]);
-            }
-            */
         }
 
         /// <summary>

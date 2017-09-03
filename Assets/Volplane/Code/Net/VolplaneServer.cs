@@ -56,8 +56,15 @@ namespace Volplane.Net
                 string filePath;
                 string serverPath = request.Url.LocalPath;
 
-                if(serverPath.StartsWith("/volplane/") ||
-                   String.Equals(Path.GetFileName(serverPath), "screen.html"))
+                if(serverPath.StartsWith("/build/"))
+                {
+                    // Debug build path
+                    serverPath = serverPath.Replace("/build/", "/");
+                    filePath = Directory.GetParent(localPath) + "/Build" + serverPath;
+                    UnityEngine.Debug.Log(filePath);
+                }
+                else if(serverPath.StartsWith("/volplane/") ||
+                        String.Equals(Path.GetFileName(serverPath), "screen.html"))
                 {
                     // Local web server path
                     serverPath = serverPath.Replace("/volplane/", "/");
