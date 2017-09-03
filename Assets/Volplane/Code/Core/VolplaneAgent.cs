@@ -34,6 +34,7 @@ namespace Volplane
         // This list indices can be hardcoded
         protected static List<VPlayer> Players;
         protected static JSONNode CustomState;
+        protected static string InitialView;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Volplane.PlayerManager"/> class.
@@ -43,11 +44,30 @@ namespace Volplane
             if(VolplaneAgent.CustomState == null)
                 VolplaneAgent.CustomState = new JSONObject();
 
-            VolplaneController.AirConsole.OnConnect += AddPlayer;
+            VolplaneController.AirConsole.OnDeviceStateChange += AddPlayer;
             VolplaneController.AirConsole.OnMessage += ProcessMessages;
         }
 
-        public static string StandardView { get; set; }
+        /// <summary>
+        /// Gets or sets the standard view for controllers.
+        /// </summary>
+        /// <value>The standard view name.</value>
+        public static string StandardView
+        {
+            get { return InitialView; }
+
+            set
+            {
+                InitialView = value;
+
+                // Change all views for players without a currently set one
+                for(int i = 0; i < VolplaneAgent.Players.Count; i++)
+                {
+                    if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
+                        VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], value);
+                }
+            }
+        }
 
         /// <summary>
         /// Get a player by its identifier.
@@ -154,7 +174,7 @@ namespace Volplane
         public string GetCurrentView(VPlayer player)
         {
             if(player != null)
-                return VolplaneAgent.CustomState["views"][player.DeviceId];
+                return VolplaneAgent.CustomState["views"][player.DeviceId].Value;
 
             return null;
         }
@@ -317,7 +337,7 @@ namespace Volplane
         {
             if(VolplaneController.AirConsole != null)
             {
-                VolplaneController.AirConsole.OnConnect -= AddPlayer;
+                VolplaneController.AirConsole.OnDeviceStateChange -= AddPlayer;
                 VolplaneController.AirConsole.OnMessage -= ProcessMessages;
             }
         }
@@ -364,7 +384,8 @@ namespace Volplane
         /// Adds a new player to the player list.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void AddPlayer(int acDeviceId)
+        /// <param name="data">AirConsole device state data.</param>
+        protected void AddPlayer(int acDeviceId, JSONNode data)
         {
             if(acDeviceId < 1)
                 return;
@@ -379,7 +400,7 @@ namespace Volplane
                     AllocateCustomStateArrays(acDeviceId);
 
                     // Create new player and subscribe state change event for updating custom device state
-                    VPlayer newPlayer = new VPlayer(acDeviceId);
+                    VPlayer newPlayer = new VPlayer(acDeviceId, data);
                     Action<bool> updateState = delegate(bool active) {
                         VolplaneAgent.CustomState["active"][acDeviceId] = active;
                         VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
@@ -398,7 +419,7 @@ namespace Volplane
                 AllocateCustomStateArrays(acDeviceId);
 
                 // Create new player and subscribe state change event for updating custom device state
-                VPlayer newPlayer = new VPlayer(acDeviceId);
+                VPlayer newPlayer = new VPlayer(acDeviceId, data);
                 Action<bool> updateState = delegate(bool active) {
                     VolplaneAgent.CustomState["active"][acDeviceId] = active;
                     VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);

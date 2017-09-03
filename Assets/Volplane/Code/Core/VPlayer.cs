@@ -36,7 +36,8 @@ namespace Volplane
         /// Initializes a new instance of the <see cref="Volplane.VPlayer"/> class.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        public VPlayer(int acDeviceId)
+        /// <param name="settings">AirConsole device state data.</param>
+        public VPlayer(int acDeviceId, JSONNode settings)
         {
             // Standard values
             this.oldPlayerState = VolplaneController.AirConsole.GetMasterControllerDeviceId() == acDeviceId ? 
@@ -53,6 +54,9 @@ namespace Volplane
             this.UID = VolplaneController.AirConsole.GetUID(acDeviceId);
             this.Nickname = VolplaneController.AirConsole.GetNickname(acDeviceId);
             this.ProfilePicture = null;
+
+            // Settings
+            this.UpdateSettings(acDeviceId, settings);
 
             // Change to standard view
             this.ChangeView(VolplaneAgent.StandardView);
