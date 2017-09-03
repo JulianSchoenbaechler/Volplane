@@ -486,7 +486,7 @@ namespace Volplane
         }
 
         /// <summary>
-        /// When this player device updates its nickname.
+        /// When this player device updates its profile.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected void UpdateProfile(int acDeviceId)
@@ -494,6 +494,7 @@ namespace Volplane
             if(acDeviceId == DeviceId)
             {
                 Nickname = VolplaneController.AirConsole.GetNickname(acDeviceId);
+                IsLoggedIn = VolplaneController.AirConsole.IsUserLoggedIn(acDeviceId);
             }
         }
 

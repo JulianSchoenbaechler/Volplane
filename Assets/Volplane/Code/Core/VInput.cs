@@ -54,22 +54,68 @@ namespace Volplane
         /// </summary>
         public static bool TouchEvents = true;
 
+        /// <summary>
+        /// Motion events active?.
+        /// </summary>
+        public static bool MotionEvents = true;
+
 
         private static List<Dictionary<string, ElementInput>> Inputs;
         private static ElementInput TempInput;
 
         private ElementInput tempInput;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Volplane.VInput"/> class.
+        /// </summary>
         public VInput()
         {
             VInput.Inputs = new List<Dictionary<string, ElementInput>>(8);
         }
 
+        /// <summary>
+        /// Axis representation.
+        /// </summary>
         public enum Axis
         {
             Horizontal,
             Vertical
         }
+
+        /// <summary>
+        /// Occurs when a button input gets registered.
+        /// </summary>
+        public event Action<int, bool> OnButton;
+
+        /// <summary>
+        /// Occurs when a DPad input gets registered.
+        /// </summary>
+        public event Action<int, Vector2> OnDPad;
+
+        /// <summary>
+        /// Occurs when a joystick input gets registered.
+        /// </summary>
+        public event Action<int, Vector2> OnJoystick;
+
+        /// <summary>
+        /// Occurs when a swipe input gets registered.
+        /// </summary>
+        public event Action<int, Vector2> OnSwipe;
+
+        /// <summary>
+        /// Occurs when a touch input gets registered.
+        /// </summary>
+        public event Action<int, Vector2> OnTouch;
+
+        /// <summary>
+        /// Occurs when a device motion gets registered.
+        /// </summary>
+        public event Action<int, Vector3> OnAccelerometer;
+
+        /// <summary>
+        /// Occurs when a device motion gets registered.
+        /// </summary>
+        public event Action<int, Vector3> OnGyroscope;
 
         /// <summary>
         /// Returns the value of the virtual axis identified by 'axis'.
@@ -622,6 +668,7 @@ namespace Volplane
                 VInput.Inputs[playerId].Add(data["name"].Value, tempInput);
             }
 
+            // State and input delay
             tempInput.State = data["data"]["state"].AsBool;
             tempInput.Delay = (int)(VolplaneController.AirConsole.GetServerTime() - data["data"]["timeStamp"].AsLong);
 
@@ -632,12 +679,20 @@ namespace Volplane
                     tempInput.Type = ElementInput.InputType.DPad;
                     ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
                     ((AdvancedElementInput)tempInput).HadDirections = data["data"]["hadDirections"].AsBool;
+
+                    // Event
+                    if(VInput.DPadEvents && (OnDPad != null))
+                        OnDPad(playerId, ((AdvancedElementInput)tempInput).Coordinates);
                     break;
 
                 case "joystick":
                     tempInput.Type = ElementInput.InputType.Joystick;
                     ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
                     ((AdvancedElementInput)tempInput).HadDirections = data["data"]["hadDirections"].AsBool;
+
+                    // Event
+                    if(VInput.JoystickEvents && (OnJoystick != null))
+                        OnJoystick(playerId, ((AdvancedElementInput)tempInput).Coordinates);
                     break;
 
                 case "swipe":
@@ -652,12 +707,20 @@ namespace Volplane
                         ((AnalogElementInput)tempInput).Degree = data["data"]["degree"].AsFloat;
                         ((AnalogElementInput)tempInput).Speed = data["data"]["speed"].AsFloat;
                     }
+
+                    // Event
+                    if(VInput.SwipeEvents && (OnSwipe != null))
+                        OnSwipe(playerId, ((AdvancedElementInput)tempInput).Coordinates);
                     break;
 
                 case "touch":
                     tempInput.Type = ElementInput.InputType.TouchArea;
                     ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
                     ((AdvancedElementInput)tempInput).Move = data["data"]["move"].AsBool;
+
+                    // Event
+                    if(VInput.TouchEvents && (OnTouch != null))
+                        OnTouch(playerId, ((AdvancedElementInput)tempInput).Coordinates);
                     break;
 
                 case "motion":
@@ -668,10 +731,21 @@ namespace Volplane
                     ((DeviceMotionInput)tempInput).Gyroscope = new Vector3(data["data"]["alpha"].AsFloat,
                                                                            data["data"]["beta"].AsFloat,
                                                                            data["data"]["gamma"].AsFloat);
+
+                    // Events
+                    if(VInput.MotionEvents && (OnAccelerometer != null))
+                        OnAccelerometer(playerId, ((DeviceMotionInput)tempInput).Accelerometer);
+                    
+                    if(VInput.MotionEvents && (OnGyroscope != null))
+                        OnGyroscope(playerId, ((DeviceMotionInput)tempInput).Gyroscope);
                     break;
 
                 default:
                     tempInput.Type = ElementInput.InputType.Button;
+
+                    // Event
+                    if(VInput.ButtonEvents && (OnButton != null))
+                        OnButton(playerId, tempInput.State);
                     break;
             }
         }
