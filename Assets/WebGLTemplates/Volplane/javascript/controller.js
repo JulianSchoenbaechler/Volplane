@@ -203,7 +203,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
                     timeStamp: instance.airconsole.getServerTime()
                 }
             };
-            instance.rateLimiter.message(AirConsole.SCREEN, data);console.log(data);
+            instance.rateLimiter.message(AirConsole.SCREEN, data);
         },
         'touchend': function(hadDirections) {
             if(!instance.active) return;    // Disable input?
