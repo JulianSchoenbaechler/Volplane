@@ -354,6 +354,16 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Request showing a multiscreen advertisement.
+        /// Call this method at reasonable places / passages in your game. AirConsole will take care on when to show an
+        /// advertisement in your game.
+        /// </summary>
+        public void RequestAd()
+        {
+            VolplaneController.AirConsole.ShowAd();
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <filterpriority>2</filterpriority>
@@ -463,6 +473,11 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Event handler. Data for input processing.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
+        /// <param name="data">Input data.</param>
         protected void ProcessMessages(int acDeviceId, JSONNode data)
         {
             VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
