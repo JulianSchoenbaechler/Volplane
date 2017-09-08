@@ -100,9 +100,18 @@ public class Gaga : VolplaneBehaviour
                 UnityEngine.Random.Range(0f, 1f)
             );
 
+        /*
         if(VInput.GetButtonDown(0, "button-bottom"))
             gameObject.GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f);
-
+        */
         transform.transform.position += new Vector3(VInput.GetAxis(0, "dpad", VInput.Axis.Horizontal), 0f, VInput.GetAxis(0, "dpad", VInput.Axis.Vertical)) * 0.1f;
+    }
+
+    void OnButton(int playerId, bool state)
+    {
+        Debug.LogFormat("PlayerId: {0:D}", playerId);
+
+        if(state)
+            gameObject.GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f);
     }
 }

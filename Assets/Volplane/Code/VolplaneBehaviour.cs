@@ -22,15 +22,55 @@
 namespace Volplane
 {
     using UnityEngine;
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
 
     public abstract class VolplaneBehaviour : MonoBehaviour
     {
+        private Type objectType;
+        private Type eventType;
+        private MethodInfo methodInfo;
+        private MethodInfo addMethodInfo;
+        private EventInfo eventInfo;
+        private Delegate handler;
+
         private void Initialize()
         {
-            
+            objectType = this.GetType();
+
+            eventType = VolplaneController.InputHandling.GetType();
+
+            SubscribeEvent("OnButton", ref eventType);
+            SubscribeEvent("OnDPad", ref eventType);
+            SubscribeEvent("OnJoystick", ref eventType);
+            SubscribeEvent("OnSwipe", ref eventType);
+            SubscribeEvent("OnTouch", ref eventType);
+            SubscribeEvent("OnAccelerometer", ref eventType);
+            SubscribeEvent("OnGyroscope", ref eventType);
+        }
+
+        private void SubscribeEvent(string name, ref Type eventHolderType)
+        {
+            // Get instances event method info
+            methodInfo = objectType.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance);
+
+            // Method exists?
+            if(methodInfo != null)
+            {
+                // Event from holder element
+                eventInfo = eventHolderType.GetEvent(name);
+
+                // Create delegate from child method
+                handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, methodInfo, false);
+
+                // If event delegate parameters matches with the ones from the chil method -> add event handler
+                if(handler != null)
+                {
+                    VolplaneController.InputHandling.OnButton += (Action<int, bool>)handler;
+                }
+            }
         }
     }
 }

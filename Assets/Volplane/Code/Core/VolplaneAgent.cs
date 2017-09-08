@@ -60,11 +60,14 @@ namespace Volplane
             {
                 InitialView = value;
 
-                // Change all views for players without a currently set one
-                for(int i = 0; i < VolplaneAgent.Players.Count; i++)
+                if(VolplaneAgent.Players != null)
                 {
-                    if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
-                        VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], value);
+                    // Change all views for players without a currently set one
+                    for(int i = 0; i < VolplaneAgent.Players.Count; i++)
+                    {
+                        if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
+                            VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], value);
+                    }
                 }
             }
         }
