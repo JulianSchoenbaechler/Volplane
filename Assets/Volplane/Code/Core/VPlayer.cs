@@ -54,6 +54,7 @@ namespace Volplane
             this.UID = VolplaneController.AirConsole.GetUID(acDeviceId);
             this.Nickname = VolplaneController.AirConsole.GetNickname(acDeviceId);
             this.ProfilePicture = null;
+            this.UserData = null;
 
             // Settings
             this.UpdateSettings(acDeviceId, settings);
@@ -69,6 +70,11 @@ namespace Volplane
             VolplaneController.AirConsole.OnDeviceProfileChange += UpdateProfile;
             VolplaneController.AirConsole.OnAdShow += WaitForAd;
             VolplaneController.AirConsole.OnAdComplete += AdCompleted;
+            VolplaneController.AirConsole.OnPersistentDataLoaded += GetUserData;
+            VolplaneController.AirConsole.OnPersistentDataStored += UserDataSynced;
+
+            // Request persistent data
+            VolplaneController.AirConsole.RequestPersistentData(UID);
         }
 
         #region Player Events
@@ -212,6 +218,12 @@ namespace Volplane
         /// <value>The profile picture.</value>
         public Texture2D ProfilePicture { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets the persistent user data loaded from the AirConsole servers.
+        /// </summary>
+        /// <value>The user data.</value>
+        public JSONObject UserData { get; set; }
+
         #endregion
 
         #region Player Specific Methods
@@ -251,6 +263,21 @@ namespace Volplane
                 // Overwrite old state
                 // After 'WaitingForAd' or 'Pending', old state will be reloaded
                 oldPlayerState = value ? PlayerState.Active : PlayerState.Inactive;
+            }
+        }
+
+        /// <summary>
+        /// Synchronizing user data. This method tries to persistently store the data on the AirConsole servers.
+        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSynced"/> fires for this player.
+        /// </summary>
+        public void SyncUserData()
+        {
+            if(UserData == null)
+                return;
+
+            foreach(string key in UserData.Keys)
+            {
+                VolplaneController.AirConsole.StorePersistentData(key, UserData[key], UID);
             }
         }
 
@@ -516,6 +543,17 @@ namespace Volplane
         protected void AdCompleted(bool complete)
         {
             State = oldPlayerState;
+        }
+
+        protected void GetUserData(JSONNode data)
+        {
+            Debug.Log(data.ToString(2));
+        }
+
+        protected void UserDataSynced(string uid)
+        {
+            if(uid == UID)
+                VolplaneController.AirConsole.RequestPersistentData(UID);
         }
 
         #endregion
