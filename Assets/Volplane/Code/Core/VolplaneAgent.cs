@@ -33,8 +33,11 @@ namespace Volplane
         // Main player list
         // This list indices can be hardcoded
         protected static List<VPlayer> Players;
+
         protected static JSONNode CustomState;
         protected static string InitialView;
+
+        protected Queue<Action> eventQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Volplane.PlayerManager"/> class.
@@ -44,9 +47,31 @@ namespace Volplane
             if(VolplaneAgent.CustomState == null)
                 VolplaneAgent.CustomState = new JSONObject();
 
+            this.eventQueue = new Queue<Action>(4);
+
+            // Subscribe AirConsole events
+            VolplaneController.AirConsole.OnReady += AirConsoleReady;
+            VolplaneController.AirConsole.OnConnect += PlayerConnected;
+            VolplaneController.AirConsole.OnDisconnect += PlayerDisconnected;
+            VolplaneController.AirConsole.OnAdShow += AdDisplay;
+            VolplaneController.AirConsole.OnAdComplete += AdFinished;
+            VolplaneController.AirConsole.OnDeviceProfileChange += PlayerProfileChanged;
             VolplaneController.AirConsole.OnDeviceStateChange += AddPlayer;
             VolplaneController.AirConsole.OnMessage += ProcessMessages;
         }
+
+        public event Action OnReady;
+        public event Action<int> OnConnect;
+        public event Action<VPlayer> OnConnectSecondary;
+        public event Action<int> OnDisconnect;
+        public event Action<VPlayer> OnDisconnectSecondary;
+        public event Action OnAdShow;
+        public event Action OnAdComplete;
+        public event Action<bool> OnAdCompleteSecondary;
+        public event Action<int> OnPlayerProfileChange;
+        public event Action<VPlayer> OnPlayerProfileChangeSecondary;
+
+        public static string GameCode { get; private set; }
 
         /// <summary>
         /// Gets or sets the standard view for controllers.
@@ -385,7 +410,12 @@ namespace Volplane
 
         public void ControllerUpdate()
         {
+            // Fire queued events
+            if(eventQueue.Count > 0)
+                eventQueue.Dequeue().Invoke();
         }
+
+
 
         /// <summary>
         /// Gets the player identifier.
@@ -484,6 +514,113 @@ namespace Volplane
         protected void ProcessMessages(int acDeviceId, JSONNode data)
         {
             VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
+        }
+
+
+
+        private void AirConsoleReady(string code)
+        {
+            VolplaneAgent.GameCode = code;
+
+            if(OnReady != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnReady.Invoke();
+                });
+            }
+        }
+
+        private void PlayerConnected(int acDeviceId)
+        {
+            int playerId = GetPlayerId(acDeviceId);
+
+            // OnConnect (player identifier)
+            if(OnConnect != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnConnect.Invoke(playerId);
+                });
+            }
+
+            // OnConnect (player object)
+            if(OnConnectSecondary != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnConnectSecondary.Invoke(GetPlayer(playerId));
+                });
+            }
+        }
+
+        private void PlayerDisconnected(int acDeviceId)
+        {
+            int playerId = GetPlayerId(acDeviceId);
+
+            // OnDisconnect (player identifier)
+            if(OnDisconnect != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnDisconnect.Invoke(playerId);
+                });
+            }
+
+            // OnDisconnect (player object)
+            if(OnDisconnectSecondary != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnDisconnectSecondary.Invoke(GetPlayer(playerId));
+                });
+            }
+        }
+
+        private void AdDisplay()
+        {
+            // OnAdShow
+            if(OnAdShow != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnAdShow.Invoke();
+                });
+            }
+        }
+
+        private void AdFinished(bool adWasShown)
+        {
+            // OnAdComplete (without indicator)
+            if(OnAdComplete != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnAdComplete.Invoke();
+                });
+            }
+
+            // OnAdComplete (with indicator)
+            if(OnAdCompleteSecondary != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnAdCompleteSecondary.Invoke(adWasShown);
+                });
+            }
+        }
+
+        private void PlayerProfileChanged(int acDeviceId)
+        {
+            int playerId = GetPlayerId(acDeviceId);
+
+            // OnPlayerProfileChange (player identifier)
+            if(OnPlayerProfileChange != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnPlayerProfileChange.Invoke(playerId);
+                });
+            }
+
+            // OnPlayerProfileChange (player object)
+            if(OnPlayerProfileChangeSecondary != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnPlayerProfileChangeSecondary.Invoke(GetPlayer(playerId));
+                });
+            }
         }
     }
 }
