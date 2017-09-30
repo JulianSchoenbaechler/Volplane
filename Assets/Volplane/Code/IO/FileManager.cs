@@ -28,6 +28,7 @@ namespace Volplane.IO
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
 
     public class FileManager
     {
@@ -42,7 +43,7 @@ namespace Volplane.IO
             JSONArray list = new JSONArray();
             IEnumerable<string> directories;
 
-            directoryPath = directoryPath.Replace('/', '\\');
+            directoryPath = Regex.Replace(directoryPath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
 
             // Ignore meta files
             directories = Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
@@ -50,7 +51,7 @@ namespace Volplane.IO
 
             foreach(string directory in directories)
             {
-                list[-1] = prefixPath + directory.Replace(directoryPath, "").Replace('\\', '/');
+                list[-1] = prefixPath + directory.Replace(directoryPath, "");
             }
 
             return list;
@@ -99,6 +100,8 @@ namespace Volplane.IO
             else
                 sbContent.Insert(0, jsonData.ToString());
 
+            filePath = Regex.Replace(filePath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
+
             // Check if path is a directory
             if(Path.GetExtension(filePath) == String.Empty)
             {
@@ -110,8 +113,7 @@ namespace Volplane.IO
                     return null;
                 }
 
-                filePath = String.Format("{0:G}/{1:G}.json", filePath, jsonData["name"].Value);
-                filePath = filePath.Replace('/', '\\');
+                filePath = Path.Combine(filePath, String.Format("{0:G}.json", jsonData["name"].Value));
             }
 
             // Write file
@@ -129,7 +131,7 @@ namespace Volplane.IO
         /// <param name="filePath">File path.</param>
         public static JSONNode ReadJSON(string filePath)
         {
-            filePath = filePath.Replace('/', '\\');
+            filePath = Regex.Replace(filePath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
 
             if(!File.Exists(filePath))
                 return null;

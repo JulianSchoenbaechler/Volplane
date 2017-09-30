@@ -24,6 +24,7 @@ namespace Volplane.Editor.UI
     using SimpleJSON;
     using System;
     using System.IO;
+    using System.Text.RegularExpressions;
     using UnityEditor;
     using UnityEngine;
     using Volplane.IO;
@@ -141,8 +142,18 @@ namespace Volplane.Editor.UI
         private void OnEnable()
         {
             excludedProperties = new[] { "m_Script" };
-            controllerFolderPath = String.Format("{0:G}{1:G}/data/controller", Application.dataPath, Config.WebServerPath).Replace('/', '\\');
-            controllerDestinationPath = String.Format("{0:G}{1:G}/controller.json", Application.dataPath, Config.WebTemplatePath).Replace('/', '\\');
+            controllerFolderPath = String.Format(
+                "{0:G}{1:G}/data/controller",
+                Application.dataPath,
+                Config.WebServerPath
+            );
+            controllerDestinationPath = String.Format(
+                "{0:G}{1:G}/controller.json",
+                Application.dataPath,
+                Config.WebTemplatePath
+            );
+            controllerFolderPath = Regex.Replace(controllerFolderPath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
+            controllerDestinationPath = Regex.Replace(controllerDestinationPath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
 
             // Reload controller list, image-, font- and controller data
 			// Reload controller data

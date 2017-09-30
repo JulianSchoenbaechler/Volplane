@@ -60,8 +60,10 @@ namespace Volplane.Net
                 {
                     // Debug build path
                     serverPath = serverPath.Replace("/build/", "/");
-                    filePath = Directory.GetParent(localPath) + "/Build" + serverPath;
-                    UnityEngine.Debug.Log(filePath);
+                    filePath = String.Format("{0:G}/Build{1:G}",
+                        Directory.GetParent(localPath).FullName,
+                        serverPath
+                    );
                 }
                 else if(serverPath.StartsWith("/volplane/") ||
                         String.Equals(Path.GetFileName(serverPath), "screen.html"))
@@ -76,8 +78,8 @@ namespace Volplane.Net
                     filePath = localPath + Config.WebTemplatePath + serverPath;
                 }
 
+                filePath = pathSeparatorReg.Replace(filePath, Path.DirectorySeparatorChar.ToString());
                 filePath = Uri.UnescapeDataString(filePath);
-                filePath = filePath.Replace('/', '\\');
 
                 if(File.Exists(filePath))
                 {

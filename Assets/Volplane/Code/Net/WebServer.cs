@@ -24,6 +24,7 @@ namespace Volplane.Net
 	using System;
 	using System.IO;
 	using System.Net;
+    using System.Text.RegularExpressions;
 
 
     public class WebServer
@@ -31,6 +32,7 @@ namespace Volplane.Net
         protected WebListener listener;
         protected int port;
         protected string localPath;
+        protected Regex pathSeparatorReg;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Volplane.Net.WebServer"/> class.
@@ -42,6 +44,8 @@ namespace Volplane.Net
         {
             this.port = port;
             this.localPath = localPath;
+
+            this.pathSeparatorReg = new Regex(@"[\\\/]");
 
             this.listener = new WebListener();
             this.listener.ProcessRequest += this.ProcessRequest;
@@ -101,8 +105,8 @@ namespace Volplane.Net
             HttpListenerRequest request = context.Request;
             string filePath = localPath + request.Url.LocalPath;
 
+            filePath = pathSeparatorReg.Replace(filePath, Path.DirectorySeparatorChar.ToString());
             filePath = Uri.UnescapeDataString(filePath);
-            filePath = filePath.Replace('/', '\\');
 
             if(File.Exists(filePath))
             {
