@@ -49,9 +49,11 @@ namespace Volplane.IO
             directories = Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
                 .Where<string>(name => !name.EndsWith(".meta"));
 
+            // Write all filenames from directory
+            // -> Replace backslash '\' to slash '/' for web and unix compatibility
             foreach(string directory in directories)
             {
-                list[-1] = prefixPath + directory.Replace(directoryPath, "");
+                list[-1] = prefixPath + directory.Replace(directoryPath, "").Replace('\\', '/');
             }
 
             return list;
