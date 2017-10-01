@@ -142,6 +142,7 @@ namespace Volplane.Editor.UI
         private void OnEnable()
         {
             excludedProperties = new[] { "m_Script" };
+            
             controllerFolderPath = String.Format(
                 "{0:G}{1:G}/data/controller",
                 Application.dataPath,
@@ -230,10 +231,19 @@ namespace Volplane.Editor.UI
 				Config.SelectedController = tempSelectedController;
 				EditorPrefs.SetString("SelectedController", tempSelectedController);
 
-				// Copy selected controller data into WebGL template
-				File.Copy(controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1],
-				              controllerDestinationPath,
-				              true);
+                // Compare controller data with existing
+                // Copy if newer...
+                string controllerPath = controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1];
+                JSONNode dataNew = FileManager.ReadJSON(controllerPath);
+                JSONNode dataOld = FileManager.ReadJSON(controllerDestinationPath);
+
+                if((dataOld == null) || (dataNew["lastEdit"].AsInt > dataOld["lastEdit"].AsInt))
+                {
+                    // Copy selected controller data into WebGL template
+                    File.Copy(controllerPath,
+                              controllerDestinationPath,
+                              true);
+                }
 			}
 			else
 			{
