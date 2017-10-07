@@ -57,6 +57,7 @@ namespace Volplane.Editor.Build
 
             // Save build path in preferences
             EditorPrefs.SetString("BuildPath", path);
+            Config.BuildPath = path;
         }
     }
 }

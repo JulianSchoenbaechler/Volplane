@@ -140,7 +140,7 @@ namespace Volplane.Editor.UI
                 // Open last build
                 if(GUILayout.Button("Open Last Build"))
                 {
-                    // Dudeluuu
+                    Extensions.OpenBuild();
                 }
             }
         }

@@ -67,6 +67,19 @@ namespace Volplane.Editor
         /// </summary>
         public static event Action EnteringPlaymode;
 
+        public static void OpenBuild()
+        {
+            if((Config.BuildPath != null) && (Config.BuildPath.Length > 0))
+            {
+                Application.OpenURL(
+                    String.Format("{0:G}http://{1:G}:{2:D}/build/screen.html",
+                                  Config.AirConsolePlayUrl,
+                                  GetLocalIPAddress(),
+                                  Config.LocalServerPort)
+                );
+            }
+        }
+
         /// <summary>
         /// Loads the Volplane configuration preferences.
         /// </summary>
@@ -78,6 +91,7 @@ namespace Volplane.Editor
             Config.BrowserStart = EditorPrefs.GetInt("BrowserStart", (int)BrowserStartMode.Standard);
             Config.AutoScaleCanvas = EditorPrefs.GetBool("AutoScaleCanvas", true);
             Config.SelectedController = EditorPrefs.GetString("SelectedController", null);
+            Config.BuildPath = EditorPrefs.GetString("BuildPath", null);
         }
 
         /// <summary>

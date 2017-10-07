@@ -60,6 +60,8 @@ namespace Volplane
         public const string AirConsoleSimulatorUrl          = "http://www.airconsole.com/simulator/#";
         public const string AirConsoleProfilePictureUrl     = "https://www.airconsole.com/api/profile-picture?uid=";
 
+        public static string BuildPath                      = null;
+
         public static int DebugLog                          = (int)DebugState.None;
     }
 }

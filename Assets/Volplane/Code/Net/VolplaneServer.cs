@@ -60,8 +60,9 @@ namespace Volplane.Net
                 {
                     // Debug build path
                     serverPath = serverPath.Replace("/build/", "/");
-                    filePath = String.Format("{0:G}/Build{1:G}",
-                        Directory.GetParent(localPath).FullName,
+                    filePath = String.Format(
+                        "{0:G}{1:G}",
+                        Config.BuildPath,
                         serverPath
                     );
                 }
