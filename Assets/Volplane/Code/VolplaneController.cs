@@ -33,11 +33,6 @@ namespace Volplane
 
     public sealed class VolplaneController : MonoBehaviour
     {
-        // This object
-        // TODO after implementing to recommended JS -> WebGL communication,
-        //      maybe also update 'Extensions.cs' and make this object private
-        public static VolplaneController VolplaneSingleton;
-
         /// <summary>
         /// AirConsole implementation.
         /// </summary>
@@ -55,6 +50,11 @@ namespace Volplane
         /// </summary>
         /// <value>Implemented input handling object.</value>
         public static VInput InputHandling { get; private set; }
+
+        /// <summary>
+        /// This singleton.
+        /// </summary>
+        private static VolplaneController VolplaneSingleton;
 
         /// <summary>
         /// SendData() external WebGL call.
@@ -162,33 +162,20 @@ namespace Volplane
             #endif
         }
 
-        #if UNITY_EDITOR
-
         /// <summary>
         /// On application quit.
         /// </summary>
         private void OnApplicationQuit()
         {
+            #if UNITY_EDITOR
+
 			if(websocketServer == null)
 				return;
 
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
 
-            VolplaneController.AirConsole.Dispose();
-            VolplaneController.AirConsole = null;
-        }
-
-        /// <summary>
-        /// On disable this component.
-        /// </summary>
-        private void OnDisable()
-		{
-			if(websocketServer == null)
-				return;
-			
-            if(websocketServer.IsListening)
-                websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
+            #endif
 
             if(VolplaneController.AirConsole != null)
             {
@@ -209,9 +196,44 @@ namespace Volplane
             }
         }
 
-        #endif
+        /// <summary>
+        /// On disable this component.
+        /// </summary>
+        private void OnDisable()
+		{
+            #if UNITY_EDITOR
 
-        void Update()
+			if(websocketServer == null)
+				return;
+			
+            if(websocketServer.IsListening)
+                websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
+
+            #endif
+
+            if(VolplaneController.AirConsole != null)
+            {
+                VolplaneController.AirConsole.Dispose();
+                VolplaneController.AirConsole = null;
+            }
+
+            if(VolplaneController.Main != null)
+            {
+                VolplaneController.Main.Dispose();
+                VolplaneController.Main = null;
+            }
+
+            if(VolplaneController.InputHandling != null)
+            {
+                VolplaneController.InputHandling.Dispose();
+                VolplaneController.InputHandling = null;
+            }
+        }
+
+        /// <summary>
+        /// Call update methods from main framework and input management.
+        /// </summary>
+        private void Update()
         {
             VolplaneController.Main.ControllerUpdate();
             VolplaneController.InputHandling.ControllerUpdate();

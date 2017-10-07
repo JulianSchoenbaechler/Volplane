@@ -637,7 +637,7 @@ namespace Volplane
                     input.Update();
 
             // Fire queued events
-            if(eventQueue.Count > 0)
+            while(eventQueue.Count > 0)
                 eventQueue.Dequeue().Invoke();
         }
 

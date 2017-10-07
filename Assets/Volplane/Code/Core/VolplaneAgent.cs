@@ -46,7 +46,7 @@ namespace Volplane
         {
             if(VolplaneAgent.CustomState == null)
                 VolplaneAgent.CustomState = new JSONObject();
-
+            
             this.eventQueue = new Queue<Action>(4);
 
             // Subscribe AirConsole events
@@ -56,8 +56,8 @@ namespace Volplane
             VolplaneController.AirConsole.OnAdShow += AdDisplay;
             VolplaneController.AirConsole.OnAdComplete += AdFinished;
             VolplaneController.AirConsole.OnDeviceProfileChange += PlayerProfileChanged;
-            VolplaneController.AirConsole.OnDeviceStateChange += AddPlayer;
             VolplaneController.AirConsole.OnMessage += ProcessMessages;
+            VolplaneController.AirConsole.OnPersistentDataStored += PlayerStoredData;
         }
 
         public event Action OnReady;
@@ -70,30 +70,33 @@ namespace Volplane
         public event Action<bool> OnAdCompleteSecondary;
         public event Action<int> OnPlayerProfileChange;
         public event Action<VPlayer> OnPlayerProfileChangeSecondary;
+        public event Action<int> OnUserDataSaved;
+        public event Action<VPlayer> OnUserDataSavedSecondary;
 
+        /// <summary>
+        /// Gets the game connect code of this session.
+        /// </summary>
+        /// <value>The game code.</value>
         public static string GameCode { get; private set; }
 
         /// <summary>
-        /// Gets or sets the standard view for controllers.
+        /// Gets the standard view for controllers.
         /// </summary>
         /// <value>The standard view name.</value>
         public static string StandardView
         {
             get { return InitialView; }
+        }
 
-            set
+        /// <summary>
+        /// Gets the connected player count.
+        /// </summary>
+        /// <value>The player count.</value>
+        public static int PlayerCount
+        {
+            get
             {
-                InitialView = value;
-
-                if(VolplaneAgent.Players != null)
-                {
-                    // Change all views for players without a currently set one
-                    for(int i = 0; i < VolplaneAgent.Players.Count; i++)
-                    {
-                        if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
-                            VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], value);
-                    }
-                }
+                return VolplaneAgent.Players.Count(p => p.IsConnected == true);
             }
         }
 
@@ -124,6 +127,33 @@ namespace Volplane
                 return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == player.DeviceId);
 
             return -1;
+        }
+
+        /// <summary>
+        /// Gets all connected players.
+        /// </summary>
+        /// <returns>All players.</returns>
+        public IEnumerable<VPlayer> GetAllPlayers()
+        {
+            return VolplaneAgent.Players.Where(p => p.IsConnected);
+        }
+
+        /// <summary>
+        /// Gets all active players.
+        /// </summary>
+        /// <returns>All active players.</returns>
+        public IEnumerable<VPlayer> GetAllActivePlayers()
+        {
+            return VolplaneAgent.Players.Where(p => p.IsConnected && p.IsActive);
+        }
+
+        /// <summary>
+        /// Gets all inactive players.
+        /// </summary>
+        /// <returns>All inactive players.</returns>
+        public IEnumerable<VPlayer> GetAllInactivePlayers()
+        {
+            return VolplaneAgent.Players.Where(p => p.IsConnected && !p.IsActive);
         }
 
         /// <summary>
@@ -204,12 +234,54 @@ namespace Volplane
         /// </summary>
         /// <remarks>If the player lost connection or is waiting for an advertisement to complete, the state change will
         /// be delayed.</remarks>
-        /// <param name="playerId">Player object.</param>
+        /// <param name="player">Player object.</param>
         /// <param name="value">Activate (<c>true</c>) or deactivate (<c>false</c>) a player.</param>
         public void SetActive(VPlayer player, bool value)
         {
             if(player != null)
                 player.SetActive(value);
+        }
+
+        /// <summary>
+        /// Save user data. This method tries to persistently store the data on the AirConsole servers.
+        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSaved"/> fires for this player.
+        /// </summary>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="data">JSON data.</param>
+        public void SaveUserData(int playerId, JSONObject data)
+        {
+            SaveUserData(GetPlayer(playerId), data);
+        }
+
+        /// <summary>
+        /// Save user data. This method tries to persistently store the data on the AirConsole servers.
+        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSaved"/> fires for this player.
+        /// </summary>
+        /// <param name="player">Player object.</param>
+        /// <param name="data">JSON data.</param>
+        public void SaveUserData(VPlayer player, JSONObject data)
+        {
+            if(player != null)
+                player.SaveUserData(data);
+        }
+
+        /// <summary>
+        /// Sets the standard controller view of the players.
+        /// </summary>
+        /// <param name="viewName">Controller view name.</param>
+        public void SetStandardView(string viewName)
+        {
+            InitialView = viewName;
+
+            if(VolplaneAgent.Players != null)
+            {
+                // Change all views for players without a currently set one
+                for(int i = 0; i < VolplaneAgent.Players.Count; i++)
+                {
+                    if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
+                        VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], viewName);
+                }
+            }
         }
 
         /// <summary>
@@ -252,7 +324,7 @@ namespace Volplane
         /// <param name="viewName">View name.</param>
         public void ChangeView(VPlayer player, string viewName)
         {
-            if(player != null)
+            if((player != null) && (viewName != null))
             {
                 VolplaneAgent.CustomState["views"][player.DeviceId] = viewName;
                 VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
@@ -265,6 +337,9 @@ namespace Volplane
         /// <param name="viewName">View name.</param>
         public void ChangeViewAll(string viewName)
         {
+            if(viewName == null)
+                return;
+            
             // Iterate through all players
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
@@ -282,6 +357,9 @@ namespace Volplane
         /// <param name="viewName">View name.</param>
         public void ChangeViewAllActive(string viewName)
         {
+            if(viewName == null)
+                return;
+            
             // Iterate through all players
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
@@ -300,6 +378,9 @@ namespace Volplane
         /// <param name="viewName">View name.</param>
         public void ChangeViewAllInactive(string viewName)
         {
+            if(viewName == null)
+                return;
+            
             // Iterate through all players
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
@@ -403,15 +484,24 @@ namespace Volplane
         {
             if(VolplaneController.AirConsole != null)
             {
-                VolplaneController.AirConsole.OnDeviceStateChange -= AddPlayer;
+                VolplaneController.AirConsole.OnReady -= AirConsoleReady;
+                VolplaneController.AirConsole.OnConnect -= PlayerConnected;
+                VolplaneController.AirConsole.OnDisconnect -= PlayerDisconnected;
+                VolplaneController.AirConsole.OnAdShow -= AdDisplay;
+                VolplaneController.AirConsole.OnAdComplete -= AdFinished;
+                VolplaneController.AirConsole.OnDeviceProfileChange -= PlayerProfileChanged;
                 VolplaneController.AirConsole.OnMessage -= ProcessMessages;
             }
         }
 
+        /// <summary>
+        /// Will be called every frame by <see cref="Volplane.VolplaneController"/>.
+        /// Fires all enqueued events. 
+        /// </summary>
         public void ControllerUpdate()
         {
             // Fire queued events
-            if(eventQueue.Count > 0)
+            while(eventQueue.Count > 0)
                 eventQueue.Dequeue().Invoke();
         }
 
@@ -440,57 +530,43 @@ namespace Volplane
         protected void AllocateCustomStateArrays(int acDeviceId)
         {
             // Number of fields to allocate
-            int diffDeviceId = acDeviceId - VolplaneAgent.CustomState["views"].Count;
-
-            // View management
-            for(int i = 0; i <= diffDeviceId; i++)
-                VolplaneAgent.CustomState["views"][-1] = VolplaneAgent.StandardView;
+            int diffDeviceId = acDeviceId - VolplaneAgent.CustomState["active"].Count;
 
             // State management
             for(int i = 0; i <= diffDeviceId; i++)
                 VolplaneAgent.CustomState["active"][-1] = false;
+            
+            // View management
+            for(int i = 0; i <= diffDeviceId; i++)
+                VolplaneAgent.CustomState["views"][-1] = VolplaneAgent.StandardView == null ? "" : VolplaneAgent.StandardView;
+            
         }
 
         /// <summary>
-        /// Adds a new player to the player list.
+        /// Adds a new player to the player list if it not yet exists.
         /// </summary>
+        /// <returns>The player number.</returns>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        /// <param name="data">AirConsole device state data.</param>
-        protected void AddPlayer(int acDeviceId, JSONNode data)
+        protected int AddPlayer(int acDeviceId/*, JSONNode data*/)
         {
             if(acDeviceId < 1)
-                return;
+                return -1;
 
-            if(VolplaneAgent.Players != null)
-            {
-                int index = GetPlayerId(acDeviceId);
+            // Create player list if not exists
+            if(VolplaneAgent.Players == null)
+                VolplaneAgent.Players = new List<VPlayer>(8);
 
-                // Player does not exist yet
-                if(index == -1)
-                {
-                    AllocateCustomStateArrays(acDeviceId);
+            // Get index of this player
+            int index = GetPlayerId(acDeviceId);
 
-                    // Create new player and subscribe state change event for updating custom device state
-                    VPlayer newPlayer = new VPlayer(acDeviceId, data);
-                    Action<bool> updateState = delegate(bool active) {
-                        VolplaneAgent.CustomState["active"][acDeviceId] = active;
-                        VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
-                    };
-                    newPlayer.OnStateChange += updateState;
-
-                    // Invoke 'updateState' delegate for initialization
-                    updateState(newPlayer.State == VPlayer.PlayerState.Active);
-
-                    // Add player to player list
-                    VolplaneAgent.Players.Add(newPlayer);
-                }
-            }
-            else
+            // Player does not exist yet
+            if(index == -1)
             {
                 AllocateCustomStateArrays(acDeviceId);
 
                 // Create new player and subscribe state change event for updating custom device state
-                VPlayer newPlayer = new VPlayer(acDeviceId, data);
+                VPlayer newPlayer = new VPlayer(acDeviceId/*, data*/);
+
                 Action<bool> updateState = delegate(bool active) {
                     VolplaneAgent.CustomState["active"][acDeviceId] = active;
                     VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
@@ -500,10 +576,12 @@ namespace Volplane
                 // Invoke 'updateState' delegate for initialization
                 updateState(newPlayer.State == VPlayer.PlayerState.Active);
 
-                // Create player list and add player
-                VolplaneAgent.Players = new List<VPlayer>(8);
+                // Add player to player list
+                index = VolplaneAgent.Players.Count;
                 VolplaneAgent.Players.Add(newPlayer);
             }
+
+            return index;
         }
 
         /// <summary>
@@ -517,7 +595,10 @@ namespace Volplane
         }
 
 
-
+        /// <summary>
+        /// Enqueues the Volplane ready event.
+        /// </summary>
+        /// <param name="code">Current game code.</param>
         private void AirConsoleReady(string code)
         {
             VolplaneAgent.GameCode = code;
@@ -530,9 +611,13 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Enqueues the Volplane player connect event.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         private void PlayerConnected(int acDeviceId)
         {
-            int playerId = GetPlayerId(acDeviceId);
+            int playerId = AddPlayer(acDeviceId);
 
             // OnConnect (player identifier)
             if(OnConnect != null)
@@ -551,6 +636,10 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Enqueues the Volplane player disconnect event.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         private void PlayerDisconnected(int acDeviceId)
         {
             int playerId = GetPlayerId(acDeviceId);
@@ -572,6 +661,9 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Enqueues the Volplane advertisement showing event.
+        /// </summary>
         private void AdDisplay()
         {
             // OnAdShow
@@ -583,6 +675,10 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Enqueues the Volplane advertisement finished event.
+        /// </summary>
+        /// <param name="adWasShown">If set to <c>true</c> ad was shown.</param>
         private void AdFinished(bool adWasShown)
         {
             // OnAdComplete (without indicator)
@@ -602,6 +698,10 @@ namespace Volplane
             }
         }
 
+        /// <summary>
+        /// Enqueues the Volplane player profile change event.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
         private void PlayerProfileChanged(int acDeviceId)
         {
             int playerId = GetPlayerId(acDeviceId);
@@ -619,6 +719,37 @@ namespace Volplane
             {
                 eventQueue.Enqueue(delegate {
                     OnPlayerProfileChangeSecondary.Invoke(GetPlayer(playerId));
+                });
+            }
+        }
+
+        /// <summary>
+        /// Enqueues the Volplane user data stored event.
+        /// </summary>
+        /// <param name="uid">AirConsole unique device identifier.</param>
+        private void PlayerStoredData(string uid)
+        {
+            int playerId = -1;
+
+            if(VolplaneAgent.Players != null)
+                playerId = VolplaneAgent.Players.FindIndex(vp => vp.UID == uid);
+
+            if(playerId == -1)
+                return;
+            
+            // OnUserDataSaved (player identifier)
+            if(OnUserDataSaved != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnUserDataSaved.Invoke(playerId);
+                });
+            }
+
+            // OnUserDataSaved (player object)
+            if(OnUserDataSavedSecondary != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnUserDataSavedSecondary.Invoke(GetPlayer(playerId));
                 });
             }
         }

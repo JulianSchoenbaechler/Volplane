@@ -151,11 +151,6 @@ namespace Volplane.AirConsole
         /// </summary>
         public event Action<JSONNode> OnHighScoreStored;
 
-        /// <summary>
-        /// Occurs when the game browser window is being closed.
-        /// </summary>
-        public event Action OnGameEnd;
-
         #endregion
 
         /// <summary>
@@ -224,10 +219,6 @@ namespace Volplane.AirConsole
 
                 case "onHighScoreStored":
                     OnHighScoreStoredInternal(data["highscore"]);
-                    break;
-
-                case "onGameEnd":
-                    OnGameEndInternal();
                     break;
 
                 default:
@@ -899,7 +890,6 @@ namespace Volplane.AirConsole
             OnPersistentDataStored = null;
             OnHighScores = null;
             OnHighScoreStored = null;
-            OnGameEnd = null;
         }
 
 
@@ -1104,18 +1094,6 @@ namespace Volplane.AirConsole
         {
             if(OnHighScoreStored != null)
                 OnHighScoreStored(acNewRecordData);
-        }
-
-        /// <summary>
-        /// AirConsole: Game browser window closed.
-        /// </summary>
-        protected void OnGameEndInternal()
-        {
-            if(isConnectionReady)
-                isConnectionReady = false;
-
-            if(OnGameEnd != null)
-                OnGameEnd();
         }
 
         #endregion

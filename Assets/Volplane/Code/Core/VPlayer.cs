@@ -36,8 +36,7 @@ namespace Volplane
         /// Initializes a new instance of the <see cref="Volplane.VPlayer"/> class.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        /// <param name="settings">AirConsole device state data.</param>
-        public VPlayer(int acDeviceId, JSONNode settings)
+        public VPlayer(int acDeviceId)
         {
             // Standard values
             this.oldPlayerState = VolplaneController.AirConsole.GetMasterControllerDeviceId() == acDeviceId ? 
@@ -56,9 +55,6 @@ namespace Volplane
             this.ProfilePicture = null;
             this.UserData = null;
 
-            // Settings
-            this.UpdateSettings(acDeviceId, settings);
-
             // Change to standard view
             this.ChangeView(VolplaneAgent.StandardView);
 
@@ -71,7 +67,6 @@ namespace Volplane
             VolplaneController.AirConsole.OnAdShow += WaitForAd;
             VolplaneController.AirConsole.OnAdComplete += AdCompleted;
             VolplaneController.AirConsole.OnPersistentDataLoaded += GetUserData;
-            VolplaneController.AirConsole.OnPersistentDataStored += UserDataSynced;
 
             // Request persistent data
             VolplaneController.AirConsole.RequestPersistentData(UID);
@@ -160,7 +155,12 @@ namespace Volplane
         /// <value>The current view.</value>
         public string CurrentView
         {
-            get { return VolplaneController.Main.GetCurrentView(this); }
+            get
+            {
+                string view = VolplaneController.Main.GetCurrentView(this);
+
+                return view.Length > 0 ? view : null;
+            }
         }
 
         /// <summary>
@@ -219,10 +219,10 @@ namespace Volplane
         public Texture2D ProfilePicture { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the persistent user data loaded from the AirConsole servers.
+        /// Gets the persistent user data loaded from the AirConsole servers.
         /// </summary>
         /// <value>The user data.</value>
-        public JSONObject UserData { get; set; }
+        public JSONObject UserData { get; protected set; }
 
         #endregion
 
@@ -267,17 +267,17 @@ namespace Volplane
         }
 
         /// <summary>
-        /// Synchronizing user data. This method tries to persistently store the data on the AirConsole servers.
-        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSynced"/> fires for this player.
+        /// Save user data. This method tries to persistently store the data on the AirConsole servers.
+        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSaved"/> fires for this player.
         /// </summary>
-        public void SyncUserData()
+        public void SaveUserData(JSONObject data)
         {
-            if(UserData == null)
+            if(data == null)
                 return;
 
-            foreach(string key in UserData.Keys)
+            foreach(string key in data.Keys)
             {
-                VolplaneController.AirConsole.StorePersistentData(key, UserData[key], UID);
+                VolplaneController.AirConsole.StorePersistentData(key, data[key], UID);
             }
         }
 
@@ -545,15 +545,14 @@ namespace Volplane
             State = oldPlayerState;
         }
 
+        /// <summary>
+        /// When requested persistent data was received.
+        /// </summary>
+        /// <param name="data">Persistent user data.</param>
         protected void GetUserData(JSONNode data)
         {
-            Debug.Log(data.ToString(2));
-        }
-
-        protected void UserDataSynced(string uid)
-        {
-            if(uid == UID)
-                VolplaneController.AirConsole.RequestPersistentData(UID);
+            if(data[UID] != null)
+                UserData = data[UID] as JSONObject;
         }
 
         #endregion
