@@ -366,7 +366,7 @@ namespace Volplane
                 // If event delegate parameters matches with the ones from the child method -> add event handler
                 if(handler != null)
                 {
-                    eventInfo.AddEventHandler(eventHolder, handler);
+                    eventInfo.GetAddMethod().Invoke(eventHolder, new[] { handler });
                 }
                 else if(appendix != null)
                 {
@@ -378,7 +378,7 @@ namespace Volplane
 
                     // If event delegate parameters matches with the ones from the child method -> add event handler
                     if(handler != null)
-                        eventInfo.AddEventHandler(eventHolder, handler);
+                        eventInfo.GetAddMethod().Invoke(eventHolder, new[] { handler });
                 }
             }
         }
