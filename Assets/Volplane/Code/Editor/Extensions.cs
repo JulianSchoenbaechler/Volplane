@@ -61,7 +61,7 @@ namespace Volplane.Editor
         /// <summary>
         /// Occurs when entering playmode.
         /// </summary>
-        public static event Action enteringPlaymode;
+        public static event Action EnteringPlaymode;
 
         /// <summary>
         /// Loads the Volplane configuration preferences.
@@ -82,6 +82,9 @@ namespace Volplane.Editor
         /// </summary>
         protected static void PlaymodeStateChanged()
         {
+            if(GameObject.FindWithTag("Volplane") == null)
+                return;
+            
             if(EditorApplication.isPlayingOrWillChangePlaymode &&
                EditorApplication.isPlaying &&
                !Extensions.processedEnteringPlaymode)
@@ -90,8 +93,8 @@ namespace Volplane.Editor
                 Extensions.StartBrowserPlaySession();
 
                 // Fire entering playmode event
-                if(Extensions.enteringPlaymode != null)
-                    Extensions.enteringPlaymode();
+                if(Extensions.EnteringPlaymode != null)
+                    Extensions.EnteringPlaymode();
             }
             else
             {
