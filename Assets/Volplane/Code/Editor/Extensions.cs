@@ -21,6 +21,7 @@
 
 namespace Volplane.Editor
 {
+    using SimpleJSON;
     using System;
     using System.Text;
     using System.Net;
@@ -46,11 +47,11 @@ namespace Volplane.Editor
         static Extensions()
         {
             // Load config
-            LoadSettings();
+            Extensions.LoadSettings();
 
             // Start webserver
-            LocalWebserver = new VolplaneServer(Config.LocalServerPort, Application.dataPath);
-            LocalWebserver.Start();
+            Extensions.LocalWebserver = new VolplaneServer(Config.LocalServerPort, Application.dataPath);
+            Extensions.LocalWebserver.Start();
 
             // Register playmode stat change event
             EditorApplication.playmodeStateChanged -= PlaymodeStateChanged;
@@ -83,18 +84,18 @@ namespace Volplane.Editor
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode &&
                EditorApplication.isPlaying &&
-               !processedEnteringPlaymode)
+               !Extensions.processedEnteringPlaymode)
             {
-                processedEnteringPlaymode = true;
-                StartBrowserPlaySession();
+                Extensions.processedEnteringPlaymode = true;
+                Extensions.StartBrowserPlaySession();
 
                 // Fire entering playmode event
-                if(enteringPlaymode != null)
-                    enteringPlaymode();
+                if(Extensions.enteringPlaymode != null)
+                    Extensions.enteringPlaymode();
             }
             else
             {
-                processedEnteringPlaymode = false;
+                Extensions.processedEnteringPlaymode = false;
             }
         }
 
@@ -121,7 +122,9 @@ namespace Volplane.Editor
                     break;
 
                 default:
-                    VolplaneController.VolplaneSingleton.ProcessData(@"{action:""onReady"", code:""0"", devices:[], server_time_offset: 0, device_id: 0, location: """" }");
+                    VolplaneController.AirConsole.ProcessData(JSON.Parse(
+                        @"{action:""onReady"",code:""0"", devices:[], server_time_offset: 0, device_id: 0, location: """" }"
+                    ));
                     return;
             }
 
