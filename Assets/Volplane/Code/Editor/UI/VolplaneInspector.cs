@@ -91,7 +91,7 @@ namespace Volplane.Editor.UI
 
             // Controller Editor
 			// Delete controller
-            if(Config.SelectedController != null)
+            if((Config.SelectedController != null) && (Config.SelectedController.Length > 0))
             {
                 if(GUILayout.Button("Open Controller Editor"))
                 {
@@ -133,6 +133,16 @@ namespace Volplane.Editor.UI
 				NewControllerWindow.window.ControllerCreated -= OnControllerCreated;
 				NewControllerWindow.window.ControllerCreated += OnControllerCreated;
 			}
+
+            // Check if there is a builded version
+            if(File.Exists(EditorPrefs.GetString("BuildPath") + "/screen.html"))
+            {
+                // Open last build
+                if(GUILayout.Button("Open Last Build"))
+                {
+                    // Dudeluuu
+                }
+            }
         }
 
 
