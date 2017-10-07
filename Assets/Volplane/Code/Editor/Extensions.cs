@@ -23,6 +23,7 @@ namespace Volplane.Editor
 {
     using SimpleJSON;
     using System;
+    using System.IO;
     using System.Text;
     using System.Net;
     using System.Net.Sockets;
@@ -49,6 +50,9 @@ namespace Volplane.Editor
             // Load config
             Extensions.LoadSettings();
 
+            // Setup WebGL template
+            Extensions.SetupWebGLTemplate();
+
             // Start webserver
             Extensions.LocalWebserver = new VolplaneServer(Config.LocalServerPort, Application.dataPath);
             Extensions.LocalWebserver.Start();
@@ -74,6 +78,59 @@ namespace Volplane.Editor
             Config.BrowserStart = EditorPrefs.GetInt("BrowserStart", (int)BrowserStartMode.Standard);
             Config.AutoScaleCanvas = EditorPrefs.GetBool("AutoScaleCanvas", true);
             Config.SelectedController = EditorPrefs.GetString("SelectedController", null);
+        }
+
+        /// <summary>
+        /// Specifies the correct index file for the WebGL template according to the Unity version.
+        /// </summary>
+        protected static void SetupWebGLTemplate()
+        {
+            string savedIndex = EditorPrefs.GetString("TemplateIndex", null);
+
+            if(savedIndex == null)
+            {
+                #if UNITY_5_6_OR_NEWER
+                savedIndex = "5-6";
+                #else
+                savedIndex = "pre-5-6";
+                #endif
+
+                EditorPrefs.SetString("TemplateIndex", savedIndex);
+
+                // Copy specified index file for web template
+                File.Copy(
+                    String.Format("{0:G}/{1:G}.html", Config.WebTemplateIndexPath, savedIndex),
+                    Config.WebTemplatePath + "/index.html",
+                    true
+                );
+            }
+            #if UNITY_5_6_OR_NEWER
+            else if(savedIndex == "pre-5-6")
+            {
+                savedIndex = "5-6";
+                EditorPrefs.SetString("TemplateIndex", savedIndex);
+
+                // Copy specified index file for web template
+                File.Copy(
+                    String.Format("{0:G}/{1:G}.html", Config.WebTemplateIndexPath, savedIndex),
+                    Config.WebTemplatePath + "/index.html",
+                    true
+                );
+            }
+            #else
+            else if(savedIndex == "5-6")
+            {
+                savedIndex = "pre-5-6";
+                EditorPrefs.SetString("TemplateIndex", savedIndex);
+
+                // Copy specified index file for web template
+                File.Copy(
+                    String.Format("{0:G}/{1:G}.html", Config.WebTemplateIndexPath, savedIndex),
+                    Config.WebTemplatePath + "/index.html",
+                    true
+                );
+            }
+            #endif
         }
 
         /// <summary>
