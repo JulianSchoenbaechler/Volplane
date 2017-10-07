@@ -52,6 +52,7 @@ namespace Volplane
         public const string WebServerPath                   = "/Volplane/WebServer";
         public const string WebTemplatePath                 = "/WebGLTemplates/Volplane";
         public const string WebsocketVirtualPath            = "/Volplane";
+        public const string WebTemplateIndexPath            = "/Volplane/Templates";
 
         public const string VolplaneUrl                     = "https://volplane.julian-s.ch/";
         public const string AirConsoleUrl                   = "https://www.airconsole.com/";
