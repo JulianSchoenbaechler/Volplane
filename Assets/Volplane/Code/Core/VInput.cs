@@ -130,6 +130,9 @@ namespace Volplane
         /// <param name="axis">Virtual axis.</param>
         public static float GetAxis(VPlayer player, string elementName, Axis axis)
         {
+            if(player == null)
+                return 0f;
+            
             return VInput.GetAxis(player.PlayerId, elementName, axis);
         }
 
@@ -165,6 +168,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static Vector2 GetCoordinates(VPlayer player, string elementName)
         {
+            if(player == null)
+                return Vector2.zero;
+
             return VInput.GetCoordinates(player.PlayerId, elementName);
         }
 
@@ -200,6 +206,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetTap(VPlayer player, string elementName)
         {
+            if(player == null)
+                return false;
+            
             return VInput.GetTap(player.PlayerId, elementName);
         }
 
@@ -234,6 +243,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetButton(VPlayer player, string elementName)
         {
+            if(player == null)
+                return false;
+            
             return VInput.GetButton(player.PlayerId, elementName);
         }
 
@@ -266,6 +278,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetButtonDown(VPlayer player, string elementName)
         {
+            if(player == null)
+                return false;
+            
             return VInput.GetButtonDown(player.PlayerId, elementName);
         }
 
@@ -298,6 +313,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetButtonUp(VPlayer player, string elementName)
         {
+            if(player == null)
+                return false;
+            
             return VInput.GetButtonUp(player.PlayerId, elementName);
         }
 
@@ -330,6 +348,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static Vector2 GetSwipeVector(VPlayer player, string elementName)
         {
+            if(player == null)
+                return Vector2.zero;
+            
             return VInput.GetSwipeVector(player.PlayerId, elementName);
         }
 
@@ -363,6 +384,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static float GetSwipeDistance(VPlayer player, string elementName)
         {
+            if(player == null)
+                return 0f;
+            
             return VInput.GetSwipeDistance(player.PlayerId, elementName);
         }
 
@@ -397,6 +421,9 @@ namespace Volplane
         /// <param name="align">Align the angle to global up vector (x = 0 / y = 1).</param>
         public static float GetSwipeAngle(VPlayer player, string elementName, bool align = false)
         {
+            if(player == null)
+                return 0f;
+            
             return VInput.GetSwipeAngle(player.PlayerId, elementName, align);
         }
 
@@ -443,6 +470,9 @@ namespace Volplane
         /// <param name="align">Align the angle to global up vector (x = 0 / y = 1).</param>
         public static float GetSwipeDegree(VPlayer player, string elementName, bool align = false)
         {
+            if(player == null)
+                return 0f;
+            
             return VInput.GetSwipeAngle(player.PlayerId, elementName, align);
         }
 
@@ -488,6 +518,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetTouchMove(VPlayer player, string elementName)
         {
+            if(player == null)
+                return false;
+            
             return GetTouchMove(player.PlayerId, elementName);
         }
 
@@ -521,6 +554,9 @@ namespace Volplane
         /// <param name="player">Player object.</param>
         public static Vector3 GetAccelerometer(VPlayer player)
         {
+            if(player == null)
+                return Vector3.zero;
+            
             return GetAccelerometer(player.PlayerId);
         }
 
@@ -554,6 +590,9 @@ namespace Volplane
         /// <param name="player">Player object.</param>
         public static Vector3 GetGyroscope(VPlayer player)
         {
+            if(player == null)
+                return Vector3.zero;
+            
             return GetGyroscope(player.PlayerId);
         }
 
@@ -585,6 +624,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static int GetInputDelay(VPlayer player, string elementName)
         {
+            if(player == null)
+                return Int32.MaxValue;
+            
             return GetInputDelay(player, elementName);
         }
 
