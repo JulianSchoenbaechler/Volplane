@@ -681,9 +681,10 @@ VolplaneController.prototype.newText = function(elementObject, viewName, $viewSe
 /**
  * Edit element properties.
  * @param {String} name - The name of the element to edit.
+ * @param {String|undefined} view - The name of the view on which the element is placed.
  * @param {Object|undefined} properties - An object with element properties to overwrite.
  */
-VolplaneController.prototype.editElement = function(name, properties) {
+VolplaneController.prototype.editElement = function(name, view, properties) {
     
     if(typeof name == 'undefined')
         return;
@@ -693,7 +694,13 @@ VolplaneController.prototype.editElement = function(name, properties) {
     properties = properties || {};
     
     var propertyNames = Object.getOwnPropertyNames(properties);
-    var $selector = $('#volplane-' + instance.getActiveView() + '-' + name + '.volplane-controller-element');
+    var $selector;
+    
+    // Manipulate current view or specified view?
+    if(typeof view == 'undefined')
+        $selector = $('#volplane-' + instance.getActiveView() + '-' + name + '.volplane-controller-element');
+    else
+        $selector = $('#volplane-' + view + '-' + name + '.volplane-controller-element');
     
     // This element does not exist
     if($selector.length == 0)
@@ -910,7 +917,7 @@ VolplaneController.prototype.changeView = function(name) {
     
     var instance = this;
     
-    if(typeof name == instance.getActiveView())
+    if(name == instance.getActiveView())
         return;
     
     // View name or index number?
@@ -1266,7 +1273,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
                 // Edit element
                 case 'element':
                     
-                    instance.editElement(data.volplane.name, data.volplane.properties);
+                    instance.editElement(data.volplane.name, data.volplane.view, data.volplane.properties);
                     
                     break;
                 

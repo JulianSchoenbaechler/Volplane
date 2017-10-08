@@ -322,6 +322,9 @@ namespace Volplane
             data["volplane"]["name"] = elementName;
             data["volplane"]["properties"]["hidden"] = true;
 
+            if(CurrentView != null)
+                data["volplane"]["view"] = CurrentView;
+
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
@@ -335,6 +338,9 @@ namespace Volplane
             data["volplane"]["action"] = "element";
             data["volplane"]["name"] = elementName;
             data["volplane"]["properties"]["hidden"] = false;
+
+            if(CurrentView != null)
+                data["volplane"]["view"] = CurrentView;
 
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
@@ -350,6 +356,9 @@ namespace Volplane
             data["volplane"]["name"] = elementName;
             data["volplane"]["properties"]["toggle"] = true;
 
+            if(CurrentView != null)
+                data["volplane"]["view"] = CurrentView;
+
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
@@ -364,6 +373,9 @@ namespace Volplane
             data["volplane"]["action"] = "element";
             data["volplane"]["name"] = elementName;
             data["volplane"]["properties"]["text"] = text;
+
+            if(CurrentView != null)
+                data["volplane"]["view"] = CurrentView;
 
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
@@ -382,6 +394,9 @@ namespace Volplane
             data["volplane"]["name"] = elementName;
             data["volplane"]["properties"]["image"] = String.Format("img/{0:G}", image);
 
+            if(CurrentView != null)
+                data["volplane"]["view"] = CurrentView;
+
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
@@ -397,6 +412,9 @@ namespace Volplane
             data["volplane"]["action"] = "element";
             data["volplane"]["name"] = elementName;
             data["volplane"]["properties"] = properties.Data;
+
+            if(CurrentView != null)
+                data["volplane"]["view"] = CurrentView;
 
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
