@@ -145,6 +145,9 @@ namespace Volplane
         /// <param name="axis">Virtual axis.</param>
         public static float GetAxis(int playerId, string elementName, Axis axis)
         {
+            if(VInput.Inputs == null)
+                return 0f;
+            
             switch(axis)
             {
                 case Axis.Horizontal:
@@ -182,6 +185,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static Vector2 GetCoordinates(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return Vector2.zero;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -220,6 +226,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetTap(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return false;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -257,6 +266,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetButton(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return false;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -292,6 +304,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetButtonDown(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return false;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -327,6 +342,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetButtonUp(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return false;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -362,6 +380,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static Vector2 GetSwipeVector(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return Vector2.zero;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -398,6 +419,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static float GetSwipeDistance(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return 0f;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -436,6 +460,9 @@ namespace Volplane
         /// <param name="align">Align the angle to global up vector (x = 0 / y = 1).</param>
         public static float GetSwipeAngle(int playerId, string elementName, bool align = false)
         {
+            if(VInput.Inputs == null)
+                return 0f;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -485,6 +512,9 @@ namespace Volplane
         /// <param name="align">Align the angle to global up vector (x = 0 / y = 1).</param>
         public static float GetSwipeDegree(int playerId, string elementName, bool align = false)
         {
+            if(VInput.Inputs == null)
+                return 0f;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -532,6 +562,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static bool GetTouchMove(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return false;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -568,6 +601,9 @@ namespace Volplane
         /// <param name="playerId">Player identifier.</param>
         public static Vector3 GetAccelerometer(int playerId)
         {
+            if(VInput.Inputs == null)
+                return Vector3.zero;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue("volplane-device-motion", out VInput.TempInput))
@@ -604,6 +640,9 @@ namespace Volplane
         /// <param name="playerId">Player identifier.</param>
         public static Vector3 GetGyroscope(int playerId)
         {
+            if(VInput.Inputs == null)
+                return Vector3.zero;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue("volplane-device-motion", out VInput.TempInput))
@@ -638,6 +677,9 @@ namespace Volplane
         /// <param name="elementName">Name of the element to check.</param>
         public static int GetInputDelay(int playerId, string elementName)
         {
+            if(VInput.Inputs == null)
+                return Int32.MaxValue;
+            
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
