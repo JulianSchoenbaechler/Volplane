@@ -129,7 +129,7 @@ namespace Volplane
             for(int i = 0; i < volplaneInstances.Length; i++)
             {
                 typeof(VolplaneBehaviour).GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Invoke(volplaneInstances[0], null);
+                    .Invoke(volplaneInstances[i], null);
             }
         }
 
