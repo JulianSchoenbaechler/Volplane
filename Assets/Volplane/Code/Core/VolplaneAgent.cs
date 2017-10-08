@@ -216,6 +216,18 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Sets all connected players inactive.
+        /// </summary>
+        public void SetAllPlayersInactive()
+        {
+            for(int i = 0; i < VolplaneAgent.Players.Count; i++)
+            {
+                if(VolplaneAgent.Players[i].IsConnected)
+                    VolplaneAgent.Players[i].SetActive(false);
+            }
+        }
+
+        /// <summary>
         /// Sets a player active or inactive.
         /// You will not receive any input from inactive players.
         /// </summary>
