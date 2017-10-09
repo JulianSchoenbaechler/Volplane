@@ -129,8 +129,8 @@ namespace Volplane.Editor
 
                 // Copy specified index file for web template
                 File.Copy(
-                    String.Format("{0:G}/{1:G}.html", Config.WebTemplateIndexPath, savedIndex),
-                    Config.WebTemplatePath + "/index.html",
+                    String.Format("{0:G}/{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
+                    String.Format("{0:G}/{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
                     true
                 );
             }
