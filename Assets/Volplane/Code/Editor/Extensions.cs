@@ -101,6 +101,9 @@ namespace Volplane.Editor
         {
             string savedIndex = EditorPrefs.GetString("TemplateIndex", null);
 
+            if(!File.Exists(String.Format("{0:G}/{1:G}/index.html", Application.dataPath, Config.WebTemplatePath)))
+                savedIndex = "";
+
             if(savedIndex.Length == 0)
             {
                 #if UNITY_5_6_OR_NEWER
