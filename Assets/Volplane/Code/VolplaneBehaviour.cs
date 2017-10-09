@@ -344,6 +344,7 @@ namespace Volplane
             SubscribeEvent(VolplaneController.Main, "OnReady");
             SubscribeEvent(VolplaneController.Main, "OnConnect", "Secondary");
             SubscribeEvent(VolplaneController.Main, "OnDisconnect", "Secondary");
+            SubscribeEvent(VolplaneController.Main, "OnHero", "Secondary");
             SubscribeEvent(VolplaneController.Main, "OnAdShow");
             SubscribeEvent(VolplaneController.Main, "OnAdComplete", "Secondary");
             SubscribeEvent(VolplaneController.Main, "OnPlayerProfileChange", "Secondary");

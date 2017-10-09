@@ -53,6 +53,7 @@ namespace Volplane
             VolplaneController.AirConsole.OnReady += AirConsoleReady;
             VolplaneController.AirConsole.OnConnect += PlayerConnected;
             VolplaneController.AirConsole.OnDisconnect += PlayerDisconnected;
+            VolplaneController.AirConsole.OnPremium += PlayerBecomesHero;
             VolplaneController.AirConsole.OnAdShow += AdDisplay;
             VolplaneController.AirConsole.OnAdComplete += AdFinished;
             VolplaneController.AirConsole.OnDeviceProfileChange += PlayerProfileChanged;
@@ -65,6 +66,8 @@ namespace Volplane
         public event Action<VPlayer> OnConnectSecondary;
         public event Action<int> OnDisconnect;
         public event Action<VPlayer> OnDisconnectSecondary;
+        public event Action<int> OnHero;
+        public event Action<VPlayer> OnHeroSecondary;
         public event Action OnAdShow;
         public event Action OnAdComplete;
         public event Action<bool> OnAdCompleteSecondary;
@@ -669,6 +672,31 @@ namespace Volplane
             {
                 eventQueue.Enqueue(delegate {
                     OnDisconnectSecondary.Invoke(GetPlayer(playerId));
+                });
+            }
+        }
+
+        /// <summary>
+        /// Enqueues the Volplane player hero event.
+        /// </summary>
+        /// <param name="acDeviceId">AirConsole device identifier.</param>
+        private void PlayerBecomesHero(int acDeviceId)
+        {
+            int playerId = GetPlayerId(acDeviceId);
+
+            // OnHero (player identifier)
+            if(OnHero != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnHero.Invoke(playerId);
+                });
+            }
+
+            // OnHero (player object)
+            if(OnHeroSecondary != null)
+            {
+                eventQueue.Enqueue(delegate {
+                    OnHeroSecondary.Invoke(GetPlayer(playerId));
                 });
             }
         }
