@@ -487,12 +487,11 @@ namespace Volplane.AirConsole
 
             if(acDevices.ContainsKey(acDeviceId))
             {
-                return acDevices[acDeviceId]["auth"].AsBool;
+                if(acDevices[acDeviceId]["auth"] != null)
+                    return acDevices[acDeviceId]["auth"].AsBool;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         /// <summary>
@@ -613,7 +612,8 @@ namespace Volplane.AirConsole
 
             if(acDevices.ContainsKey(acDeviceId))
             {
-                return acDevices[acDeviceId]["premium"].AsBool;
+                if(acDevices[acDeviceId]["premium"] != null)
+                    return acDevices[acDeviceId]["premium"].AsBool;
             }
 
             return false;
