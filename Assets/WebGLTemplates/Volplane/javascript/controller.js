@@ -68,7 +68,7 @@ VolplaneController.prototype.newButton = function(elementObject, viewName, $view
         .css({
             'font-family': elementObject.font || 'Helvetica, Arial, sans-serif',
             'font-size': (elementObject.fontSize || 12).toString() + 'pt',
-            'font-color': elementObject.fontColor || 'rgb(248, 248, 236)'
+            'color': elementObject.fontColor || 'rgb(248, 248, 236)'
         })
     )
     .appendTo($viewSelector);
@@ -161,7 +161,7 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
             .css({
                 'font-family': elementObject.font || 'Helvetica, Arial, sans-serif',
                 'font-size': (elementObject.fontSize || 12).toString() + 'pt',
-                'font-color': elementObject.fontColor || 'rgb(248, 248, 236)'
+                'color': elementObject.fontColor || 'rgb(248, 248, 236)'
             })
         )
     )
@@ -431,7 +431,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
         .css({
             'font-family': elementObject.font || 'Helvetica, Arial, sans-serif',
             'font-size': (elementObject.fontSize || 12).toString() + 'pt',
-            'font-color': elementObject.fontColor || 'rgb(248, 248, 236)'
+            'color': elementObject.fontColor || 'rgb(248, 248, 236)'
         })
     )
     .appendTo($viewSelector);
@@ -575,7 +575,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
         .css({
             'font-family': elementObject.font || 'Helvetica, Arial, sans-serif',
             'font-size': (elementObject.fontSize || 12).toString() + 'pt',
-            'font-color': elementObject.fontColor || 'rgb(248, 248, 236)'
+            'color': elementObject.fontColor || 'rgb(248, 248, 236)'
         })
     )
     .appendTo($viewSelector);
@@ -664,7 +664,7 @@ VolplaneController.prototype.newText = function(elementObject, viewName, $viewSe
             'text-align': elementObject.textAlign || 'center',
             'font-family': elementObject.font || 'Helvetica, Arial, sans-serif',
             'font-size': (elementObject.fontSize || 12).toString() + 'pt',
-            'font-color': elementObject.fontColor || 'rgb(248, 248, 236)'
+            'color': elementObject.fontColor || 'rgb(248, 248, 236)'
         })
     )
     .appendTo($viewSelector);
