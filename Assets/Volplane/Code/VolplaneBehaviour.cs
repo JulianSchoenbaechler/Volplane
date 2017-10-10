@@ -53,6 +53,18 @@ namespace Volplane
         /// <value>The player count.</value>
         public int PlayerCount { get { return VolplaneAgent.PlayerCount; } }
 
+        /// <summary>
+        /// Gets the number of active while connected players.
+        /// </summary>
+        /// <value>The number of active players.</value>
+        public static int ActivePlayerCount { get { return VolplaneAgent.ActivePlayerCount; } }
+
+        /// <summary>
+        /// Gets the number of inactive while connected players.
+        /// </summary>
+        /// <value>The number of inactive players.</value>
+        public static int InactivePlayerCount { get { return VolplaneAgent.InactivePlayerCount; } }
+
 
 
         /// <summary>

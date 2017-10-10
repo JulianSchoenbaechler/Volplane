@@ -99,7 +99,31 @@ namespace Volplane
         {
             get
             {
-                return VolplaneAgent.Players.Count(p => p.IsConnected == true);
+                return VolplaneAgent.Players.Count(p => p.IsConnected);
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of active while connected players.
+        /// </summary>
+        /// <value>The number of active players.</value>
+        public static int ActivePlayerCount
+        {
+            get
+            {
+                return VolplaneAgent.Players.Count(p => p.IsConnected && p.IsActive);
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of inactive while connected players.
+        /// </summary>
+        /// <value>The number of inactive players.</value>
+        public static int InactivePlayerCount
+        {
+            get
+            {
+                return VolplaneAgent.Players.Count(p => p.IsConnected && !p.IsActive);
             }
         }
 
