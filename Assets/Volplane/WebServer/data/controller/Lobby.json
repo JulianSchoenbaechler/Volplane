@@ -101,7 +101,7 @@
                     "y" : 20,
                     "image" : "img/transparent.png",
                     "hidden" : false,
-                    "text" : "Lobby is full!",
+                    "text" : "Game is full!",
                     "textAlign" : "center",
                     "font" : "",
                     "fontSize" : 24,
@@ -154,6 +154,46 @@
             "gridX" : 5,
             "gridY" : 5,
             "color" : "rgb(31, 29, 42)"
+        },
+        "game" : {
+            "content" : [
+                {
+                    "type" : "text",
+                    "name" : "ingameText",
+                    "width" : 100,
+                    "height" : 20,
+                    "x" : 0,
+                    "y" : 15,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Game started!",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 24,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                },
+                {
+                    "type" : "joystick",
+                    "name" : "joystick",
+                    "width" : 100,
+                    "height" : 50,
+                    "x" : 0,
+                    "y" : 40,
+                    "image" : "img/joystick.png",
+                    "hidden" : false,
+                    "relative" : false,
+                    "distance" : 10,
+                    "stickImage" : "img/joystick-stick.png",
+                    "thumbImage" : "img/joystick-relative-thumb.png",
+                    "stickSize" : 50,
+                    "thumbSize" : 20
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)"
         }
     },
     "fontList" : [
@@ -166,5 +206,5 @@
     "layout" : "portrait",
     "synchronizeTime" : false,
     "deviceMotion" : false,
-    "lastEdit" : 1507578749
+    "lastEdit" : 1507653897
 }
