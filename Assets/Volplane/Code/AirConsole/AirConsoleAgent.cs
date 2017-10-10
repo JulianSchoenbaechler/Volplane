@@ -26,6 +26,7 @@ namespace Volplane.AirConsole
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using UnityEngine;
 
     public class AirConsoleAgent : IDisposable
@@ -277,10 +278,15 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("getControllerDeviceIds()"))
                 return null;
 
-            List<int> controllerIds = acDevices.Keys.ToList();
-            controllerIds.Remove(0);
+            ICollection<int> controllerIds = acDevices.Keys
+                .Where(id => !(
+                    (id == 0) ||
+                    (acDevices[id] == null) ||
+                    (FormatGameUrl(acDevices[id]["location"]) != acGameLocation)
+                ))
+                .ToList() as ICollection<int>;
 
-            return controllerIds as ICollection<int>;
+            return controllerIds;
         }
 
         /// <summary>
@@ -942,7 +948,7 @@ namespace Volplane.AirConsole
                 isConnectionReady = true;
 
             this.acServerTimeOffset = acServerTimeOffset;
-            this.acGameLocation = acLocation;
+            this.acGameLocation = FormatGameUrl(acLocation);
             this.acDevices.Clear();
 
             for(int i = 0; i < acDevices.Count; i++)
@@ -1115,6 +1121,25 @@ namespace Volplane.AirConsole
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Strips the actual URL on which the game is running so that it can be used for comparisation.
+        /// </summary>
+        /// <returns>A formatted URL.</returns>
+        /// <param name="url">The current game URL.</param>
+        protected string FormatGameUrl(string url)
+        {
+            if(url == null)
+                return null;
+
+            url = url.Split('#')[0];
+            url = url.Split('?')[0];
+
+            Regex rule = new Regex(@"(http://|https://|screen\.html|controller\.html)");
+            url = rule.Replace(url, "");
+
+            return url;
         }
     }
 }
