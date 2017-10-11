@@ -803,6 +803,49 @@ VolplaneController.prototype.editElement = function(name, view, properties) {
     
 };
 
+/**
+ * Edit view properties.
+ * @param {String} name - The name of the view to edit.
+ * @param {Object|undefined} properties - An object with view properties to overwrite.
+ */
+VolplaneController.prototype.editView = function(name, properties) {
+    
+    if(typeof name == 'undefined')
+        return;
+    
+    var instance = this;
+    
+    properties = properties || {};
+    
+    var propertyNames = Object.getOwnPropertyNames(properties);
+    var $selector = $('#volplane-view-' + name + '.volplane-view');
+    
+    // This view does not exist
+    if($selector.length == 0)
+        return;
+    
+    // Iterate through all properties
+    for(var i = 0; i < propertyNames.length; i++) {
+        
+        // What to change / edit
+        switch(propertyNames[i]) {
+            
+            case 'image':
+                $selector.css('background-image', "url('" + (properties.image || 'img/transparent.png') + "')");
+                break;
+            
+            case 'color':
+                $selector.find('p').css('background-color', properties.color || 'transparent');
+                break;
+            
+            default:
+                break;
+        }
+        
+    }
+    
+};
+
 
 /**
  * @chapter
@@ -1146,6 +1189,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
     $.proxy(instance.newText, instance);
     $.proxy(instance.loadController, instance);
     $.proxy(instance.editElement, instance);
+    $.proxy(instance.editView, instance);
     $.proxy(instance.getActiveView, instance);
     $.proxy(instance.resetView, instance);
     $.proxy(instance.changeView, instance);
@@ -1274,6 +1318,13 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
                 case 'element':
                     
                     instance.editElement(data.volplane.name, data.volplane.view, data.volplane.properties);
+                    
+                    break;
+                
+                // Edit view
+                case 'view':
+                    
+                    instance.editView(data.volplane.name, data.volplane.properties);
                     
                     break;
                 

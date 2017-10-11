@@ -307,6 +307,43 @@ namespace Volplane
             VolplaneController.AirConsole.Message(DeviceId, data);
         }
 
+        /// <summary>
+        /// Changes the color of a controller view.
+        /// </summary>
+        /// <param name="viewName">View name.</param>
+        /// <param name="color">New color.</param>
+        public void ChangeViewColor(string viewName, Color color)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "view";
+            data["volplane"]["name"] = viewName;
+            data["volplane"]["properties"]["color"] = String.Format(
+                "rgb({0:F0}, {1:F0}, {2:F0})",
+                color.r * 255f,
+                color.g * 255f,
+                color.b * 255f
+            );
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
+        /// <summary>
+        /// Changes the background image of a controller view.
+        /// Specified image must exist in the 'img' folder in the WebGL template:
+        /// 'Assets/WebGLTemplates/Volplane/img/'
+        /// </summary>
+        /// <param name="viewName">View name.</param>
+        /// <param name="image">The image name (including extension).</param>
+        public void ChangeViewImage(string viewName, string image)
+        {
+            JSONNode data = new JSONObject();
+            data["volplane"]["action"] = "view";
+            data["volplane"]["name"] = viewName;
+            data["volplane"]["properties"]["image"] = String.Format("img/{0:G}", image);
+
+            VolplaneController.AirConsole.Message(DeviceId, data);
+        }
+
         #endregion
 
         #region Player Controller Elements / Function Management
