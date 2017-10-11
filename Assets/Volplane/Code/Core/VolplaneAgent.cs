@@ -38,6 +38,7 @@ namespace Volplane
         protected static string InitialView;
 
         protected Queue<Action> eventQueue;
+        protected Queue<Action> inputQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Volplane.PlayerManager"/> class.
@@ -48,6 +49,7 @@ namespace Volplane
                 VolplaneAgent.CustomState = new JSONObject();
             
             this.eventQueue = new Queue<Action>(4);
+            this.inputQueue = new Queue<Action>(4);
 
             // Subscribe AirConsole events
             VolplaneController.AirConsole.OnReady += AirConsoleReady;
@@ -542,6 +544,10 @@ namespace Volplane
             // Fire queued events
             while(eventQueue.Count > 0)
                 eventQueue.Dequeue().Invoke();
+
+            // Process inputs
+            if(inputQueue.Count > 0)
+                inputQueue.Dequeue().Invoke();
         }
 
 
@@ -630,7 +636,9 @@ namespace Volplane
         /// <param name="data">Input data.</param>
         protected void ProcessMessages(int acDeviceId, JSONNode data)
         {
-            VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
+            inputQueue.Enqueue(delegate {
+                VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
+            });
         }
 
 

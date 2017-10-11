@@ -64,7 +64,6 @@ namespace Volplane
         private static ElementInput TempInput;
 
         private ElementInput tempInput;
-        private Queue<Action> eventQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Volplane.VInput"/> class.
@@ -72,7 +71,6 @@ namespace Volplane
         public VInput()
         {
             VInput.Inputs = new List<Dictionary<string, ElementInput>>(8);
-            this.eventQueue = new Queue<Action>(4);
         }
 
         /// <summary>
@@ -719,10 +717,6 @@ namespace Volplane
             for(int i = 0; i < VInput.Inputs.Count; i++)
                 foreach(ElementInput input in VInput.Inputs[i].Values)
                     input.Update();
-
-            // Fire queued events
-            while(eventQueue.Count > 0)
-                eventQueue.Dequeue().Invoke();
         }
 
         /// <summary>
@@ -777,11 +771,8 @@ namespace Volplane
 
                     // Event
                     if(VInput.DPadEvents && (OnDPad != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnDPad(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
-                        });
-                    }
+                        OnDPad(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+                    
                     break;
 
                 case "joystick":
@@ -791,11 +782,8 @@ namespace Volplane
 
                     // Event
                     if(VInput.JoystickEvents && (OnJoystick != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnJoystick(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
-                        });
-                    }
+                        OnJoystick(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+
                     break;
 
                 case "swipe":
@@ -813,11 +801,8 @@ namespace Volplane
 
                     // Event
                     if(VInput.SwipeEvents && (OnSwipe != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnSwipe(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
-                        });
-                    }
+                        OnSwipe(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+
                     break;
 
                 case "touch":
@@ -827,11 +812,8 @@ namespace Volplane
 
                     // Event
                     if(VInput.TouchEvents && (OnTouch != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnTouch(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
-                        });
-                    }
+                        OnTouch(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+
                     break;
 
                 case "motion":
@@ -845,18 +827,11 @@ namespace Volplane
 
                     // Events
                     if(VInput.MotionEvents && (OnAccelerometer != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnAccelerometer(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Accelerometer);
-                        });
-                    }
+                        OnAccelerometer(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Accelerometer);
                     
                     if(VInput.MotionEvents && (OnGyroscope != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnGyroscope(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Gyroscope);
-                        });
-                    }
+                        OnGyroscope(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Gyroscope);
+                    
                     break;
 
                 default:
@@ -864,11 +839,8 @@ namespace Volplane
 
                     // Event
                     if(VInput.ButtonEvents && (OnButton != null))
-                    {
-                        eventQueue.Enqueue(delegate {
-                            OnButton(playerId, data["name"].Value, tempInput.State);
-                        });
-                    }
+                        OnButton(playerId, data["name"].Value, tempInput.State);
+                    
                     break;
             }
         }
