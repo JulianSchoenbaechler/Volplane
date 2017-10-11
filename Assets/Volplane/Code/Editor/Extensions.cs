@@ -72,7 +72,7 @@ namespace Volplane.Editor
             if((Config.BuildPath != null) && (Config.BuildPath.Length > 0))
             {
                 Application.OpenURL(
-                    String.Format("{0:G}http://{1:G}:{2:D}/build/screen.html",
+                    String.Format("{0:G}http://{1:G}:{2:D}/build/",
                                   Config.AirConsolePlayUrl,
                                   GetLocalIPAddress(),
                                   Config.LocalServerPort)
@@ -101,7 +101,7 @@ namespace Volplane.Editor
         {
             string savedIndex = EditorPrefs.GetString("TemplateIndex", null);
 
-            if(!File.Exists(String.Format("{0:G}/{1:G}/index.html", Application.dataPath, Config.WebTemplatePath)))
+            if(!File.Exists(String.Format("{0:G}{1:G}/index.html", Application.dataPath, Config.WebTemplatePath)))
                 savedIndex = "";
 
             if(savedIndex.Length == 0)
@@ -116,8 +116,8 @@ namespace Volplane.Editor
 
                 // Copy specified index file for web template
                 File.Copy(
-                    String.Format("{0:G}/{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
-                    String.Format("{0:G}/{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
+                    String.Format("{0:G}{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
+                    String.Format("{0:G}{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
                     true
                 );
             }
@@ -129,8 +129,8 @@ namespace Volplane.Editor
 
                 // Copy specified index file for web template
                 File.Copy(
-                    String.Format("{0:G}/{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
-                    String.Format("{0:G}/{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
+                    String.Format("{0:G}{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
+                    String.Format("{0:G}{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
                     true
                 );
             }
@@ -142,8 +142,8 @@ namespace Volplane.Editor
 
                 // Copy specified index file for web template
                 File.Copy(
-                    String.Format("{0:G}/{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
-                    String.Format("{0:G}/{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
+                    String.Format("{0:G}{1:G}/{2:G}.html", Application.dataPath, Config.WebTemplateIndexPath, savedIndex),
+                    String.Format("{0:G}{1:G}/index.html", Application.dataPath, Config.WebTemplatePath),
                     true
                 );
             }
