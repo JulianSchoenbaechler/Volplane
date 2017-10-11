@@ -155,7 +155,6 @@
             ).normalized * 0.1f);
         }
 
-
         /// <summary>
         /// Applies the color on the player object in the scene and on the controller 'colorText' element.
         /// </summary>
