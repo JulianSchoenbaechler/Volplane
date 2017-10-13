@@ -46,6 +46,8 @@ namespace Volplane
 
                 this.StateDown = false;
                 this.StateUp = false;
+
+                this.Dirty = false;
             }
 
             /// <summary>
@@ -68,6 +70,8 @@ namespace Volplane
             public bool StateDown { get; protected set; }
             public bool StateUp { get; protected set; }
 
+            public bool Dirty { get; set; }
+
             /// <summary>
             /// Update must be called every frame.
             /// </summary>
@@ -85,6 +89,8 @@ namespace Volplane
                     StateUp = true;
                 
                 oldState = State;
+
+                Dirty = false;
             }
         }
 
@@ -149,6 +155,8 @@ namespace Volplane
                     StateUp = true;
 
                 oldState = State;
+
+                Dirty = false;
             }
         }
 
