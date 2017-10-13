@@ -30,9 +30,9 @@
  * @param {Object} screenRatio - Object storing the ratio the game should be displayed.
  * @param {number} screenRatio.width - Ratio width.
  * @param {number} screenRatio.height - Ratio height.
- * @param {Object} loadingBar - Properties of the loading bar.
+ * @param {Object} loadingScreen - Properties of the loading bar.
  */
-function Agent(gameContainer, screenRatio, loadingBar) {
+function Agent(gameContainer, screenRatio, loadingScreen) {
 
     this.compatibilityMode = false;
     this.isStandalone = this.getUrlParameter('unity-editor-websocket-port') != null ? false : true;
@@ -43,6 +43,7 @@ function Agent(gameContainer, screenRatio, loadingBar) {
 
         this.screenRatio = screenRatio || { width: 16, height: 9 };
 
+        // UnityLoader
         if(document.getElementById(gameContainer).nodeName.toLowerCase() == 'canvas') {
 
             // Unity 5.5 and older
@@ -50,14 +51,46 @@ function Agent(gameContainer, screenRatio, loadingBar) {
             this.compatibilityMode = true;
 
         } else {
+            
+            // Progress handler
+            var instance = this;
+            
+            instance.progress = new UnityProgress(gameContainer);
 
             // Setup UnityLoader
-            this.game = UnityLoader.instantiate(gameContainer, 'Build/game.json', this.screenRatio);
+            instance.game = UnityLoader.instantiate(gameContainer, 'Build/game.json', {
+                onProgress: function(game, progress) {
+                    if(progress < 1)
+                        instance.progress.SetProgress(progress);
+                    else
+                        instance.progress.Clear();
+                    
+                    instance.progress.SetMessage(Math.min(100, progress * 100).toString() + '%');
+                }
+            });
 
         }
 
-        if(typeof loadingBar != 'undefined')
-            console.log('loading bar stuff...');
+        // Loading screen styles
+        if(typeof loadingScreen != 'undefined') {
+            
+            var loadingContainer = document.getElementById('screen-progress');
+            var image = loadingContainer.getElementsByTagName('IMG')[0];
+            var infoText = loadingContainer.getElementsByClassName('info')[0];
+            var barContainer = loadingContainer.getElementsByClassName('bar')[0];
+            var progress = barContainer.getElementsByTagName('SPAN')[0];
+            
+            loadingContainer.style.backgroundColor = (loadingScreen.background || '#1F1D2A');
+            image.src = 'img/' + (loadingScreen.image || 'loading.png');
+            infoText.style.color = (loadingScreen.fontColor || '#F8F8EC');
+            progress.style.backgroundColor = (loadingScreen.barColor || '#7A2F34');
+            progress.style.borderRadius = ((loadingScreen.barBorderRadius || 3) - 2).toString() + 'px';
+            barContainer.style.borderColor = (loadingScreen.barBorderColor || '#87383C');
+            barContainer.style.borderRadius = (loadingScreen.barBorderRadius || 3).toString() + 'px';
+            barContainer.style.width = (loadingScreen.barWidth || 300).toString() + 'px';
+            barContainer.style.height = (loadingScreen.barHeight || 6).toString() + 'px';
+            
+        }
 
         this.resizeCanvas();
         this.initAirConsole();
@@ -360,42 +393,67 @@ Agent.prototype.resizeCanvas = function() {
         (typeof this.screenRatio.height == 'undefined'))
         return;
 
+    var aspectRatio = this.screenRatio.width / this.screenRatio.height;
+    
     if(!this.compatibilityMode) {
 
-        var aspectRatio = this.screenRatio.width / this.screenRatio.height;
         var width, height;
 
-        // Fill window
-        if((window.innerWidth / aspectRatio) > window.innerHeight) {
-
-            // Stretch by height
-            width = window.innerHeight * aspectRatio;
-            height = window.innerHeight;
-
-        } else {
-
-            // Stretch by width
+        if(this.screenRatio.stretch) {
+            
+            // Stretch to full screen
             width = window.innerWidth;
-            height = window.innerWidth / aspectRatio;
+            height = window.innerHeight;
+            
+        } else {
+            
+            // Fill window
+            if((window.innerWidth / aspectRatio) > window.innerHeight) {
 
+                // Stretch by height
+                width = window.innerHeight * aspectRatio;
+                height = window.innerHeight;
+
+            } else {
+
+                // Stretch by width
+                width = window.innerWidth;
+                height = window.innerWidth / aspectRatio;
+
+            }
+            
         }
+        
+        if(this.game.Module && this.game.Module.setCanvasSize)
+            this.game.Module.setCanvasSize(width, height);
 
         this.game.container.style.width = width.toString() + 'px';
         this.game.container.style.height = height.toString() + 'px';
 
     } else {
-
-        var aspectRatio = this.screenRatio.width / this.screenRatio.height;
-
+        
         document.body.style.height = '100%';
         document.body.style.width = '100%';
         document.body.style.margin = 0;
         document.body.style.overflow = 'hidden';
-        this.game.style.width = '100vw';
-        this.game.style.height = (100 / aspectRatio).toString() + 'vw';
-        this.game.style.maxWidth = (100 * aspectRatio).toString() + 'vh';
-        this.game.style.maxHeight = '100vh';
-        this.game.style.margin = 'auto';
+        
+        if(this.screenRatio.stretch) {
+            
+            this.game.style.width = '100vw';
+            this.game.style.height = '100vh';
+            this.game.style.maxWidth = '100vw';
+            this.game.style.maxHeight = '100vh';
+            
+        } else {
+            
+            this.game.style.width = '100vw';
+            this.game.style.height = (100 / aspectRatio).toString() + 'vw';
+            this.game.style.maxWidth = (100 * aspectRatio).toString() + 'vh';
+            this.game.style.maxHeight = '100vh';
+            
+        }
+        
+        this.game.style.margin = '0 auto';
         this.game.style.top = 0;
         this.game.style.bottom = 0;
         this.game.style.left = 0;
@@ -442,7 +500,7 @@ Agent.prototype.unityIsReady = function(autoScaleCanvas) {
     instance.isUnityReady = true;
     instance.dequeueToUnity();
 
-    if(typeof autoScaleCanvas === true) {
+    if(autoScaleCanvas === true) {
 
         window.addEventListener('resize', function() { instance.resizeCanvas() });
         instance.resizeCanvas();
