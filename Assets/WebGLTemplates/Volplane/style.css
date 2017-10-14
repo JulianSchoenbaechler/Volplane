@@ -12,6 +12,11 @@ html, body {
     text-align: center;
     font-family: sans-serif;
 }
+body > canvas#canvas,
+body > div#game {
+    display: inline-block;
+    overflow: hidden;
+}
 
 /* LOADING SCREEN */
 #screen-progress {
