@@ -234,7 +234,7 @@ Agent.prototype.setupWebsocket = function() {
 
     instance.socket = new WebSocket('ws://localhost:' + port + '/Volplane');
 
-    instance.socket.onopen = function() {
+    instance.socket.onopen = function() {console.log('websocket running...');
 
         instance.unityIsReady(false);
         instance.initAirConsole();

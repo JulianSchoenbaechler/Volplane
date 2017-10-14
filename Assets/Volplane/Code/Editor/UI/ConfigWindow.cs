@@ -34,6 +34,7 @@ namespace Volplane.Editor.UI
         private int tempServerPort;
         private int tempWebsocketPort;
         private int tempDebugLog;
+        private bool tempDebugMessages, tempDebugWarnings, tempDebugErrors;
 
         /// <summary>
         /// Init this instance.
@@ -63,7 +64,11 @@ namespace Volplane.Editor.UI
 
             tempServerPort = EditorGUILayout.IntField("Local Webserver Port:", Config.LocalServerPort);
             tempWebsocketPort = EditorGUILayout.IntField("Local Websocket Port:", Config.LocalWebsocketPort);
-            tempDebugLog = (int)(DebugState)EditorGUILayout.EnumPopup("Debug Messages:", (DebugState)Config.DebugLog);
+            EditorGUILayout.Space();
+            tempDebugLog = (int)(DebugState)EditorGUILayout.EnumPopup("Debug:", (DebugState)Config.DebugLog);
+            tempDebugMessages = EditorGUILayout.Toggle("Debug Messages", Config.DebugMessages);
+            tempDebugWarnings = EditorGUILayout.Toggle("Debug Warnings", Config.DebugWarnings);
+            tempDebugErrors = EditorGUILayout.Toggle("Debug Errors", Config.DebugErrors);
 
             GUILayout.Space(40f);
 
@@ -99,6 +104,24 @@ namespace Volplane.Editor.UI
             {
                 Config.DebugLog = tempDebugLog;
                 EditorPrefs.SetInt("DebugLog", tempDebugLog);
+            }
+
+            if(tempDebugMessages != Config.DebugMessages)
+            {
+                Config.DebugMessages = tempDebugMessages;
+                EditorPrefs.SetBool("DebugMessages", tempDebugMessages);
+            }
+
+            if(tempDebugWarnings != Config.DebugWarnings)
+            {
+                Config.DebugWarnings = tempDebugWarnings;
+                EditorPrefs.SetBool("DebugWarnings", tempDebugWarnings);
+            }
+
+            if(tempDebugErrors != Config.DebugErrors)
+            {
+                Config.DebugErrors = tempDebugErrors;
+                EditorPrefs.SetBool("DebugErrors", tempDebugErrors);
             }
         }
     }

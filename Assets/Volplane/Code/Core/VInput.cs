@@ -760,6 +760,9 @@ namespace Volplane
                 }
 
                 VInput.Inputs[playerId].Add(data["name"].Value, tempInput);
+
+                if(Config.DebugLog == (int)DebugState.All)
+                    VDebug.LogFormat("[Volplane (Input Handling)] New input registered: '{0:G}'.", data["name"].Value);
             }
 
             // Enqueue processing if the same input changed state in the same frame
@@ -768,6 +771,10 @@ namespace Volplane
                 updateQueue.Enqueue(delegate {
                     ProcessInput(playerId, data);
                 });
+
+                if(Config.DebugLog == (int)DebugState.All)
+                    VDebug.Log("[Volplane (Input Handling)] Queueing multiple inputs from same element.");
+                
                 return;
             }
 

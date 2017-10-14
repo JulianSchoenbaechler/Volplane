@@ -56,7 +56,7 @@ namespace Volplane.Net
         /// </summary>
         /// <param name="data">JSON data.</param>
         public void Message(JSONObject data)
-		{
+        {
             Send(data.ToString() + suffix);
         }
 
@@ -67,7 +67,7 @@ namespace Volplane.Net
         protected override void OnMessage(MessageEventArgs e)
         {
             if(e.IsText)
-			{
+            {
                 if(dataReceived != null)
                     dataReceived(e.Data);
             }
@@ -82,7 +82,7 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-				Debug.LogFormat("[Volplane (Websocket Service)] Socket connection opened on port: {0:D}.", Config.LocalWebsocketPort);
+                VDebug.LogFormat("[Volplane (Websocket Service)] Socket connection opened on port: {0:D}.", Config.LocalWebsocketPort);
             }
         }
 
@@ -94,11 +94,11 @@ namespace Volplane.Net
         {
             base.OnClose(e);
 
-            // Inform VolplaneEventManager
+            // TODO: Inform VolplaneAgent?
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-				Debug.LogFormat("[Volplane (Websocket Service)] Socket connection closed. Code:{0:D}.", e.Code);
+                VDebug.LogFormat("[Volplane (Websocket Service)] Socket connection closed. Code:{0:D}.", e.Code);
             }
         }
 
@@ -112,8 +112,8 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-				Debug.LogErrorFormat("[Volplane (Websocket Service)] {0:G}", e.Message);
-                Debug.LogException(e.Exception);
+                VDebug.LogErrorFormat("[Volplane (Websocket Service)] {0:G}", e.Message);
+                VDebug.LogException(e.Exception);
             }
         }
     }

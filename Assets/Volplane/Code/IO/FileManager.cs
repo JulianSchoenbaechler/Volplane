@@ -110,7 +110,7 @@ namespace Volplane.IO
                 if(jsonData["name"] == null)
                 {
                     if(Config.DebugLog == (int)DebugState.All)
-                        UnityEngine.Debug.LogError("[Volplane (FileManager)] Invalid file path. Could not write file.");
+                        VDebug.LogError("[Volplane (FileManager)] Invalid file path. Could not write file.");
 
                     return null;
                 }

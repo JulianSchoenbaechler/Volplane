@@ -124,14 +124,23 @@ namespace Volplane.Net
                                   String.Format("{0:G}{1:G}/controller.json", localPath, Config.WebTemplatePath),
                                   true);
                     }
+
+                    if(Config.DebugLog == (int)DebugState.All)
+                    {
+                        VDebug.Log("[Volplane (File Manager)] Controller saved!");
+                    }
                 }
                 catch(Exception e)
                 {
                     buffer = System.Text.Encoding.UTF8.GetBytes(
                         String.Format("Could not write data to path: {0:G}{1:G}/data/controller", localPath, Config.WebServerPath)
                     );
-                    UnityEngine.Debug.LogErrorFormat("[Volplane (File Manager)] Unable to write file to: '{0:G}{1:G}/data/controller'.", localPath, Config.WebServerPath);
-                    UnityEngine.Debug.LogException(e);
+
+                    if(Config.DebugLog == (int)DebugState.All)
+                    {
+                        VDebug.LogErrorFormat("[Volplane (File Manager)] Unable to write file to: '{0:G}{1:G}/data/controller'.", localPath, Config.WebServerPath);
+                        VDebug.LogException(e);
+                    }
                 }
                 finally
                 {

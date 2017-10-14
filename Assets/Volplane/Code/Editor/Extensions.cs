@@ -88,6 +88,9 @@ namespace Volplane.Editor
             Config.LocalServerPort = EditorPrefs.GetInt("LocalServerPort", Config.DefaultLocalServerPort);
             Config.LocalWebsocketPort = EditorPrefs.GetInt("LocalWebsocketPort", Config.DefaultLocalWebsocketPort);
             Config.DebugLog = EditorPrefs.GetInt("DebugLog", (int)DebugState.None);
+            Config.DebugMessages = EditorPrefs.GetBool("DebugMessages", false);
+            Config.DebugWarnings = EditorPrefs.GetBool("DebugWarnings", true);
+            Config.DebugErrors = EditorPrefs.GetBool("DebugErrors", true);
             Config.BrowserStart = EditorPrefs.GetInt("BrowserStart", (int)BrowserStartMode.Standard);
             Config.AutoScaleCanvas = EditorPrefs.GetBool("AutoScaleCanvas", true);
             Config.SelectedController = EditorPrefs.GetString("SelectedController", null);

@@ -526,10 +526,12 @@ namespace Volplane
                 VolplaneController.AirConsole.OnReady -= AirConsoleReady;
                 VolplaneController.AirConsole.OnConnect -= PlayerConnected;
                 VolplaneController.AirConsole.OnDisconnect -= PlayerDisconnected;
+                VolplaneController.AirConsole.OnPremium -= PlayerBecomesHero;
                 VolplaneController.AirConsole.OnAdShow -= AdDisplay;
                 VolplaneController.AirConsole.OnAdComplete -= AdFinished;
                 VolplaneController.AirConsole.OnDeviceProfileChange -= PlayerProfileChanged;
                 VolplaneController.AirConsole.OnMessage -= ProcessMessages;
+                VolplaneController.AirConsole.OnPersistentDataStored -= PlayerStoredData;
             }
         }
 
@@ -586,7 +588,7 @@ namespace Volplane
         /// </summary>
         /// <returns>The player number.</returns>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected int AddPlayer(int acDeviceId/*, JSONNode data*/)
+        protected int AddPlayer(int acDeviceId)
         {
             if(acDeviceId < 1)
                 return -1;
@@ -604,7 +606,7 @@ namespace Volplane
                 AllocateCustomStateArrays(acDeviceId);
 
                 // Create new player and subscribe state change event for updating custom device state
-                VPlayer newPlayer = new VPlayer(acDeviceId/*, data*/);
+                VPlayer newPlayer = new VPlayer(acDeviceId);
 
                 Action<bool> updateState = delegate(bool active) {
                     VolplaneAgent.CustomState["active"][acDeviceId] = active;
@@ -618,6 +620,9 @@ namespace Volplane
                 // Add player to player list
                 index = VolplaneAgent.Players.Count;
                 VolplaneAgent.Players.Add(newPlayer);
+
+                if(Config.DebugLog == (int)DebugState.All)
+                    VDebug.LogFormat("[Volplane] Registered new device with id: {0:D}. Added as player with id: {1:D}.", acDeviceId, index);
             }
 
             return index;
@@ -641,6 +646,9 @@ namespace Volplane
         private void AirConsoleReady(string code)
         {
             VolplaneAgent.GameCode = code;
+
+            if(Config.DebugLog == (int)DebugState.All)
+                VDebug.LogFormat("[Volplane] AirConsole is ready! Game started with connect code: '{0:G}'.", code);
 
             if(OnReady != null)
             {

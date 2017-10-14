@@ -63,5 +63,8 @@ namespace Volplane
         public static string BuildPath                      = null;
 
         public static int DebugLog                          = (int)DebugState.None;
+        public static bool DebugMessages                    = false;
+        public static bool DebugWarnings                    = true;
+        public static bool DebugErrors                      = true;
     }
 }

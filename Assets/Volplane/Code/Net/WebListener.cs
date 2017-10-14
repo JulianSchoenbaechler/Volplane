@@ -88,7 +88,8 @@ namespace Volplane.Net
             }
             else
             {
-                Debug.LogWarningFormat("[Volplane (Web Listener)] WebListener already running on port: {0}.", port);
+                if(Config.DebugLog != (int)DebugState.None)
+                    VDebug.LogWarningFormat("[Volplane (Web Listener)] WebListener already running on port: {0}.", port);
             }
         }
 
@@ -156,10 +157,10 @@ namespace Volplane.Net
             }
             catch(Exception e)
             {
-                if(listener.IsListening)
+                if((Config.DebugLog != (int)DebugState.None) && listener.IsListening)
                 {
-                    Debug.LogError("[Volplane (Web Listener)] WebListener failed resolving context.");
-                    Debug.LogException(e);
+                    VDebug.LogError("[Volplane (Web Listener)] WebListener failed resolving context.");
+                    VDebug.LogException(e);
                 }
             }
         }
