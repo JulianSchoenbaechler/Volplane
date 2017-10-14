@@ -66,8 +66,7 @@ namespace Volplane.Net
                         serverPath
                     );
                 }
-                else if(serverPath.StartsWith("/volplane/") ||
-                        String.Equals(Path.GetFileName(serverPath), "screen.html"))
+                else if(serverPath.StartsWith("/volplane/"))
                 {
                     // Local web server path
                     serverPath = serverPath.Replace("/volplane/", "/");
@@ -77,6 +76,9 @@ namespace Volplane.Net
                 {
                     // WebGL template path
                     filePath = localPath + Config.WebTemplatePath + serverPath;
+
+                    if(String.Equals(Path.GetFileName(filePath), "screen.html"))
+                        filePath = filePath.Replace("screen.html", "index.html");
                 }
 
                 filePath = pathSeparatorReg.Replace(filePath, Path.DirectorySeparatorChar.ToString());
