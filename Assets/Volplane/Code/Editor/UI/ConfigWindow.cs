@@ -36,23 +36,17 @@ namespace Volplane.Editor.UI
         private int tempDebugLog;
         private bool tempDebugMessages, tempDebugWarnings, tempDebugErrors;
 
+        private GUIStyle redStyle, greenStyle;
+
         /// <summary>
         /// Init this instance.
         /// </summary>
         [MenuItem("Window/Volplane Configuration")]
         static void Init()
         {
-            Rect position = new Rect(400f, 100f, 400f, 400f);
+            Rect position = new Rect(400f, 100f, 400f, 220f);
 
             ConfigWindow.window = EditorWindow.GetWindowWithRect<ConfigWindow>(position, true, "Volplane Configuration", true);
-        }
-
-        /// <summary>
-        /// On window enabling.
-        /// </summary>
-        protected virtual void OnEnable()
-        {
-            // Format and Styles
         }
 
         /// <summary>
@@ -60,32 +54,48 @@ namespace Volplane.Editor.UI
         /// </summary>
         protected virtual void OnGUI()
         {
+            // Format and Styles
+            redStyle = new GUIStyle(GUI.skin.label);
+            greenStyle = new GUIStyle(GUI.skin.label);
+            redStyle.normal.textColor = new Color(0.6f, 0f, 0f);
+            greenStyle.normal.textColor = new Color(0f, 0.6f, 0f);
+
+            // Rendering window
             GUILayout.Space(10f);
 
             tempServerPort = EditorGUILayout.IntField("Local Webserver Port:", Config.LocalServerPort);
             tempWebsocketPort = EditorGUILayout.IntField("Local Websocket Port:", Config.LocalWebsocketPort);
+
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            EditorGUILayout.Space();
+
             tempDebugLog = (int)(DebugState)EditorGUILayout.EnumPopup("Debug:", (DebugState)Config.DebugLog);
             tempDebugMessages = EditorGUILayout.Toggle("Debug Messages", Config.DebugMessages);
             tempDebugWarnings = EditorGUILayout.Toggle("Debug Warnings", Config.DebugWarnings);
             tempDebugErrors = EditorGUILayout.Toggle("Debug Errors", Config.DebugErrors);
 
-            GUILayout.Space(40f);
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
 
             if(Extensions.LocalWebserver.IsRunning)
             {
-                GUILayout.Label("Local webserver is running...");
+                GUILayout.Label("Local webserver is running...", greenStyle);
 
                 if(GUILayout.Button("Stop Server"))
                     Extensions.LocalWebserver.Stop();
             }
             else
             {
-                GUILayout.Label("Local webserver has stopped.");
+                GUILayout.Label("Local webserver has stopped.", redStyle);
 
                 if(GUILayout.Button("Restart Server"))
                     Extensions.LocalWebserver.Start();
             }
+
+            EditorGUILayout.EndHorizontal();
 
             // Saving edited preferences
             if(tempServerPort != Config.LocalServerPort)

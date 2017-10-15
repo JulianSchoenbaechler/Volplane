@@ -44,25 +44,27 @@ namespace Volplane.Editor.UI
         private string tempSelectedController;
 		private Action<string> OnControllerCreated;
 
+        // Styling
+        GUIStyle infoTextStyle;
+
         /// <summary>
         /// Inspector GUI draw call.
         /// </summary>
         public override void OnInspectorGUI()
         {
-            // Show version info, license, etc...
-
-
             // Draw serialized properties
             serializedObject.Update();
 
+            // Do not show this script in inspector
             DrawPropertiesExcluding(serializedObject, excludedProperties);
 
             serializedObject.ApplyModifiedProperties();
 
-
             // Browser start mode and canvas scale settings
             tempBrowserStart = (int)(BrowserStartMode)EditorGUILayout.EnumPopup("Browser Start", (BrowserStartMode)Config.BrowserStart);
             tempAutoScaleCanvas = EditorGUILayout.Toggle("Auto Scale Canvas", Config.AutoScaleCanvas);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             // Controller list popup
             tempSelectedController = controllerList[EditorGUILayout.Popup("Controller",
@@ -137,12 +139,26 @@ namespace Volplane.Editor.UI
             // Check if there is a builded version
             if(File.Exists(EditorPrefs.GetString("BuildPath") + "/screen.html"))
             {
+                EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
                 // Open last build
                 if(GUILayout.Button("Open Last Build"))
                 {
                     Extensions.OpenBuild();
                 }
             }
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            // Show version info, license, etc...
+            EditorGUILayout.SelectableLabel(
+                String.Format("Volplane Framework {0:G}\n" +
+                              "Licensed under the GNU GPL v3\n\n" +
+                              "Source and more license information on GitHub: {1:G}\n" +
+                              "Designed for AirConsole: {2:G}", Config.Version, Config.VolplaneUrl, Config.AirConsoleUrl),
+                infoTextStyle,
+                GUILayout.Height(60f)
+            );
         }
 
 
@@ -151,6 +167,13 @@ namespace Volplane.Editor.UI
         /// </summary>
         private void OnEnable()
         {
+            infoTextStyle = new GUIStyle();
+            infoTextStyle.fontSize = 8;
+            infoTextStyle.alignment = TextAnchor.LowerLeft;
+            infoTextStyle.stretchHeight = true;
+            infoTextStyle.wordWrap = true;
+            infoTextStyle.clipping = TextClipping.Clip;
+
             excludedProperties = new[] { "m_Script" };
             
             controllerFolderPath = String.Format(
