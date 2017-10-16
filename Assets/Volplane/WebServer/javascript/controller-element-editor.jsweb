@@ -404,8 +404,8 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'highlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
             
-            input.getTextInput('Text', elementObject.text || '', false, function() {
-                elementObject.text = $(this).val();
+            input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
+                elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
@@ -469,8 +469,8 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'rightHighlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
             
-            input.getTextInput('Text', elementObject.text || '', false, function() {
-                elementObject.text = $(this).val();
+            input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
+                elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
@@ -539,8 +539,8 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'distance');
             }).addClass('ce-edit-distance').appendTo($selector);
             
-            input.getTextInput('Text', elementObject.text || '', false, function() {
-                elementObject.text = $(this).val();
+            input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
+                elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
@@ -574,8 +574,8 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
         // Touch area properties
         case 'touch':
             
-            input.getTextInput('Text', elementObject.text || '', false, function() {
-                elementObject.text = $(this).val();
+            input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
+                elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
@@ -604,8 +604,8 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
                 callback(elementObject, 'textAlign');
             }).addClass('ce-edit-text-align').appendTo($selector);
             
-            input.getTextInput('Text', elementObject.text || '', false, function() {
-                elementObject.text = $(this).val();
+            input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
+                elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
             
