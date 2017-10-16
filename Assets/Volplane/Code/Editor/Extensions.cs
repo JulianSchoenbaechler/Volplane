@@ -67,6 +67,9 @@ namespace Volplane.Editor
         /// </summary>
         public static event Action EnteringPlaymode;
 
+        /// <summary>
+        /// Opens the builded project in the AirConsole simulator.
+        /// </summary>
         public static void OpenBuild()
         {
             if((Config.BuildPath != null) && (Config.BuildPath.Length > 0))
@@ -77,6 +80,26 @@ namespace Volplane.Editor
                                   GetLocalIPAddress(),
                                   Config.LocalServerPort)
                 );
+            }
+        }
+
+        /// <summary>
+        /// Creates a Volplane controller instance.
+        /// </summary>
+        [MenuItem("Assets/Create/Volplane Controller")]
+        [MenuItem("GameObject/Create Other/Volplane Controller")]
+        protected static void CreateVolplaneInstance()
+        {
+            VolplaneController ctrl = GameObject.FindObjectOfType<VolplaneController>();
+
+            if(ctrl == null)
+            {
+                GameObject obj = new GameObject("Volplane", new[] { typeof(VolplaneController) });
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Already exists", "Volplane instance already exists in the current scene", "OK");
+                EditorGUIUtility.PingObject(ctrl.GetInstanceID());
             }
         }
 
