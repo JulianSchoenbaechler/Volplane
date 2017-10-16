@@ -26,21 +26,22 @@
             // https://developers.airconsole.com/api/api-1-7-0/AirConsole.html
             /*
             window.config = {
-                orientation  = 'portrait',        // ...or 'landscape'
+                orientation  = 'portrait',      // ...or 'landscape'
                 synchronizeTime = true,
-                deviceMotion = undefined          // ...any number or undefined
+                deviceMotion = undefined        // ...any number or undefined
             };
             */
+            
+            var initialView = 'loading';        // Initial view which should be displayed while game is still loading
             
             // Do not edit below this line...
             // ============================================
             
             $(document).ready(function() {
                 
-                var view = getUrlParameter('view'),
-                    controllerData = getUrlParameter('data');
+                view = getUrlParameter('view') || initialView;
                 
-                window.volplane = new VolplaneController(view, controllerData);
+                window.volplane = new VolplaneController(view, getUrlParameter('data'));
                 
             });
             
