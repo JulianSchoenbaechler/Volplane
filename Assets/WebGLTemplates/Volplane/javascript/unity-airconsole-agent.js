@@ -52,21 +52,20 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
 
         } else {
             
-            // Progress handler
-            var instance = this;
-            
-            instance.progress = new UnityProgress(gameContainer);
+            this.progress = new UnityProgress(gameContainer);
 
             // Setup UnityLoader
-            instance.game = UnityLoader.instantiate(gameContainer, 'Build/game.json', {
-                onProgress: function(game, progress) {
-                    if(progress < 1)
-                        instance.progress.SetProgress(progress);
-                    else
-                        instance.progress.Clear();
-                    
-                    instance.progress.SetMessage(Math.min(100, progress * 100).toString() + '%');
-                }
+            this.game = UnityLoader.instantiate(gameContainer, 'Build/game.json', {
+                onProgress: (function(instance) {
+                    return function(game, progress) {
+                        if(progress < 1)
+                            instance.progress.SetProgress(progress);
+                        else
+                            instance.progress.Clear();
+                        
+                        instance.progress.SetMessage(Math.min(100, progress * 100).toString() + '%');
+                    };
+                })(this)
             });
 
         }
@@ -92,16 +91,77 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
             
         }
 
+        this.setupErrorHandler();
         this.resizeCanvas();
         this.initAirConsole();
 
     } else {
 
         this.setupWebsocket();
+        
+        document.body.innerHTML = '<div class="full-screen">' +
+            '<p id="editor-message">You can see the game scene in the Unity Editor.<br />' +
+            'Keep this window open in the background.</p>' +
+            '</div>';
 
     }
 
 }
+
+/*
+ * Setup an error-handler which reacts to specific errors and informs the user.
+ * Proper error handling and stack tracing should be covered by the AirConsole API.
+ */
+Agent.prototype.setupErrorHandler = function() {
+    
+    // Override window onerror event
+    window.onerror = function(msg) {
+        
+        if((message.indexOf('UnknownError') != -1) ||
+           (message.indexOf('Program terminated with exit(0)') != -1) ||
+           (message.indexOf('DISABLE_EXCEPTION_CATCHING') != -1)) {
+            
+            alert('An unknown error occured! Check your WebGL build.');
+            
+        } else if(message.indexOf('Cannot enlarge memory arrays') != -1) {
+            
+            window.setTimeout(function() {
+                throw new Error('[Volplane] Not enough memory. Allocate more memory in the WebGL player settings.');
+            }, 200);
+            
+            return false;
+            
+        } else if((message.indexOf('Invalid array buffer length') != -1) ||
+                  (message.indexOf('out of memory') != -1) ||
+                  (message.indexOf('Array buffer allocation failed') != -1)) {
+            
+            alert('Your browser ran out of memory. Try restarting your browser and close other applications running on your computer.');
+            return true;
+            
+        }
+        
+        var container = document.createElement('div');
+        var message = document.createElement('p');
+        
+        container.className = 'full-screen';
+        message.innerHTML = 'An <span style="color: red;">error</span> has occured, the AirConsole team was informed.';
+        
+        container.appendChild(message);
+        document.body.appendChild(container);
+        
+        // Navigate to AirConsole home in 5 seconds...
+        window.setTimeout(function() {
+            
+           if(window.volplane && window.volplane.airconsole)
+               window.volplane.airconsole.navigateHome();
+        
+        }, 5000);
+        
+        return true;
+        
+    }
+
+};
 
 /*
  * Initialize AirConsole API and register events.
@@ -243,7 +303,7 @@ Agent.prototype.setupWebsocket = function() {
 
     instance.socket.onclose = function() {
 
-        console.log('socket closed...');
+        document.getElementById('editor-message').innerHTML = 'Game <span style="color: red;">stopped</span> in Unity. Please close this tab.';
 
     };
 

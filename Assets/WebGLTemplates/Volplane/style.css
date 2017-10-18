@@ -18,6 +18,32 @@ body > div#game {
     overflow: hidden;
 }
 
+/* DIV CLASSES */
+div.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: #1F1D2A;
+}
+div.full-screen p {
+    position: relative;
+    top: 40%;
+    left: 0;
+    width: 100%;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 24pt;
+    font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+    font-weight: lighter;
+    color: #F8F8EC;
+}
+
 /* LOADING SCREEN */
 #screen-progress {
     display: flex;
@@ -66,6 +92,6 @@ body > div#game {
 #screen-progress p {
     margin: 10px auto;
     font-size: 10pt;
-    font: 'Lucida Console', Monaco, monospace;
+    font-family: 'Lucida Console', Monaco, monospace;
     color: #F8F8EC;
 }
