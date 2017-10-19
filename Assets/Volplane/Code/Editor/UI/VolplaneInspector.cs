@@ -55,14 +55,14 @@ namespace Volplane.Editor.UI
             // Draw serialized properties
             serializedObject.Update();
 
+            // Browser start mode and canvas scale settings
+            tempBrowserStart = (int)(BrowserStartMode)EditorGUILayout.EnumPopup("Browser Start", (BrowserStartMode)Config.BrowserStart);
+            tempAutoScaleCanvas = EditorGUILayout.Toggle("Auto Scale Canvas", Config.AutoScaleCanvas);
+
             // Do not show this script in inspector
             DrawPropertiesExcluding(serializedObject, excludedProperties);
 
             serializedObject.ApplyModifiedProperties();
-
-            // Browser start mode and canvas scale settings
-            tempBrowserStart = (int)(BrowserStartMode)EditorGUILayout.EnumPopup("Browser Start", (BrowserStartMode)Config.BrowserStart);
-            tempAutoScaleCanvas = EditorGUILayout.Toggle("Auto Scale Canvas", Config.AutoScaleCanvas);
 
             EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 

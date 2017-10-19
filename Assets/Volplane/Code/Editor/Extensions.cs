@@ -95,6 +95,7 @@ namespace Volplane.Editor
             if(ctrl == null)
             {
                 GameObject obj = new GameObject("Volplane", new[] { typeof(VolplaneController) });
+                EditorGUIUtility.PingObject(obj.GetInstanceID());
             }
             else
             {

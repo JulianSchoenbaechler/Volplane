@@ -69,7 +69,8 @@ namespace Volplane
             VolplaneController.AirConsole.OnPersistentDataLoaded += GetUserData;
 
             // Request persistent data
-            VolplaneController.AirConsole.RequestPersistentData(UID);
+            if(VolplaneAgent.SyncUserData)
+                VolplaneController.AirConsole.RequestPersistentData(UID);
         }
 
         #region Player Events
@@ -275,9 +276,14 @@ namespace Volplane
             if(data == null)
                 return;
 
-            foreach(string key in data.Keys)
+            UserData = data;
+
+            if(VolplaneAgent.SyncUserData)
             {
-                VolplaneController.AirConsole.StorePersistentData(key, data[key], UID);
+                foreach(string key in data.Keys)
+                {
+                    VolplaneController.AirConsole.StorePersistentData(key, data[key], UID);
+                }
             }
         }
 

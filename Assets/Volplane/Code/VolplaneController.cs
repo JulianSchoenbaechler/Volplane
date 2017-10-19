@@ -69,6 +69,11 @@ namespace Volplane
         [DllImport("__Internal")]
         private static extern void UnityIsReady(bool autoScale);
 
+
+        // Instance variables
+
+        [SerializeField] private bool usePersistentData = false;
+
         #if UNITY_EDITOR
         private WebSocketServer websocketServer;
         private VolplaneWebsocketService websocketService;
@@ -121,6 +126,9 @@ namespace Volplane
 
             // Input handling
             VolplaneController.InputHandling = new VInput();
+
+            // Use persistent data for the connected players
+            VolplaneController.Main.UsePersistentData(this.usePersistentData);
 
             // Initialize all VolplaneBehaviours in the Scene
             VolplaneBehaviour[] volplaneInstances = Resources.FindObjectsOfTypeAll<VolplaneBehaviour>();

@@ -36,6 +36,7 @@ namespace Volplane
 
         protected static JSONNode CustomState;
         protected static string InitialView;
+        protected static bool LocalSyncUserData;
 
         protected Queue<Action> eventQueue;
 
@@ -89,6 +90,15 @@ namespace Volplane
         public static string StandardView
         {
             get { return InitialView; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this game use persistent storage from AirConsole.
+        /// </summary>
+        /// <value><c>true</c> if use persistent storage; otherwise, <c>false</c>.</value>
+        public static bool SyncUserData
+        {
+            get { return VolplaneAgent.LocalSyncUserData; }
         }
 
         /// <summary>
@@ -509,6 +519,15 @@ namespace Volplane
         public void RequestAd()
         {
             VolplaneController.AirConsole.ShowAd();
+        }
+
+        /// <summary>
+        /// Should the user data of the players be stored persistently on the AirConsole servers?
+        /// </summary>
+        /// <param name="value">Using persisten data when set to <c>true</c>.</param>
+        public void UsePersistentData(bool value)
+        {
+            LocalSyncUserData = value;
         }
 
         /// <summary>
