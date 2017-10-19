@@ -1,0 +1,97 @@
+/*
+ * Volplane Screen Template Style Sheet
+ * Copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
+ * Version      v1.0.0
+ * License      GPL v3
+ */
+
+/* MAIN */
+html, body {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-family: sans-serif;
+}
+body > canvas#canvas,
+body > div#game {
+    display: inline-block;
+    overflow: hidden;
+}
+
+/* DIV CLASSES */
+div.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: #1F1D2A;
+}
+div.full-screen p {
+    position: relative;
+    top: 40%;
+    left: 0;
+    width: 100%;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 24pt;
+    font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+    font-weight: lighter;
+    color: #F8F8EC;
+}
+
+/* LOADING SCREEN */
+#screen-progress {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    text-align: center;
+    background-color: #1F1D2A;
+}
+#screen-progress img {
+    padding: 0;
+    margin: 0;
+}
+#screen-progress .bar {
+    position: relative;
+    width: 300px;
+    height: 6px;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: 1px solid #87383C;
+    border-radius: 3px;
+}
+#screen-progress .bar span {
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 0;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 0;
+    background-color: #7A2F34;
+    border-radius: 1px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+#screen-progress p {
+    margin: 10px auto;
+    font-size: 10pt;
+    font-family: 'Lucida Console', Monaco, monospace;
+    color: #F8F8EC;
+}

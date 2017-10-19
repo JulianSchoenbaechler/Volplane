@@ -1,0 +1,415 @@
+/**
+ * EditorInputElements
+ * @copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
+ * @version 1.0.0
+ * @license GPL v3
+ *
+ * @external jQuery
+ * @see {@link http://api.jquery.com/jQuery/}
+ */
+
+/**
+ * Gateway object to the InputElements class.
+ * @constructor
+ */
+function InputElements() {
+    this.init();
+}
+
+
+/**
+ * @chapter
+ * PUBLIC FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Create a text input selector.
+ * @param {String} name - The name displayed as header before the input element.
+ * @param {String} text - The preloaded text inside the input field.
+ * @param {Function} inputCallback - Callback function when new value entered.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getTextInput = function(name = '', text = '', isName = false, inputCallback = null) {
+
+    var $el = $('<div/>');
+
+    $el.append($('<span>' + name + '</span>'));
+
+    if(isName) {
+
+        $el.append($('<input/>', {
+            type: 'text',
+            value: text,
+            pattern: '[a-zA-Z0-9_-]{3,25}',
+            change: function() {
+
+                var nameArray = $(this).val().match(/[a-zA-Z0-9_-]/g);
+
+                if(nameArray !== null)
+                    $(this).val(nameArray.join(''));
+                else
+                    $(this).val('noname');
+
+                if(typeof inputCallback != 'undefined')
+                    inputCallback.call(this);
+            }
+        }));
+
+    } else {
+
+        $el.append($('<input/>', {
+            type: 'text',
+            value: text,
+            change: typeof inputCallback === 'function' && inputCallback
+        }));
+
+    }
+
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * Create a number input selector.
+ * @param {String} name - The name displayed as header before the input element.
+ * @param {Number} number - The preloaded number inside the input field.
+ * @param {Number} min - The lowest possible number inside the input field.
+ * @param {Number} max - The highest possible number inside the input field.
+ * @param {String} appendix - Appendix.
+ * @param {Function} inputCallback - Callback function when new value entered.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getNumberInput = function(name = '', number = 0, max = -1, min = -1, appendix = '', inputCallback = null) {
+
+    var $el = $('<div/>');
+
+    $el.append($('<span>' + name + '</span>'));
+
+    if((max - 1) === 0) {
+        $el.append($('<input/>', {
+            type: 'number',
+            value: number,
+            change: typeof inputCallback === 'function' && inputCallback
+        }));
+    } else {
+        $el.append($('<input/>', {
+            type: 'number',
+            value: number,
+            min: min,
+            max: max,
+            change: function() {
+
+                var number = parseInt($(this).val(), 10),
+                    max = parseInt($(this).prop('max'), 10),
+                    min = parseInt($(this).prop('min'), 10);
+
+                number = number > max ? max : number;
+                number = number < min ? min : number;
+
+                $(this).val(number.toString());
+
+                if(typeof inputCallback != 'undefined')
+                    inputCallback.call(this);
+            }
+        }));
+    }
+
+    if(appendix.length > 0)
+        $el.append($('<span>' + appendix + '</span>'));
+
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * Create a toggle input selector.
+ * @param {String} name - The name for the input element.
+ * @param {Boolean} checked - The preloaded state from the input field.
+ * @param {Function} inputCallback - Callback function when state changes.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getToggleInput = function(name = '', checked = false, inputCallback = null) {
+
+    var $el = $('<div/>');
+    var $checkbox = $('<label class="checkbox"></label>');
+
+    $checkbox.append($('<input/>', {
+        type: 'checkbox',
+        change: typeof inputCallback === 'function' && inputCallback
+    }).prop('checked', checked));
+
+    $checkbox.append($('<div/>'), name);
+    $el.append($checkbox);
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * Create a dropdown input selector.
+ * @param {String} name - The name for the input element.
+ * @param {Object} options - Key value pair of selectable options (strings). Key -> displayed, value -> option value.
+ * @param {String} defaultOption - Default selected option.
+ * @param {Function} inputCallback - Callback function when state changes.
+ * @param {Boolean} isFontList - If set to true, options are treated as fonts.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getDropdownInput = function(name = '', options = {}, defaultOption = '', inputCallback = null, isFontList = false) {
+
+    var $el = $('<div/>'),
+        $select = $('<select/>', {
+            size: 1,
+            change: typeof inputCallback === 'function' && inputCallback
+        });
+
+    $el.append($('<span>' + name + '</span>'));
+
+    // Append options
+    for(var option in options) {
+
+        if(!options.hasOwnProperty(option))
+            continue;
+
+        var $option;
+
+        if(option == defaultOption)
+            $option = $('<option value="' + options[option] + '">' + option + '</option>').attr('selected', 'selected');
+        else
+            $option = $('<option value="' + options[option] + '">' + option + '</option>');
+
+        if(isFontList)
+            $option.css('font-family', options[option]);
+
+        $select.append($option);
+
+    }
+
+    $el.append($select);
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * Create a color picker input.
+ * @param {String} name - The name for the input element.
+ * @param {string} color - the initial css color.
+ * @param {Function} inputCallback - Callback function when state changes.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getColorInput = function(name = '', color = 'rgb(0, 0, 0)', inputCallback = null) {
+
+    var $el = $('<div/>');
+
+    $el.append($('<span>' + name + '</span>'));
+    $el.append(this.addColorPicker(typeof inputCallback === 'function' && inputCallback, color));
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * Create text align input radio buttons.
+ * @param {String} defaultOption - Default selected option.
+ * @param {Function} inputCallback - Callback function when state changes.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getAlignInput = function(defaultOption = 'left', inputCallback = null) {
+
+    var $el = $('<div/>');
+
+    $('<label/>').append(
+        $('<input/>', {
+            type: 'radio',
+            name: 'textAlign',
+            value: 'left',
+            change: typeof inputCallback === 'function' && inputCallback
+        }).prop('checked', defaultOption == 'left'),
+        $('<div/>').append($('<span/>'), $('<span/>'))
+    ).addClass('align-input align-left').appendTo($el);
+
+    $('<label/>').append(
+        $('<input/>', {
+            type: 'radio',
+            name: 'textAlign',
+            value: 'center',
+            change: typeof inputCallback === 'function' && inputCallback
+        }).prop('checked', defaultOption == 'center'),
+        $('<div/>').append($('<span/>'), $('<span/>'))
+    ).addClass('align-input align-center').appendTo($el);
+
+    $('<label/>').append(
+        $('<input/>', {
+            type: 'radio',
+            name: 'textAlign',
+            value: 'right',
+            change: typeof inputCallback === 'function' && inputCallback
+        }).prop('checked', defaultOption == 'right'),
+        $('<div/>').append($('<span/>'), $('<span/>'))
+    ).addClass('align-input align-right').appendTo($el);
+
+    $('<label/>').append(
+        $('<input/>', {
+            type: 'radio',
+            name: 'textAlign',
+            value: 'justify',
+            change: typeof inputCallback === 'function' && inputCallback
+        }).prop('checked', defaultOption == 'justify'),
+        $('<div/>').append($('<span/>'), $('<span/>'))
+    ).addClass('align-input align-justify').appendTo($el);
+
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * Create a background format input.
+ * @param {String} name - The name for the input element.
+ * @param {string} defaultOption - the initial format option.
+ * @param {Function} inputCallback - Callback function when state changes.
+ * @returns {jQuery} jQuery selector of this input div container.
+ */
+InputElements.prototype.getBackgroundFormat = function(name = '', defaultOption = 'contain', inputCallback = null) {
+
+    var $el = $('<div/>'),
+        $select = $('<select/>', {
+            size: 1,
+            change: typeof inputCallback === 'function' && inputCallback
+        });
+
+    var options = {
+        'contain': 'Contain',
+        'cover': 'Cover',
+        '100% 100%': 'Stretch',
+        'repeat-x': 'Repeat along x',
+        'repeat-y': 'Repeat along y',
+        'repeat': 'Repeat both'
+    };
+
+    $el.append($('<span>' + name + '</span>'));
+
+    // Append options
+    for(var option in options) {
+
+        if(option == defaultOption)
+            $option = $('<option value="' + option + '">' + options[option] + '</option>').attr('selected', 'selected');
+        else
+            $option = $('<option value="' + option + '">' + options[option] + '</option>');
+
+        $select.append($option);
+    }
+
+    $el.append($select);
+    $el.append('<br/>');
+
+    return $el;
+
+};
+
+/**
+ * PRIVATE FUNCTIONS
+ * -------------------------------------------------------------------------
+ */
+
+/**
+ * Color picker js plugin. Display color picker.
+ * @param {Function} callback - Callback function returning color string.
+ * @param {String} initColor - Initial color.
+ * @private
+ */
+InputElements.prototype.addColorPicker = function(callback, initColor = 'rgb(0, 0, 0)') {
+
+    // Color input
+    var colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.onclick = function(e) {
+        e.preventDefault();
+    };
+
+    // Color picker object
+    var picker = new CP(colorInput);
+
+    // Alpha channel input
+    var alphaInput = document.createElement('input');
+    alphaInput.type = 'range';
+    alphaInput.min = 0;
+    alphaInput.max = 1;
+    alphaInput.step = 0.01;
+    alphaInput.value = 1;
+    alphaInput.onchange =
+    alphaInput.oninput = function() {
+
+        var v = CP._HSV2RGB(picker.set());
+        v = this.value == 1 ? 'rgb(' + v.join(', ') + ')' : 'rgba(' + v.join(', ') + ', ' + this.value.replace(/^0\./, '.') + ')';
+
+        // Callback to display color
+        callback(v);
+
+    };
+
+    // Add alpha slider
+    picker.picker.appendChild(alphaInput);
+
+    // On color change
+    picker.on('change', function(color) {
+
+        var v = CP.HEX2RGB(color);
+        v = alphaInput.value == 1 ? 'rgb(' + v.join(', ') + ')' : 'rgba(' + v.join(', ') + ', ' + alphaInput.value.replace(/^0\./, '.') + ')';
+        this.target.value = '#' + color;
+
+        // Callback to display color
+        callback(v);
+
+    });
+
+    // Is the alpha channel used?
+    if((initColor.split(',').length - 1) > 2) {
+
+        // Just the color
+        picker.set((initColor.substr(0, initColor.lastIndexOf(',')) + ')').replace('rgba', 'rgb'));
+
+        // Set alpha
+        alphaInput.value = parseFloat(initColor.substring(initColor.lastIndexOf(',') + 1, initColor.lastIndexOf(')')), 10);
+
+        // Callback to display color
+        callback(initColor);
+
+    } else {
+
+        // Set color
+        picker.set(initColor);
+
+    }
+
+    return $(colorInput);
+};
+
+
+/**
+ * Initializes the InputElements object.
+ * @private
+ */
+InputElements.prototype.init = function() {
+
+    var instance = this;
+
+    // Proxy all object functions
+    $.proxy(instance.getTextInput, instance);
+    $.proxy(instance.getNumberInput, instance);
+    $.proxy(instance.getToggleInput, instance);
+    $.proxy(instance.getDropdownInput, instance);
+    $.proxy(instance.getColorInput, instance);
+    $.proxy(instance.getAlignInput, instance);
+    $.proxy(instance.getBackgroundFormat, instance);
+
+};

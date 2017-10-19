@@ -1,0 +1,149 @@
+/*
+ * Volplane Controller Style Sheet
+ * Copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
+ * Version      v1.0.0
+ * License      GPL v3
+ */
+
+textarea:invalid,
+input:invalid,
+input:focus,
+select:focus,
+option:focus {
+    outline: none;
+	box-shadow: none;
+}
+textarea::-moz-focus-inner,
+input::-moz-focus-inner {
+    outline: none;
+    border: none;
+}
+select:-moz-focusring,
+option:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #F8F8EC;
+}
+
+/* MAIN ELEMENTS */
+html, body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 16px;
+    color: #F8F8EC;
+    background-color: #000000;
+}
+
+/* CONTROLLER VIEWS */
+.volplane-view {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-image: none;
+    background-size: contain;
+    background-position: 50% 50%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+
+/* CONTROLLER ELEMENTS */
+.volplane-controller-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    line-height: 0;
+    background-image: none;
+    background-size: contain;
+    background-position: 50% 50%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+.volplane-controller-element div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-image: none;
+    background-size: contain;
+    background-position: 50% 50%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+.volplane-controller-element p,
+.volplane-controller-element div p {
+	position: absolute;
+	display: inline-block;
+	top: 50%;
+    left: 0;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	text-align: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	overflow: visible;
+	white-space: normal;
+}
+.volplane-controller-element p.no-vertical-align,
+.volplane-controller-element div p.no-vertical-align {
+    top: 0;
+    line-height: normal;
+    box-sizing: border-box;
+}
+
+/* BUTTON */
+.volplane-button div {
+    display: none;
+}
+.volplane-button.button-active div {
+    display: block;
+}
+
+/* DPAD */
+.volplane-dpad div.dpad-relative {
+    position: absolute;
+    width: auto;
+    height: auto;
+}
+.volplane-dpad div.dpad-relative div,
+.volplane-dpad div.dpad-absolute div {
+    display: none;
+}
+.volplane-dpad div.dpad-relative div.dpad-arrow-active,
+.volplane-dpad div.dpad-absolute div.dpad-arrow-active {
+    display: block;
+}
+
+/* JOYSTICK RELATIVE */
+.volplane-joystick-relative div.joystick-relative-base-stick,
+.volplane-joystick-relative div.joystick-relative-stick {
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 0;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* SWIPE FIELD */
+.volplane-swipe div {
+    display: none;
+}
+.volplane-swipe.button-active div {
+    display: block;
+}

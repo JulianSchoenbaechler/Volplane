@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Volplane Controller Editor</title>
+
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta name="author" content="Julian Sch&ouml;nb&auml;chler" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <link rel="stylesheet" href="editor-style.css" type="text/css" />
+        <link rel="stylesheet" href="color-picker.css" type="text/css" />
+        <link rel="stylesheet" href="square-spin.min.css" type="text/css" />
+
+        <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico" />
+
+        <script src="../javascript/jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script src="javascript/jquery.event.ue.jsweb" type="text/javascript"></script>
+        <script src="javascript/jquery.udraggable.jsweb" type="text/javascript"></script>
+        <script src="javascript/color-picker.min.jsweb" type="text/javascript"></script>
+        <script src="javascript/editor-popup.jsweb" type="text/javascript"></script>
+        <script src="javascript/controller-element-editor.jsweb" type="text/javascript"></script>
+        <script src="javascript/editor-input-elements.jsweb" type="text/javascript"></script>
+        <script src="javascript/controller-editor.jsweb" type="text/javascript"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+
+                var controller = getUrlParameter('controller');
+
+                if(controller !== null)
+                    window.volplaneCE = new ControllerEditor(controller);
+                else
+                    window.volplaneCE = new ControllerEditor();
+
+                $(window).scroll(function() {
+
+                    $('#ce-controller-ctrlbar').css('left', -$(window).scrollLeft());
+
+                });
+
+            });
+
+            function getUrlParameter(name) {
+
+                var result = null;
+                var tmp = [];
+
+                window.location.search
+                    .substr(1)
+                    .split('&')
+                    .forEach(function(item) {
+                        tmp = item.split('=');
+
+                        if(tmp[0] === name)
+                            result = decodeURIComponent(tmp[1]);
+
+                    });
+
+                return result;
+
+            };
+        </script>
+
+    </head>
+
+    <body>
+
+        <div id="controller-editor">
+            <div id="ce-loading-screen">
+                <div class="la-square-spin la-3x">
+                    <div></div>
+                </div>
+
+                <p>Loading...</p>
+            </div>
+
+            <section id="ce-main">
+            </section>
+
+            <section id="ce-view">
+            </section>
+
+            <header id="ce-header"></header>
+
+            <section id="ce-controller">
+                <div id="ce-controller-options" class="ce-popup-box"></div>
+
+                <div class="ce-controller-left">
+                    <div id="ce-controller-taskbar"></div>
+                    <div id="ce-controller-ctrlbar"></div>
+                </div>
+
+                <div class="virtual-console">
+                    <div id="ce-controller-workspace"></div>
+                </div>
+
+                <div class="ce-controller-right">
+                    <div id="ce-controller-side">
+                        <h1>Element properties:</h1>
+                        <div id="ce-controller-side-top">
+                            <i>No element selected.</i>
+                        </div>
+
+                        <h1>View properties:</h1>
+                        <div id="ce-controller-side-bottom"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-us">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+        
+        <link rel="stylesheet" href="controller.css" type="text/css" />
+        
+        <script src="https://www.airconsole.com/api/airconsole-1.7.0.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-button.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-dpad.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-joystick.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-joystick-relative.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-swipe-analog.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-swipe-digital.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-touch-area.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-shake-detector.js" type="text/javascript"></script>
+        <script src="javascript/airconsole-rate-limiter.js" type="text/javascript"></script>
+        <script src="javascript/jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script src="javascript/jquery-show-event.js" type="text/javascript"></script>
+        <script src="javascript/controller.js" type="text/javascript"></script>
+        
+        <script type="text/javascript">
+            // Use this object for a controller not being created with Volplanes controller editor.
+            // See the AirConsole API documentation for property information:
+            // https://developers.airconsole.com/api/api-1-7-0/AirConsole.html
+            /*
+            window.config = {
+                orientation  = 'portrait',      // ...or 'landscape'
+                synchronizeTime = true,
+                deviceMotion = undefined        // ...any number or undefined
+            };
+            */
+            
+            var initialView = 'loading';        // Initial view which should be displayed while game is still loading
+            
+            // Do not edit below this line...
+            // ============================================
+            
+            $(document).ready(function() {
+                
+                view = getUrlParameter('view') || initialView;
+                
+                window.volplane = new VolplaneController(view, getUrlParameter('data'));
+                
+            });
+            
+            function getUrlParameter(name) {
+    
+                var result = null;
+                var tmp = [];
+                
+                window.location.search
+                    .substr(1)
+                    .split('&')
+                    .forEach(function(item) {
+                        tmp = item.split('=');
+                        
+                        if(tmp[0] === name)
+                            result = decodeURIComponent(tmp[1]);
+                        
+                    });
+                    
+                return result;
+                
+            };
+        </script>
+    </head>
+    
+    <body>
+    </body>
+</html>

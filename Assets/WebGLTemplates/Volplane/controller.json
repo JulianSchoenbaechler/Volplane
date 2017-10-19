@@ -1,0 +1,210 @@
+﻿{
+    "name" : "Lobby",
+    "views" : {
+        "lobby" : {
+            "content" : [
+                {
+                    "type" : "button",
+                    "name" : "colorChangeLeft",
+                    "width" : 20,
+                    "height" : 40,
+                    "x" : 0,
+                    "y" : 20,
+                    "image" : "img/button-big.png",
+                    "hidden" : false,
+                    "text" : "&lt;",
+                    "font" : "",
+                    "fontSize" : 30,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/button-big-highlight.png",
+                    "layer" : 2
+                },
+                {
+                    "type" : "button",
+                    "name" : "colorChangeRight",
+                    "width" : 20,
+                    "height" : 40,
+                    "x" : 80,
+                    "y" : 20,
+                    "image" : "img/button-big.png",
+                    "hidden" : false,
+                    "text" : "&gt;",
+                    "font" : "",
+                    "fontSize" : 30,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/button-big-highlight.png",
+                    "layer" : 2
+                },
+                {
+                    "type" : "text",
+                    "name" : "colorText",
+                    "width" : 60,
+                    "height" : 20,
+                    "x" : 20,
+                    "y" : 30,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Red",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 24,
+                    "paddingVertical" : 32,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                },
+                {
+                    "type" : "button",
+                    "name" : "submitButton",
+                    "width" : 100,
+                    "height" : 25,
+                    "x" : 0,
+                    "y" : 70,
+                    "image" : "img/button.png",
+                    "hidden" : false,
+                    "text" : "Ready",
+                    "font" : "",
+                    "fontSize" : 30,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/button-highlight.png"
+                },
+                {
+                    "type" : "text",
+                    "name" : "infoText",
+                    "width" : 100,
+                    "height" : 20,
+                    "x" : 0,
+                    "y" : 5,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Choose your color!",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 24,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)",
+            "grid" : true
+        },
+        "full" : {
+            "content" : [
+                {
+                    "type" : "text",
+                    "name" : "infoText",
+                    "width" : 100,
+                    "height" : 20,
+                    "x" : 0,
+                    "y" : 20,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Game is full!",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 24,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                },
+                {
+                    "type" : "text",
+                    "name" : "smallText",
+                    "width" : 100,
+                    "height" : 20,
+                    "x" : 0,
+                    "y" : 45,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "You may join when someone leaves...",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 18,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)"
+        },
+        "waiting" : {
+            "content" : [
+                {
+                    "type" : "text",
+                    "name" : "loadText",
+                    "width" : 100,
+                    "height" : 20,
+                    "x" : 0,
+                    "y" : 30,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Please wait...",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 24,
+                    "paddingVertical" : 32,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)"
+        },
+        "game" : {
+            "content" : [
+                {
+                    "type" : "text",
+                    "name" : "ingameText",
+                    "width" : 100,
+                    "height" : 20,
+                    "x" : 0,
+                    "y" : 15,
+                    "image" : "img/transparent.png",
+                    "hidden" : false,
+                    "text" : "Game started!",
+                    "textAlign" : "center",
+                    "font" : "",
+                    "fontSize" : 24,
+                    "paddingVertical" : 2,
+                    "paddingHorizontal" : 2,
+                    "fontColor" : "rgb(248, 248, 236)"
+                },
+                {
+                    "type" : "joystick",
+                    "name" : "joystick",
+                    "width" : 100,
+                    "height" : 50,
+                    "x" : 0,
+                    "y" : 40,
+                    "image" : "img/joystick.png",
+                    "hidden" : false,
+                    "relative" : false,
+                    "distance" : 10,
+                    "stickImage" : "img/joystick-stick.png",
+                    "thumbImage" : "img/joystick-relative-thumb.png",
+                    "stickSize" : 50,
+                    "thumbSize" : 20
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)"
+        }
+    },
+    "fontList" : [
+        "fonts/Diane de France.eot",
+        "fonts/Diane de France.otf",
+        "fonts/Diane de France.svg",
+        "fonts/Diane de France.ttf",
+        "fonts/Diane de France.woff"
+    ],
+    "layout" : "portrait",
+    "synchronizeTime" : false,
+    "deviceMotion" : false,
+    "lastEdit" : 1508014460
+}
