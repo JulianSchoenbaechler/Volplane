@@ -1,9 +1,9 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
  * https://github.com/JulianSchoenbaechler/Volplane
- * 
+ *
  * This file is part of the Volplane project.
- * 
+ *
  * The Volplane project is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
@@ -13,7 +13,7 @@
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with the Volplane project.
  * If not, see http://www.gnu.org/licenses/.
@@ -185,7 +185,7 @@ namespace Volplane.Editor
         {
             if(GameObject.FindWithTag("Volplane") == null)
                 return;
-            
+
             if(EditorApplication.isPlayingOrWillChangePlaymode &&
                EditorApplication.isPlaying &&
                !Extensions.processedEnteringPlaymode)
@@ -237,7 +237,7 @@ namespace Volplane.Editor
                              Config.LocalServerPort,
                              Config.LocalWebsocketPort,
                              Config.AirConsoleVersion);
-            
+
             Application.OpenURL(url.ToString());
         }
 

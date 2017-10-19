@@ -1,9 +1,9 @@
 /**
  * ControllerElementEditor
  * @copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
- * @version 0.1.0
- * @license MIT
- * 
+ * @version 1.0.0
+ * @license GPL v3
+ *
  * @external jQuery
  * @see {@link http://api.jquery.com/jQuery/}
  */
@@ -37,11 +37,11 @@ ElementEditor.prototype.inputElementsInstance = null;
  * @returns {jQuery} jQuery selector for this element.
  */
 ElementEditor.prototype.getElementSelector = function(elementObject) {
-    
+
     if((typeof elementObject == 'undefined') || (elementObject === null))
         return;
-    
-    
+
+
     var $el = $('<div class="ce-content-element noselect"></div>');
     $el.css({
         'width': elementObject.width.toString() + '%',
@@ -51,11 +51,11 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
         'background-image': 'url(\'../' + (elementObject.image || + elementObject.type + '.png') + '\')',
         'z-index': ((elementObject.layer || 1) + 1).toString()
     });
-    
+
     // Add text and / or handler image
     if((typeof elementObject.handlerImage != 'undefined') ||
        (typeof elementObject.stickImage != 'undefined')) {
-        
+
         if(typeof elementObject.text != 'undefined') {
             $('<div/>', {
                 'style': 'background-image: url(\'../' + (elementObject.handlerImage || elementObject.stickImage) + '\');'
@@ -69,20 +69,20 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
                 'style': 'background-image: url(\'../' + (elementObject.handlerImage || elementObject.stickImage) + '\');'
             }));
         }
-            
+
     } else {
-        
+
         if(typeof elementObject.text != 'undefined') {
-            
+
             $('<p>' + elementObject.text + '</p>').css({
                 'font-family': elementObject.font || 'Helvetica',
                 'font-size': (elementObject.fontSize || 12).toString() + 'pt',
                 'color': elementObject.fontColor || 'rgb(248, 248, 236)'
             }).appendTo($el);
         }
-        
+
     }
-    
+
     // Element of type 'text' should not have a vertically aligned paragraph.
     // Also this elements padding must be loaded.
     if(elementObject.type == 'text') {
@@ -90,12 +90,12 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
         $el.children('p').css('padding', (elementObject.paddingVertical || 2).toString() + 'pt ' +
                                          (elementObject.paddingHorizontal || 2).toString() + 'pt');
     }
-    
+
     // Relative d-pad should intend its handler by the distance property
     if(elementObject.type == 'dpad') {
-        
+
         if(elementObject.relative) {
-            
+
             $el.children('div').show().css({
                 'top': (elementObject.distance || 10).toString() + 'px',
                 'bottom': (elementObject.distance || 10).toString() + 'px',
@@ -104,28 +104,28 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
                 'width': 'auto',
                 'height': 'auto'
             });
-        
+
         } else {
-            
+
             $el.children('div').hide();
-            
+
         }
     }
-    
+
     // Relative joystick should scale its stick by the stickSize property
     if(elementObject.type == 'joystick') {
-        
+
         if(elementObject.relative) {
-            
+
             $el.children('div').css({
                 'position': 'relative',
                 'margin': '0 auto',
                 'width': (elementObject.stickSize || 50).toString() + '%'
             });
-            
+
         }
     }
-    
+
     return $el;
 };
 
@@ -136,7 +136,7 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
  * @returns {Object} The requested element object that can be used for store it in a controller object.
  */
 ElementEditor.prototype.createNewElement = function(type, name) {
-    
+
     var element = {
         type: type,
         name: name,
@@ -147,9 +147,9 @@ ElementEditor.prototype.createNewElement = function(type, name) {
         image: 'img/' + type + '.png',
         hidden: false
     };
-    
+
     switch(type) {
-        
+
         case 'button':
             element.text = '';
             element.font = '';
@@ -157,7 +157,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.fontColor = 'rgb(248, 248, 236)';
             element.highlightImage = 'img/button-highlight.png';
             break;
-        
+
         case 'dpad':
             element.diagonal = false;
             element.relative = false;
@@ -172,7 +172,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.leftHighlightImage = 'img/dpad-highlight-left.png';
             element.rightHighlightImage = 'img/dpad-highlight-right.png';
             break;
-        
+
         case 'joystick':
             element.relative = false;
             element.distance = 10;
@@ -181,7 +181,7 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.stickSize = 50;
             element.thumbSize = 20;
             break;
-        
+
         case 'swipe':
             element.analog = true;
             element.distance = 30;
@@ -192,14 +192,14 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.fontColor = 'rgb(248, 248, 236)';
             element.highlightImage = 'img/swipe-highlight.png';
             break;
-        
+
         case 'touch':
             element.text = '';
             element.font = '';
             element.fontSize = 12;
             element.fontColor = 'rgb(248, 248, 236)';
             break;
-        
+
         case 'text':
             element.image = 'img/transparent.png';
             element.text = 'Custom Text';
@@ -209,14 +209,14 @@ ElementEditor.prototype.createNewElement = function(type, name) {
             element.paddingVertical = 2;
             element.paddingHorizontal = 2;
             break;
-        
+
         default:
             return null;
-        
+
     }
-    
+
     return element;
-    
+
 };
 
 /**
@@ -227,78 +227,78 @@ ElementEditor.prototype.createNewElement = function(type, name) {
  * @param {ElementEditor~viewChange} callback - Callback fires when any of the properties is edited. Parameters
  */
 ElementEditor.prototype.loadViewProperties = function($selector, originalObject, imageList, callback) {
-    
+
     var viewObject = $.extend(true, {}, originalObject); // Clone object
     var input = this.inputElementsInstance;
     var i = 0;
     var imageKV = {};
-    
+
     // Cut path and extension -> plain file name
     var filename = function(path) {
         if(typeof path == 'undefined') return;
         path = path.includes('/') ? path.substr(path.lastIndexOf('/') + 1) : path;
         return path.includes('.') ? path.substr(0, path.lastIndexOf('.')) : path;
     };
-    
+
     // Store image list as key value pair
     // key -> filename without extension
     // value -> path
     imageKV.None = 'img/transparent.png';
-    
+
     for(i = 0; i < imageList.length; i++) {
         imageKV[filename(imageList[i])] = imageList[i];
     }
-    
+
     // View color
     input.getColorInput('Color', viewObject.color || 'rgb(31, 29, 42)', function(color) {
         viewObject.color = color;
         callback(viewObject, 'color');
     }).addClass('ce-edit-color').appendTo($selector);
-    
+
     // Image
     input.getDropdownInput('Image', imageKV, filename(viewObject.image), function() {
         viewObject.image = $(this).val();
         callback(viewObject, 'image');
     }).addClass('ce-edit-image').appendTo($selector);
-    
+
     // Image layout
     input.getBackgroundFormat('Image Layout', viewObject.format || 'contain', function() {
         viewObject.format = $(this).val();
         callback(viewObject, 'format');
     }).addClass('ce-edit-format').appendTo($selector);
-    
+
     // Grid
     input.getToggleInput('Show Grid', viewObject.grid || false, function() {
         viewObject.grid = $(this).is(':checked');
         callback(viewObject, 'grid');
     }).addClass('ce-edit-show-grid').appendTo($selector);
-    
+
     // Grid size
     input.getNumberInput('Grid Size X', viewObject.gridX || 1, 100, 1, '%', function() {
         viewObject.gridX = parseInt($(this).val(), 10);
         callback(viewObject, 'gridX');
     }).addClass('ce-edit-grid-x').appendTo($selector);
-    
+
     input.getNumberInput('Grid Size Y', viewObject.gridY || 1, 100, 1, '%', function() {
         viewObject.gridY = parseInt($(this).val(), 10);
         callback(viewObject, 'gridY');
     }).addClass('ce-edit-grid-y').appendTo($selector);
-    
+
     // Disable 'show grid' property if grid too small
     if((typeof viewObject.gridX != 'undefined' ? viewObject.gridX < 4 : false) ||
        (typeof viewObject.gridY != 'undefined' ? viewObject.gridY < 4 : false)) {
-        
+
         $('.ce-edit-show-grid').hide();
-        
+
     }
-    
+
     // Display standards
     callback(viewObject, 'color');
     callback(viewObject, 'image');
     callback(viewObject, 'format');
     callback(viewObject, 'grid');
     callback(viewObject, 'gridX');
-    
+
 };
 /**
  * @callback ElementEditor~viewChange
@@ -315,37 +315,37 @@ ElementEditor.prototype.loadViewProperties = function($selector, originalObject,
  * @param {ElementEditor~elementChange} callback - Callback fires when any of the properties is edited. Parameters
  */
 ElementEditor.prototype.loadElementProperties = function($selector, originalObject, imageList, fontList, callback) {
-    
+
     var elementObject = $.extend(true, {}, originalObject); // Clone object
     var input = this.inputElementsInstance;
     var i = 0;
     var imageKV = {},
         fontKV = {};
-    
+
     // Cut path and extension -> plain file name
     var filename = function(path) {
         if(typeof path == 'undefined') return;
         path = path.includes('/') ? path.substr(path.lastIndexOf('/') + 1) : path;
         return path.includes('.') ? path.substr(0, path.lastIndexOf('.')) : path;
     };
-    
+
     // Cut font name and extension -> plain file name without special cases
     var fontname = function(font) {
         if(typeof font == 'undefined') return;
         font = filename(font.split(',')[0]);
         return font.replace(/'/gi, '');
     };
-    
-    
+
+
     // Store image list as key value pair
     // key -> filename without extension
     // value -> path
     imageKV.None = 'img/transparent.png';
-    
+
     for(i = 0; i < imageList.length; i++) {
         imageKV[filename(imageList[i])] = imageList[i];
     }
-    
+
     // Add standard web fonts
     fontList = fontList.concat([
         "Georgia, serif",
@@ -363,294 +363,294 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
         "'Courier New', Courier, monospace",
         "'Lucida Console', Monaco, monospace"
     ]);
-    
+
     // Store font list as key value pair
     // key -> filename without extension
     // value -> path
     for(i = 0; i < fontList.length; i++) {
         fontKV[fontname(fontList[i])] = "'" + fontname(fontList[i]) + "'";
     }
-    
-    
+
+
     // Display standard properties
     input.getTextInput('Name', elementObject.name, true, function() {
         elementObject.name = $(this).val();
         callback(elementObject, 'name');
     }).addClass('ce-edit-name').appendTo($selector);
-    
+
     input.getNumberInput('Width', elementObject.width, 100, 0, '%', function() {
         elementObject.width = parseInt($(this).val(), 10);
         callback(elementObject, 'width');
     }).addClass('ce-edit-width').appendTo($selector);
-    
+
     input.getNumberInput('Height', elementObject.height, 100, 0, '%', function() {
         elementObject.height = parseInt($(this).val(), 10);
         callback(elementObject, 'height');
     }).addClass('ce-edit-height').appendTo($selector);
-    
+
     input.getDropdownInput('Image', imageKV, filename(elementObject.image), function() {
         elementObject.image = $(this).val();
         callback(elementObject, 'image');
     }).addClass('ce-edit-image').appendTo($selector);
-    
+
     // Display type specific properties
     switch(elementObject.type) {
-        
+
         // Button properties
         case 'button':
-            
+
             input.getDropdownInput('Highlight Image', imageKV, filename(elementObject.highlightImage) || 'None', function() {
                 elementObject.highlightImage = $(this).val();
                 callback(elementObject, 'highlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
-            
+
             input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
                 elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
-            
+
             input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
-            
+
             input.getNumberInput('Font Size', elementObject.fontSize || 12, 200, 2, 'pt', function() {
                 elementObject.fontSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'fontSize');
             }).addClass('ce-edit-font-size').appendTo($selector);
-            
+
             input.getColorInput('Font Color', elementObject.fontColor || 'rgb(248, 248, 236)', function(color) {
                 elementObject.fontColor = color;
                 callback(elementObject, 'fontColor');
             }).addClass('ce-edit-font-color').appendTo($selector);
-            
+
             break;
-        
+
         // D-Pad properties
         case 'dpad':
-            
+
             input.getToggleInput('8-Way', elementObject.diagonal, function() {
                 elementObject.diagonal = $(this).is(':checked');
                 callback(elementObject, 'diagonal');
             }).addClass('ce-edit-diagonal').appendTo($selector);
-            
+
             input.getToggleInput('Relative', elementObject.relative, function() {
                 elementObject.relative = $(this).is(':checked');
                 callback(elementObject, 'relative');
             }).addClass('ce-edit-relative').appendTo($selector);
-            
+
             input.getNumberInput('Distance', elementObject.distance || 10, 640, 1, 'px', function() {
                 elementObject.distance = parseInt($(this).val(), 10);
                 callback(elementObject, 'distance');
             }).addClass('ce-edit-distance').appendTo($selector);
-            
+
             input.getDropdownInput('Handler Image', imageKV, filename(elementObject.handlerImage) || 'None', function() {
                 elementObject.handlerImage = $(this).val();
                 callback(elementObject, 'handlerImage');
             }).addClass('ce-edit-handler-image').appendTo($selector);
-            
+
             input.getDropdownInput('Highlight Image Up', imageKV, filename(elementObject.upHighlightImage) || 'None', function() {
                 elementObject.upHighlightImage = $(this).val();
                 callback(elementObject, 'upHighlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
-            
+
             input.getDropdownInput('Highlight Image Down', imageKV, filename(elementObject.downHighlightImage) || 'None', function() {
                 elementObject.downHighlightImage = $(this).val();
                 callback(elementObject, 'downHighlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
-            
+
             input.getDropdownInput('Highlight Image Left', imageKV, filename(elementObject.leftHighlightImage) || 'None', function() {
                 elementObject.leftHighlightImage = $(this).val();
                 callback(elementObject, 'leftHighlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
-            
+
             input.getDropdownInput('Highlight Image Right', imageKV, filename(elementObject.rightHighlightImage) || 'None', function() {
                 elementObject.rightHighlightImage = $(this).val();
                 callback(elementObject, 'rightHighlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
-            
+
             input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
                 elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
-            
+
             input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
-            
+
             input.getNumberInput('Font Size', elementObject.fontSize || 12, 200, 2, 'pt', function() {
                 elementObject.fontSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'fontSize');
             }).addClass('ce-edit-font-size').appendTo($selector);
-            
+
             input.getColorInput('Font Color', elementObject.fontColor || 'rgb(248, 248, 236)', function(color) {
                 elementObject.fontColor = color;
                 callback(elementObject, 'fontColor');
             }).addClass('ce-edit-font-color').appendTo($selector);
-            
+
             break;
-        
+
         // Joystick properties
         case 'joystick':
-            
+
             input.getToggleInput('Relative', elementObject.relative, function() {
                 elementObject.relative = $(this).is(':checked');
                 callback(elementObject, 'relative');
             }).addClass('ce-edit-relative').appendTo($selector);
-            
+
             input.getNumberInput('Distance', elementObject.distance || 10, 640, 1, 'px', function() {
                 elementObject.distance = parseInt($(this).val(), 10);
                 callback(elementObject, 'distance');
             }).addClass('ce-edit-jdistance').appendTo($selector);
-            
+
             input.getDropdownInput('Stick Image', imageKV, filename(elementObject.stickImage) || 'None', function() {
                 elementObject.stickImage = $(this).val();
                 callback(elementObject, 'stickImage');
             }).addClass('ce-edit-stick-image').appendTo($selector);
-            
+
             input.getNumberInput('Stick Size', elementObject.stickSize || 50, 95, 5, '%', function() {
                 elementObject.stickSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'stickSize');
             }).addClass('ce-edit-stick-size').appendTo($selector);
-            
+
             input.getDropdownInput('Thumb Image', imageKV, filename(elementObject.thumbImage) || 'None', function() {
                 elementObject.thumbImage = $(this).val();
                 callback(elementObject, 'thumbImage');
             }).addClass('ce-edit-thumb-image').appendTo($selector);
-            
+
             input.getNumberInput('Thumb Size', elementObject.thumbSize || 20, 95, 5, '%', function() {
                 elementObject.thumbSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'thumbSize');
             }).addClass('ce-edit-thumb-size').appendTo($selector);
-            
+
             break;
-        
+
         // Swipe field properties
         case 'swipe':
-            
+
             input.getDropdownInput('Highlight Image', imageKV, filename(elementObject.highlightImage) || 'None', function() {
                 elementObject.highlightImage = $(this).val();
                 callback(elementObject, 'highlightImage');
             }).addClass('ce-edit-highlight-image').appendTo($selector);
-            
+
             input.getNumberInput('Min. Swipe Distance', elementObject.distance || 30, 640, 1, 'px', function() {
                 elementObject.distance = parseInt($(this).val(), 10);
                 callback(elementObject, 'distance');
             }).addClass('ce-edit-distance').appendTo($selector);
-            
+
             input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
                 elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
-            
+
             input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
-            
+
             input.getNumberInput('Font Size', elementObject.fontSize || 12, 200, 2, 'pt', function() {
                 elementObject.fontSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'fontSize');
             }).addClass('ce-edit-font-size').appendTo($selector);
-            
+
             input.getColorInput('Font Color', elementObject.fontColor || 'rgb(248, 248, 236)', function(color) {
                 elementObject.fontColor = color;
                 callback(elementObject, 'fontColor');
             }).addClass('ce-edit-font-color').appendTo($selector);
-                
+
             input.getToggleInput('Analog', elementObject.analog, function() {
                 elementObject.analog = $(this).is(':checked');
                 callback(elementObject, 'analog');
             }).addClass('ce-edit-analog').appendTo($selector);
-            
+
             input.getToggleInput('8-Way', elementObject.diagonal, function() {
                 elementObject.diagonal = $(this).is(':checked');
                 callback(elementObject, 'diagonal');
             }).addClass('ce-edit-diagonal').appendTo($selector);
-            
+
             break;
-        
+
         // Touch area properties
         case 'touch':
-            
+
             input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
                 elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
-            
+
             input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
-            
+
             input.getNumberInput('Font Size', elementObject.fontSize || 12, 200, 2, 'pt', function() {
                 elementObject.fontSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'fontSize');
             }).addClass('ce-edit-font-size').appendTo($selector);
-            
+
             input.getColorInput('Font Color', elementObject.fontColor || 'rgb(248, 248, 236)', function(color) {
                 elementObject.fontColor = color;
                 callback(elementObject, 'fontColor');
             }).addClass('ce-edit-font-color').appendTo($selector);
-            
+
             break;
-        
+
         // Text properties
         case 'text':
-            
+
             input.getAlignInput(elementObject.textAlign || 'center', function() {
                 elementObject.textAlign = $(this).val();
                 callback(elementObject, 'textAlign');
             }).addClass('ce-edit-text-align').appendTo($selector);
-            
+
             input.getTextInput('Text', $('<div />').html(elementObject.text).text() || '', false, function() {
                 elementObject.text = $('<div/>').text($(this).val()).html();
                 callback(elementObject, 'text');
             }).addClass('ce-edit-text').appendTo($selector);
-            
+
             input.getDropdownInput('Font', fontKV, elementObject.font || 'Helvetica', function() {
                 elementObject.font = $(this).val();
                 callback(elementObject, 'font');
             }, true).addClass('ce-edit-font').appendTo($selector);
-            
+
             input.getNumberInput('Font Size', elementObject.fontSize || 12, 200, 2, 'pt', function() {
                 elementObject.fontSize = parseInt($(this).val(), 10);
                 callback(elementObject, 'fontSize');
             }).addClass('ce-edit-font-size').appendTo($selector);
-            
+
             input.getColorInput('Font Color', elementObject.fontColor || 'rgb(248, 248, 236)', function(color) {
                 elementObject.fontColor = color;
                 callback(elementObject, 'fontColor');
             }).addClass('ce-edit-font-color').appendTo($selector);
-            
+
             input.getNumberInput('Offset Vertical', elementObject.paddingVertical || 2, 100, 0, 'pt', function() {
                 elementObject.paddingVertical = parseInt($(this).val(), 10);
                 callback(elementObject, 'paddingVertical');
             }).addClass('ce-edit-padding-vertical').appendTo($selector);
-            
+
             input.getNumberInput('Offset Horizontal', elementObject.paddingHorizontal || 2, 100, 0, 'pt', function() {
                 elementObject.paddingHorizontal = parseInt($(this).val(), 10);
                 callback(elementObject, 'paddingHorizontal');
             }).addClass('ce-edit-padding-horizontal').appendTo($selector);
-            
+
             break;
-        
+
     }
-    
+
     input.getNumberInput('Layer', elementObject.layer || 1, 1000, 1, '', function() {
         elementObject.layer = parseInt($(this).val(), 10);
         callback(elementObject, 'layer');
     }).addClass('ce-edit-layer').appendTo($selector);
-    
+
     input.getToggleInput('Hidden', elementObject.hidden, function() {
         elementObject.hidden = $(this).is(':checked');
         callback(elementObject, 'hidden');
     }).addClass('ce-edit-hidden').appendTo($selector);
-    
+
     // Disable or enable elements based on relative element
     if(typeof elementObject.relative != 'undefined' ? !elementObject.relative : false) {
-        
+
         $('.ce-edit-distance,' +
           '.ce-edit-text,' +
           '.ce-edit-font,' +
@@ -660,20 +660,20 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
           '.ce-edit-thumb-image,' +
           '.ce-edit-stick-size,' +
           '.ce-edit-thumb-size').hide();
-        
+
     } else {
-        
+
         $('.ce-edit-jdistance').hide();
-        
+
     }
-    
+
     // Disable or enable elements based on analog element
     if(typeof elementObject.analog != 'undefined' ? elementObject.analog : false) {
-        
+
         $('.ce-edit-diagonal').hide();
-        
+
     }
-    
+
 };
 /**
  * @callback ElementEditor~elementChange
@@ -692,15 +692,15 @@ ElementEditor.prototype.loadElementProperties = function($selector, originalObje
  * @private
  */
 ElementEditor.prototype.init = function() {
-    
+
     var instance = this;
-    
+
     instance.inputElementsInstance = new InputElements();
-    
+
     // Proxy all object functions
     $.proxy(instance.getElementSelector, instance);
     $.proxy(instance.createNewElement, instance);
     $.proxy(instance.loadElementProperties, instance);
     $.proxy(instance.loadViewProperties, instance);
-    
+
 };

@@ -1,19 +1,19 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
  * https://github.com/JulianSchoenbaechler/Volplane
- * 
+ *
  * This file is part of the Volplane project.
- * 
+ *
  * The Volplane project is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * The Volplane project is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with the Volplane project.
  * If not, see http://www.gnu.org/licenses/.
@@ -29,6 +29,8 @@ namespace Volplane
 
     public sealed partial class VInput : IDisposable, IControllerUpdate
     {
+        #region Input Event Flags
+
         /// <summary>
         /// Button events active?
         /// </summary>
@@ -59,6 +61,9 @@ namespace Volplane
         /// </summary>
         public static bool MotionEvents = true;
 
+        #endregion
+
+        #region Variables and Constructior / Initialization
 
         private static List<Dictionary<string, ElementInput>> Inputs;
         private static ElementInput TempInput;
@@ -83,6 +88,10 @@ namespace Volplane
             Horizontal,
             Vertical
         }
+
+        #endregion
+
+        #region Input Events
 
         /// <summary>
         /// Occurs when a button input gets registered.
@@ -119,6 +128,10 @@ namespace Volplane
         /// </summary>
         public event Action<int, string, Vector3> OnGyroscope;
 
+        #endregion
+
+        #region Public Input Methods
+
         /// <summary>
         /// Returns the value of the virtual axis identified by 'axis'.
         /// </summary>
@@ -132,7 +145,7 @@ namespace Volplane
         {
             if(player == null)
                 return 0f;
-            
+
             return VInput.GetAxis(player.PlayerId, elementName, axis);
         }
 
@@ -147,7 +160,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return 0f;
-            
+
             switch(axis)
             {
                 case Axis.Horizontal:
@@ -187,7 +200,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return Vector2.zero;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -214,7 +227,7 @@ namespace Volplane
         {
             if(player == null)
                 return false;
-            
+
             return VInput.GetTap(player.PlayerId, elementName);
         }
 
@@ -228,7 +241,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return false;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -254,7 +267,7 @@ namespace Volplane
         {
             if(player == null)
                 return false;
-            
+
             return VInput.GetButton(player.PlayerId, elementName);
         }
 
@@ -268,7 +281,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return false;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -292,7 +305,7 @@ namespace Volplane
         {
             if(player == null)
                 return false;
-            
+
             return VInput.GetButtonDown(player.PlayerId, elementName);
         }
 
@@ -306,7 +319,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return false;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -330,7 +343,7 @@ namespace Volplane
         {
             if(player == null)
                 return false;
-            
+
             return VInput.GetButtonUp(player.PlayerId, elementName);
         }
 
@@ -344,7 +357,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return false;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -368,7 +381,7 @@ namespace Volplane
         {
             if(player == null)
                 return Vector2.zero;
-            
+
             return VInput.GetSwipeVector(player.PlayerId, elementName);
         }
 
@@ -382,7 +395,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return Vector2.zero;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -407,7 +420,7 @@ namespace Volplane
         {
             if(player == null)
                 return 0f;
-            
+
             return VInput.GetSwipeDistance(player.PlayerId, elementName);
         }
 
@@ -421,7 +434,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return 0f;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -447,7 +460,7 @@ namespace Volplane
         {
             if(player == null)
                 return 0f;
-            
+
             return VInput.GetSwipeAngle(player.PlayerId, elementName, align);
         }
 
@@ -462,7 +475,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return 0f;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -499,7 +512,7 @@ namespace Volplane
         {
             if(player == null)
                 return 0f;
-            
+
             return VInput.GetSwipeAngle(player.PlayerId, elementName, align);
         }
 
@@ -514,7 +527,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return 0f;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -550,7 +563,7 @@ namespace Volplane
         {
             if(player == null)
                 return false;
-            
+
             return GetTouchMove(player.PlayerId, elementName);
         }
 
@@ -564,7 +577,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return false;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -589,7 +602,7 @@ namespace Volplane
         {
             if(player == null)
                 return Vector3.zero;
-            
+
             return GetAccelerometer(player.PlayerId);
         }
 
@@ -603,7 +616,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return Vector3.zero;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue("volplane-device-motion", out VInput.TempInput))
@@ -628,7 +641,7 @@ namespace Volplane
         {
             if(player == null)
                 return Vector3.zero;
-            
+
             return GetGyroscope(player.PlayerId);
         }
 
@@ -642,7 +655,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return Vector3.zero;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue("volplane-device-motion", out VInput.TempInput))
@@ -665,7 +678,7 @@ namespace Volplane
         {
             if(player == null)
                 return Int32.MaxValue;
-            
+
             return GetInputDelay(player, elementName);
         }
 
@@ -679,7 +692,7 @@ namespace Volplane
         {
             if(VInput.Inputs == null)
                 return Int32.MaxValue;
-            
+
             if(VInput.Inputs.Count > playerId)
             {
                 if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
@@ -691,6 +704,7 @@ namespace Volplane
             return -1;
         }
 
+        #endregion
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -719,10 +733,12 @@ namespace Volplane
             for(int i = 0; i < VInput.Inputs.Count; i++)
                 foreach(ElementInput input in VInput.Inputs[i].Values)
                     input.Update();
-            
+
             while(updateQueue.Count > 0)
                 updateQueue.Dequeue().Invoke();
         }
+
+        #region Input Handling
 
         /// <summary>
         /// Process inputs.
@@ -774,7 +790,7 @@ namespace Volplane
 
                 if(Config.DebugLog == (int)DebugState.All)
                     VDebug.Log("[Volplane (Input Handling)] Queueing multiple inputs from same element.");
-                
+
                 return;
             }
 
@@ -798,11 +814,11 @@ namespace Volplane
                             OnDPad(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
                         });
                     }
-                    
+
                     break;
 
                 case "joystick":
-                    
+
                     tempInput.Type = ElementInput.InputType.Joystick;
                     ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
                     ((AdvancedElementInput)tempInput).HadDirections = data["data"]["hadDirections"].AsBool;
@@ -845,7 +861,7 @@ namespace Volplane
                     break;
 
                 case "touch":
-                    
+
                     tempInput.Type = ElementInput.InputType.TouchArea;
                     ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
                     ((AdvancedElementInput)tempInput).Move = data["data"]["move"].AsBool;
@@ -862,7 +878,7 @@ namespace Volplane
                     break;
 
                 case "motion":
-                    
+
                     tempInput.Type = ElementInput.InputType.Motion;
                     ((DeviceMotionInput)tempInput).Accelerometer = new Vector3(data["data"]["x"].AsFloat,
                                                                                data["data"]["y"].AsFloat,
@@ -879,14 +895,14 @@ namespace Volplane
                             OnAccelerometer(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Accelerometer);
                         });
                     }
-                    
+
                     if(VInput.MotionEvents && (OnGyroscope != null))
                     {
                         updateQueue.Enqueue(delegate {
                             OnGyroscope(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Gyroscope);
                         });
                     }
-                    
+
                     break;
 
                 default:
@@ -901,9 +917,11 @@ namespace Volplane
                             OnButton(playerId, data["name"].Value, tempInput.State);
                         });
                     }
-                    
+
                     break;
             }
         }
+
+        #endregion
     }
 }

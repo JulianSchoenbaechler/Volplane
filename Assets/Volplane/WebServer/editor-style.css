@@ -2,7 +2,7 @@
  * Controller Editor Style Sheet
  * Copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
  * Version      v1.0.0
- * License      MIT
+ * License      GPL v3
  */
 
 /* FONTS */
@@ -295,7 +295,7 @@ select {
     background-repeat: no-repeat;
     border: 1px solid #7A2F34;
     border-radius: 4px;
-    -webkit-appearance: none; 
+    -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     -webkit-transition: all 0.2s ease-in-out;
@@ -532,7 +532,7 @@ label.align-right div span:last-of-type::after { left: -5px; }
 
 /* CONTROLLER EDITOR WRAPPER */
 #controller-editor {
-    
+
 }
 
 /* CONTROLLER EDITOR MAIN CONTAINERS */

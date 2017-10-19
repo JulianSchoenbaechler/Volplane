@@ -1,19 +1,19 @@
 ﻿/*
  * Copyright - Julian Schoenbaechler
  * https://github.com/JulianSchoenbaechler/Volplane
- * 
+ *
  * This file is part of the Volplane project.
- * 
+ *
  * The Volplane project is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * The Volplane project is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with the Volplane project.
  * If not, see http://www.gnu.org/licenses/.
@@ -47,7 +47,7 @@ namespace Volplane
         {
             if(VolplaneAgent.CustomState == null)
                 VolplaneAgent.CustomState = new JSONObject();
-            
+
             this.eventQueue = new Queue<Action>(4);
 
             // Subscribe AirConsole events
@@ -61,6 +61,8 @@ namespace Volplane
             VolplaneController.AirConsole.OnMessage += ProcessMessages;
             VolplaneController.AirConsole.OnPersistentDataStored += PlayerStoredData;
         }
+
+        #region Volplane Events
 
         public event Action OnReady;
         public event Action<int> OnConnect;
@@ -76,6 +78,10 @@ namespace Volplane
         public event Action<VPlayer> OnPlayerProfileChangeSecondary;
         public event Action<int> OnUserDataSaved;
         public event Action<VPlayer> OnUserDataSavedSecondary;
+
+        #endregion
+
+        #region Volplane Properties
 
         /// <summary>
         /// Gets the game connect code of this session.
@@ -136,6 +142,10 @@ namespace Volplane
                 return VolplaneAgent.Players.Count(p => p.IsConnected && !p.IsActive);
             }
         }
+
+        #endregion
+
+        #region Player Handling
 
         /// <summary>
         /// Get a player by its identifier.
@@ -232,7 +242,7 @@ namespace Volplane
             {
                 if(!VolplaneAgent.Players[i].IsConnected)
                     continue;
-                
+
                 if(i < count)
                     VolplaneAgent.Players[i].SetActive(true);
                 else
@@ -314,6 +324,10 @@ namespace Volplane
                 player.SaveUserData(data);
         }
 
+        #endregion
+
+        #region View Handling
+
         /// <summary>
         /// Sets the standard controller view of the players.
         /// </summary>
@@ -388,7 +402,7 @@ namespace Volplane
         {
             if(viewName == null)
                 return;
-            
+
             // Iterate through all players
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
@@ -408,7 +422,7 @@ namespace Volplane
         {
             if(viewName == null)
                 return;
-            
+
             // Iterate through all players
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
@@ -429,7 +443,7 @@ namespace Volplane
         {
             if(viewName == null)
                 return;
-            
+
             // Iterate through all players
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
@@ -462,6 +476,10 @@ namespace Volplane
             if(player != null)
                 player.ResetView(viewName);
         }
+
+        #endregion
+
+        #region Controller Specific Behaviour
 
         /// <summary>
         /// Enable or disable the tracking of physical motion data of the controller from a
@@ -511,6 +529,10 @@ namespace Volplane
                 player.VibrateController(time);
         }
 
+        #endregion
+
+        #region Miscellaneous
+
         /// <summary>
         /// Request showing a multiscreen advertisement.
         /// Call this method at reasonable places / passages in your game. AirConsole will take care on when to show an
@@ -529,6 +551,8 @@ namespace Volplane
         {
             LocalSyncUserData = value;
         }
+
+        #endregion
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -556,7 +580,7 @@ namespace Volplane
 
         /// <summary>
         /// Will be called every frame by <see cref="Volplane.VolplaneController"/>.
-        /// Fires all enqueued events. 
+        /// Fires all enqueued events.
         /// </summary>
         public void ControllerUpdate()
         {
@@ -565,7 +589,7 @@ namespace Volplane
                 eventQueue.Dequeue().Invoke();
         }
 
-
+        #region Private / Protected Methods
 
         /// <summary>
         /// Gets the player identifier.
@@ -595,11 +619,11 @@ namespace Volplane
             // State management
             for(int i = 0; i <= diffDeviceId; i++)
                 VolplaneAgent.CustomState["active"][-1] = false;
-            
+
             // View management
             for(int i = 0; i <= diffDeviceId; i++)
                 VolplaneAgent.CustomState["views"][-1] = VolplaneAgent.StandardView == null ? "" : VolplaneAgent.StandardView;
-            
+
         }
 
         /// <summary>
@@ -657,6 +681,9 @@ namespace Volplane
             VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
         }
 
+        #endregion
+
+        #region AirConsole Event Handlers
 
         /// <summary>
         /// Enqueues the Volplane ready event.
@@ -827,7 +854,7 @@ namespace Volplane
 
             if(playerId == -1)
                 return;
-            
+
             // OnUserDataSaved (player identifier)
             if(OnUserDataSaved != null)
             {
@@ -844,5 +871,7 @@ namespace Volplane
                 });
             }
         }
+
+        #endregion
     }
 }

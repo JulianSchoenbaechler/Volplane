@@ -1,9 +1,9 @@
 /**
  * EditorPopup
  * @copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
- * @version 0.1.0
- * @license MIT
- * 
+ * @version 1.0.0
+ * @license GPL v3
+ *
  * @external jQuery
  * @see {@link http://api.jquery.com/jQuery/}
  */
@@ -29,21 +29,21 @@ function EditorPopup() {
  * @param {String} text - The displayed alert text.
  */
 EditorPopup.prototype.alert = function(title, text = '') {
-    
+
     var instance = this;
-    
+
     if(typeof title == 'undefined') {
         alert(text);
         return;
     }
-    
+
     var closePopup = function($p) {
         return function(e) {
             e.preventDefault();
             instance.closePopup($p);
         };
     };
-    
+
     var $popup = instance.getPopup(title);
     var $inputs = $('<form/>', {
         submit: closePopup($popup)
@@ -52,14 +52,14 @@ EditorPopup.prototype.alert = function(title, text = '') {
         type: 'submit',
         value: 'OK'
     });
-    
+
     $popup.append('<p>' + text + '</p>');
     $inputs.append($default);
     $popup.append($inputs);
-    
+
     instance.openPopup($popup);
     $default.focus();
-    
+
 };
 
 /**
@@ -69,14 +69,14 @@ EditorPopup.prototype.alert = function(title, text = '') {
  * @param {Function} callback - A callback when user sends confirmation.
  */
 EditorPopup.prototype.confirm = function(title, text, callback) {
-    
+
     var instance = this;
-    
+
     if((typeof title == 'undefined') || (typeof text == 'undefined')) {
         alert(text);
         return;
     }
-    
+
     var closePopup = function($p, callbackState) {
         return function(e) {
             e.preventDefault();
@@ -84,7 +84,7 @@ EditorPopup.prototype.confirm = function(title, text, callback) {
             if(typeof callback == 'function') callback(callbackState);
         };
     };
-    
+
     var $popup = instance.getPopup(title);
     var $inputs = $('<form/>', {
         submit: closePopup($popup, true)
@@ -93,7 +93,7 @@ EditorPopup.prototype.confirm = function(title, text, callback) {
         type: 'submit',
         value: 'Yes'
     });
-    
+
     $popup.append('<p>' + text + '</p>');
     $inputs.append($('<input/>', {
         type: 'button',
@@ -101,10 +101,10 @@ EditorPopup.prototype.confirm = function(title, text, callback) {
         click: closePopup($popup, false)
     }), $default);
     $popup.append($inputs);
-    
+
     instance.openPopup($popup);
     $default.focus();
-    
+
 };
 
 /**
@@ -115,16 +115,16 @@ EditorPopup.prototype.confirm = function(title, text, callback) {
  * @param {Function} callback - A callback when user sends data.
  */
 EditorPopup.prototype.prompt = function(title, text, isName, callback) {
-    
+
     var instance = this;
-    
+
     if((typeof title == 'undefined') || (typeof text == 'undefined')) {
         alert(text);
         return;
     }
-    
+
     var inputText = 'noname';
-    
+
     var closePopup = function($p, text) {
         return function(e) {
             e.preventDefault();
@@ -132,41 +132,41 @@ EditorPopup.prototype.prompt = function(title, text, isName, callback) {
             if((typeof callback == 'function') && text) callback(inputText);
         };
     };
-    
+
     var $popup = instance.getPopup(title);
     var $inputs = $('<form/>', {
         submit: closePopup($popup, true)
     });
     var $default;
-    
+
     if(isName) {
-        
+
         $default = $('<input/>', {
             type: 'text',
             value: inputText,
             pattern: '[a-zA-Z0-9_-]{3,25}',
             change: function() {
-                
+
                 var nameArray = $(this).val().match(/[a-zA-Z0-9_-]/g);
-                
+
                 if(nameArray !== null)
                     $(this).val(nameArray.join(''));
                 else
                     $(this).val('noname');
-                
+
                 inputText = $(this).val();
             }
         });
-        
+
     } else {
-        
+
         $default = $('<input/>', {
             type: 'text',
             value: inputText
         });
-        
+
     }
-    
+
     $popup.append('<p>' + text + '</p>');
     $inputs.append($default);
     $inputs.append($('<input/>', {
@@ -178,10 +178,10 @@ EditorPopup.prototype.prompt = function(title, text, isName, callback) {
         value: 'OK'
     }));
     $popup.append($inputs);
-    
+
     instance.openPopup($popup);
     $default.focus().select();
-    
+
 };
 
 /**
@@ -190,21 +190,21 @@ EditorPopup.prototype.prompt = function(title, text, isName, callback) {
  * @param {String} src - The page source for the iframe.
  */
 EditorPopup.prototype.iframe = function(title, src) {
-    
+
     var instance = this;
-    
+
     if(typeof title == 'undefined') {
         alert(src);
         return;
     }
-    
+
     var closePopup = function($p) {
         return function(e) {
             e.preventDefault();
             instance.closePopup($p);
         };
     };
-    
+
     var $popup = instance.getPopup(title);
     var $inputs = $('<form/>', {
         submit: closePopup($popup)
@@ -213,14 +213,14 @@ EditorPopup.prototype.iframe = function(title, src) {
         type: 'submit',
         value: 'OK'
     });
-    
+
     $popup.append('<iframe src="' + src + '"></iframe>');
     $inputs.append($default);
     $popup.append($inputs);
-    
+
     instance.openPopup($popup);
     $default.focus();
-    
+
 };
 
 
@@ -236,16 +236,16 @@ EditorPopup.prototype.iframe = function(title, src) {
  * @private
  */
 EditorPopup.prototype.getPopup = function(name = '') {
-    
+
     $popup = $('<div/>', {
         'class': 'ce-popup-box',
         'style': 'display: none;'
     });
     $popup.append('<h1>' + name + '</h1>');
     $popup.appendTo($('body'));
-    
+
     return $popup;
-    
+
 };
 
 /**
@@ -254,10 +254,10 @@ EditorPopup.prototype.getPopup = function(name = '') {
  * @private
  */
 EditorPopup.prototype.openPopup = function($popup) {
-    
+
     $('body').css('overflow', 'hidden');
     $popup.fadeIn(50);
-    
+
 };
 
 /**
@@ -267,10 +267,10 @@ EditorPopup.prototype.openPopup = function($popup) {
  * @private
  */
 EditorPopup.prototype.closePopup = function($popup) {
-    
+
     $('body').css('overflow', 'auto');
     $popup.fadeOut(200, function() { $popup.remove(); });
-    
+
 };
 
 
@@ -279,13 +279,13 @@ EditorPopup.prototype.closePopup = function($popup) {
  * @private
  */
 EditorPopup.prototype.init = function() {
-    
+
     var instance = this;
-    
+
     // Proxy object functions
     $.proxy(instance.alert, instance);
     $.proxy(instance.confirm, instance);
     $.proxy(instance.prompt, instance);
     $.proxy(instance.iframe, instance);
-    
+
 };

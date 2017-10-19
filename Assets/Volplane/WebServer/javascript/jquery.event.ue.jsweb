@@ -495,7 +495,7 @@
       motion_map.do_allow_held = false;
     }
 
-    // disallow tap if time has elapsed 
+    // disallow tap if time has elapsed
     if ( motion_map.ms_elapsed > option_map.max_tap_ms ) {
       motion_map.do_allow_tap = false;
     }
