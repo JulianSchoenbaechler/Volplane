@@ -1,8 +1,8 @@
 /**
  * Unity-AirConsole Agent.
  * @copyright 2017 by Julian Schoenbaechler. All rights reserved.
- * @version 0.0.1
- * @see https://github.com/JulianSchoenbaechler/* for the project source code.
+ * @version 1.0.0
+ * @see https://github.com/JulianSchoenbaechler/Volplane for the project source code.
  *
  * This file is part of the Volplane project.
  *
@@ -51,7 +51,7 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
             this.compatibilityMode = true;
 
         } else {
-            
+
             this.progress = new UnityProgress(gameContainer);
 
             // Setup UnityLoader
@@ -62,7 +62,7 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
                             instance.progress.SetProgress(progress);
                         else
                             instance.progress.Clear();
-                        
+
                         instance.progress.SetMessage(Math.min(100, progress * 100).toString() + '%');
                     };
                 })(this)
@@ -72,13 +72,13 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
 
         // Loading screen styles
         if(typeof loadingScreen != 'undefined') {
-            
+
             var loadingContainer = document.getElementById('screen-progress');
             var image = loadingContainer.getElementsByTagName('IMG')[0];
             var infoText = loadingContainer.getElementsByClassName('info')[0];
             var barContainer = loadingContainer.getElementsByClassName('bar')[0];
             var progress = barContainer.getElementsByTagName('SPAN')[0];
-            
+
             loadingContainer.style.backgroundColor = (loadingScreen.background || '#1F1D2A');
             image.src = 'img/' + (loadingScreen.image || 'loading.png');
             infoText.style.color = (loadingScreen.fontColor || '#F8F8EC');
@@ -88,7 +88,7 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
             barContainer.style.borderRadius = (loadingScreen.barBorderRadius || 3).toString() + 'px';
             barContainer.style.width = (loadingScreen.barWidth || 300).toString() + 'px';
             barContainer.style.height = (loadingScreen.barHeight || 6).toString() + 'px';
-            
+
         }
 
         this.setupErrorHandler();
@@ -98,7 +98,7 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
     } else {
 
         this.setupWebsocket();
-        
+
         document.body.innerHTML = '<div class="full-screen">' +
             '<p id="editor-message">You can see the game scene in the Unity Editor.<br />' +
             'Keep this window open in the background.</p>' +
@@ -113,52 +113,52 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
  * Proper error handling and stack tracing should be covered by the AirConsole API.
  */
 Agent.prototype.setupErrorHandler = function() {
-    
+
     // Override window onerror event
     window.onerror = function(msg) {
-        
+
         if((message.indexOf('UnknownError') != -1) ||
            (message.indexOf('Program terminated with exit(0)') != -1) ||
            (message.indexOf('DISABLE_EXCEPTION_CATCHING') != -1)) {
-            
+
             alert('An unknown error occured! Check your WebGL build.');
-            
+
         } else if(message.indexOf('Cannot enlarge memory arrays') != -1) {
-            
+
             window.setTimeout(function() {
                 throw new Error('[Volplane] Not enough memory. Allocate more memory in the WebGL player settings.');
             }, 200);
-            
+
             return false;
-            
+
         } else if((message.indexOf('Invalid array buffer length') != -1) ||
                   (message.indexOf('out of memory') != -1) ||
                   (message.indexOf('Array buffer allocation failed') != -1)) {
-            
+
             alert('Your browser ran out of memory. Try restarting your browser and close other applications running on your computer.');
             return true;
-            
+
         }
-        
+
         var container = document.createElement('div');
         var message = document.createElement('p');
-        
+
         container.className = 'full-screen';
         message.innerHTML = 'An <span style="color: red;">error</span> has occured, the AirConsole team was informed.';
-        
+
         container.appendChild(message);
         document.body.appendChild(container);
-        
+
         // Navigate to AirConsole home in 5 seconds...
         window.setTimeout(function() {
-            
+
            if(window.volplane && window.volplane.airconsole)
                window.volplane.airconsole.navigateHome();
-        
+
         }, 5000);
-        
+
         return true;
-        
+
     }
 
 };
@@ -454,19 +454,19 @@ Agent.prototype.resizeCanvas = function() {
         return;
 
     var aspectRatio = this.screenRatio.width / this.screenRatio.height;
-    
+
     if(!this.compatibilityMode) {
 
         var width, height;
 
         if(this.screenRatio.stretch) {
-            
+
             // Stretch to full screen
             width = window.innerWidth;
             height = window.innerHeight;
-            
+
         } else {
-            
+
             // Fill window
             if((window.innerWidth / aspectRatio) > window.innerHeight) {
 
@@ -481,9 +481,9 @@ Agent.prototype.resizeCanvas = function() {
                 height = window.innerWidth / aspectRatio;
 
             }
-            
+
         }
-        
+
         if(this.game.Module && this.game.Module.setCanvasSize)
             this.game.Module.setCanvasSize(width, height);
 
@@ -491,28 +491,28 @@ Agent.prototype.resizeCanvas = function() {
         this.game.container.style.height = height.toString() + 'px';
 
     } else {
-        
+
         document.body.style.height = '100%';
         document.body.style.width = '100%';
         document.body.style.margin = 0;
         document.body.style.overflow = 'hidden';
-        
+
         if(this.screenRatio.stretch) {
-            
+
             this.game.style.width = '100vw';
             this.game.style.height = '100vh';
             this.game.style.maxWidth = '100vw';
             this.game.style.maxHeight = '100vh';
-            
+
         } else {
-            
+
             this.game.style.width = '100vw';
             this.game.style.height = (100 / aspectRatio).toString() + 'vw';
             this.game.style.maxWidth = (100 * aspectRatio).toString() + 'vh';
             this.game.style.maxHeight = '100vh';
-            
+
         }
-        
+
         this.game.style.margin = '0 auto';
         this.game.style.top = 0;
         this.game.style.bottom = 0;

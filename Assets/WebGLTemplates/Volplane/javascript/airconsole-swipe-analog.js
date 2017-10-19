@@ -2,7 +2,7 @@
  * AirConsole.
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
- * 
+ *
  * An object containing a configuration for the SwipeAnalog constructor.
  * @typedef {object} Config
  * @property {SwipeAnalog~onTrigger} onTrigger - The callback which gets triggered when
@@ -240,4 +240,3 @@ SwipeAnalog.prototype = {
   }
 
 };
-

@@ -1,8 +1,8 @@
 /**
  * WebGL template progress bar for Unity 5.5 and older.
  * @copyright 2017 by Julian Schoenbaechler. All rights reserved.
- * @version 0.0.1
- * @see https://github.com/JulianSchoenbaechler/* for the project source code.
+ * @version 1.0.0
+ * @see https://github.com/JulianSchoenbaechler/Volplane for the project source code.
  *
  * This file is part of the Volplane project.
  *
@@ -29,73 +29,73 @@
  * @param {Object} dom - The dom object of the canvas.
  */
 function UnityProgress(dom) {
-    
+
     this.progress = 0.0;
     this.message = 'Loading...';
     this.dom = dom;
-    
+
     this.main = document.getElementById('screen-progress');
     this.bar = null;
     this.info = this.main.getElementsByClassName('info')[0];
-    
+
     var node = this.main.getElementsByClassName('bar')[0];
-    
+
     for(var i = 0; i < node.childNodes.length; i++) {
         if(node.childNodes[i].nodeName.toLowerCase() == 'span') {
           this.bar = node.childNodes[i];
           break;
-        } 
+        }
     }
-    
+
     this.Update();
-    
+
 }
 
 /**
  * Setting the percentage of the progress.
  * @param {number} progress - A number from 0.0 to 1.0.
  */
-UnityProgress.prototype.SetProgress = function(progress) { 
+UnityProgress.prototype.SetProgress = function(progress) {
 
     if(this.progress < progress)
         this.progress = progress;
-    
+
     if(this.progress >= 1)
         this.message = 'Preparing...';
-    
+
     this.Update();
-    
+
 };
 
 /**
  * Setting the loading message.
  * @param {string} message - Useful loading information.
  */
-UnityProgress.prototype.SetMessage = function(message) { 
+UnityProgress.prototype.SetMessage = function(message) {
 
-    this.message = message; 
+    this.message = message;
     this.Update();
-    
+
 };
 
 /**
  * Clears the loading progress view.
  */
 UnityProgress.prototype.Clear = function() {
-    
+
     this.main.style.display = 'none';
-    
+
 };
 
 /**
  * Updates all used DOM objects.
  */
 UnityProgress.prototype.Update = function() {
-    
+
     if(this.info != null)
         this.info.innerHTML = this.message;
-    
+
     if(this.bar != null)
         this.bar.style.width = Math.min(100, this.progress * 100).toString() + '%';
-    
+
 };

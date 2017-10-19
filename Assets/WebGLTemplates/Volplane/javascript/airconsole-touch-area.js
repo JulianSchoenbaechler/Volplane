@@ -2,7 +2,7 @@
  * AirConsole.
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
- * 
+ *
  * An object containing a configuration for the TouchArea constructor.
  * @typedef {object} TouchAreaConfig
  * @property {TouchArea~touchCallback} touchstart -

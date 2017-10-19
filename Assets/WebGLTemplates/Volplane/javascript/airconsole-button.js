@@ -2,7 +2,7 @@
  * AirConsole.
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
- * 
+ *
  * An object containing a configuration for the Button constructor.
  * @typedef {object} ButtonConfig
  * @property {Function} down - Gets called when the button is pressed.

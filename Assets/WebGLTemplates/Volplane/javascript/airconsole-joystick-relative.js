@@ -2,10 +2,10 @@
  * AirConsole.
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
- * 
+ *
  * This script has been slightly modified for its purpose.
  * Edited by Julian Schoenbaechler for integration in the Volplane project.
- * 
+ *
  * An object containing a configuration for the Joystick constructor.
  * @typedef {object} JoystickConfig
  * @property {Function} touchstart -
@@ -320,7 +320,7 @@ JoystickRelative.prototype.placeStick = function(x, y) {
   if(dy + child_radius > cbox.height) {
     dy = cbox.height - child_radius;
   }
-  
+
   ele.style.left = (dx) + "px";
   ele.style.top = (dy) + "px";
 };

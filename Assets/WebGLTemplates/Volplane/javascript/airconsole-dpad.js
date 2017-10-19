@@ -2,7 +2,7 @@
  * AirConsole.
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
- * 
+ *
  * An object containing a configuration for the DPad constructor.
  * @typedef {object} DPadConfig
  * @property {DPad~directionChangeCallback} directionchange -
@@ -96,14 +96,14 @@ function DPad(el, opts) {
   me.elements[DPad.LEFT] = el.getElementsByClassName("dpad-arrow-left")[0];
   me.elements[DPad.RIGHT] = el.getElementsByClassName("dpad-arrow-right")[0];
   me.resetState();
-  
+
   // Volplane edit: adding Volplane classes
   me.initial_container_classes = me.container.className;
-  
+
   this.bindEvents();
   var mode = me.is_relative ? DPad.SWIPE : DPad.TAP;
   this.setMode(mode);
-  
+
 };
 
 /**
@@ -130,7 +130,7 @@ DPad.prototype.setMode = function(mode) {
     child_ele.style.position = "static";
     container_class = this.container.className.replace(/relative/g, class_name);
   }
-  
+
   // Volplane edit: adding Volplane classes
   this.container.className = this.initial_container_classes + ' ' + container_class;
 };

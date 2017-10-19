@@ -2,10 +2,10 @@
  * AirConsole.
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
- * 
+ *
  * This script has been slightly modified for its purpose.
  * Edited by Julian Schoenbaechler for integration in the Volplane project.
- * 
+ *
  * An object containing a configuration for the RateLimiter constructor.
  * @typedef {object} RateLimiterConfig
  * @property {number|undefined} rate_limit - Maximum amount of AirConsole calls
@@ -166,14 +166,14 @@ RateLimiter.prototype.mergeData_ = function(add, data) {
     if (add.hasOwnProperty(key)) {
       // Volplane edit: not overwriting volplane object
       if (key == "volplane") {
-        
+
         // Current data exists and is an array?
         if ((!!data.volplane) && (data.volplane.constructor === Array)) {
           var merged = false;
-          
+
           // Iterate through Array
           for (var i = 0; i < data.volplane.length; i++) {
-            
+
             // Deep merge: compare new and old datas 'action' and 'name' property
             // When they are equal -> merge
             if (data.volplane[i].action == add.volplane.action && data.volplane[i].name == add.volplane.name) {
@@ -181,13 +181,13 @@ RateLimiter.prototype.mergeData_ = function(add, data) {
               merged = true;
             }
           }
-          
+
           if (!merged)
             data.volplane.push(add.volplane);   // Could not merge -> push data to array
-        
+
         // Current data exists and is an object?
         } else if ((!!data.volplane) && (data.volplane.constructor === Object)) {
-          
+
           // Deep merge: compare new and old datas 'action' and 'name' property
           // When they are equal -> merge
           if (data.volplane.action != add.volplane.action || data.volplane.name != add.volplane.name) {
@@ -196,7 +196,7 @@ RateLimiter.prototype.mergeData_ = function(add, data) {
           } else {
             data.volplane = add.volplane;   // Merge
           }
-          
+
         } else {
           data.volplane = add.volplane;
         }
