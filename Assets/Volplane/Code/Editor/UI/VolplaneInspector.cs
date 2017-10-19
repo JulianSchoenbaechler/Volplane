@@ -189,6 +189,10 @@ namespace Volplane.Editor.UI
             controllerFolderPath = Regex.Replace(controllerFolderPath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
             controllerDestinationPath = Regex.Replace(controllerDestinationPath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
 
+            // Check if controller folder exists?
+            if(!Directory.Exists(controllerFolderPath))
+                Directory.CreateDirectory(controllerFolderPath);
+
             // Reload controller list, image-, font- and controller data
 			// Reload controller data
             ReloadControllerList();
