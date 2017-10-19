@@ -69,11 +69,11 @@
             // Reflect ball -> invert the direction it came from
             if(collision.relativeVelocity.x > 0f)
             {
-                newDir = new Vector2(1f, hitPosition);
+                newDir = new Vector2(-1f, hitPosition);
             }
             else
             {
-                newDir = new Vector2(-1f, hitPosition);
+                newDir = new Vector2(1f, hitPosition);
             }
 
             // Slightly increase ball speed
