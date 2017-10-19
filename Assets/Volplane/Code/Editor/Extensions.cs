@@ -8,7 +8,7 @@
  * and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * The Volplane project is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -58,8 +58,14 @@ namespace Volplane.Editor
             Extensions.LocalWebserver.Start();
 
             // Register playmode stat change event
+
+            #if UNITY_2017_2_OR_NEWER
+            EditorApplication.playModeStateChanged -= PlaymodeStateChanged;
+            EditorApplication.playModeStateChanged += PlaymodeStateChanged;
+            #else
             EditorApplication.playmodeStateChanged -= PlaymodeStateChanged;
             EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
+            #endif
         }
 
         /// <summary>
@@ -181,6 +187,27 @@ namespace Volplane.Editor
         /// Playmode state change listener.
         /// Firing entering playmode event.
         /// </summary>
+        #if UNITY_2017_2_OR_NEWER
+        protected static void PlaymodeStateChanged(PlayModeStateChange state)
+        {
+            if(GameObject.FindWithTag("Volplane") == null)
+                return;
+
+            if(state == PlayModeStateChange.EnteredPlayMode)
+            {
+                Extensions.processedEnteringPlaymode = true;
+                Extensions.StartBrowserPlaySession();
+
+                // Fire entering playmode event
+                if(Extensions.EnteringPlaymode != null)
+                    Extensions.EnteringPlaymode();
+            }
+            else
+            {
+                Extensions.processedEnteringPlaymode = false;
+            }
+        }
+        #else
         protected static void PlaymodeStateChanged()
         {
             if(GameObject.FindWithTag("Volplane") == null)
@@ -202,6 +229,7 @@ namespace Volplane.Editor
                 Extensions.processedEnteringPlaymode = false;
             }
         }
+        #endif
 
         /// <summary>
         /// Starts the browser and connects to AirConsole in order to test the game.
