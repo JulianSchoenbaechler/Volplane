@@ -13,8 +13,8 @@
         public float speed = 1f;            // Speed of the racket
 
         // Private variables
-        private float ballSpeed;            // Ball speed
         private float boundsHeight;         // Collider bounds of this racket
+        private GameController main;
 
 
         /// <summary>
@@ -24,8 +24,8 @@
         /// </summary>
         private void Start()
         {
-            // Get the initial ball speed from 'GameController'
-            ballSpeed = GameObject.FindWithTag("GameController").GetComponent<GameController>().ballSpeed;
+            // Reference to the Game Controller
+            main = GameObject.FindWithTag("GameController").GetComponent<GameController>();
 
             // Get the height from the bounds from this collider
             // Divide by 2 to get the relative height from the gameobjects origin
@@ -67,7 +67,7 @@
             Vector2 newDir;
 
             // Reflect ball -> invert the direction it came from
-            if(collision.relativeVelocity.x > 0f)
+            if(collision.transform.position.x > 0f)
             {
                 newDir = new Vector2(-1f, hitPosition);
             }
@@ -77,10 +77,10 @@
             }
 
             // Slightly increase ball speed
-            ballSpeed += 0.2f;
+            main.ballSpeed += 0.2f;
 
             // Apply new movement direction to ball
-            collision.transform.GetComponent<Rigidbody2D>().velocity = newDir.normalized * ballSpeed;
+            collision.transform.GetComponent<Rigidbody2D>().velocity = newDir.normalized * main.ballSpeed;
         }
     }
 }
