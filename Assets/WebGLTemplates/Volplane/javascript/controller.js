@@ -1176,7 +1176,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
 
     // Variables
     instance.standardView = standardView || '';
-    instance.controllerData = controllerData || '../controller';
+    instance.controllerData = controllerData || 'controller';
     instance.active = true;
     instance.deviceMotion = false;
 
