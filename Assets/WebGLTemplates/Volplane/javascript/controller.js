@@ -468,7 +468,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                     name: elementObject.name,
                     type: 'swipe',
                     data: {
-                        state: true,
+                        state: false,
                         timeStamp: instance.airconsole.getServerTime()
                     }
                 };
@@ -522,7 +522,7 @@ VolplaneController.prototype.newSwipe = function(elementObject, viewName, $viewS
                     name: elementObject.name,
                     type: 'swipe',
                     data: {
-                        state: true,
+                        state: false,
                         timeStamp: instance.airconsole.getServerTime()
                     }
                 };
@@ -596,7 +596,7 @@ VolplaneController.prototype.newTouch = function(elementObject, viewName, $viewS
                     timeStamp: instance.airconsole.getServerTime()
                 }
             };
-            instance.rateLimiter.message(AirConsole.SCREEN, data);
+            instance.airconsole.message(AirConsole.SCREEN, data);
         },
         'touchmove': function(position) {
             if(!instance.active) return;    // Disable input?

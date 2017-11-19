@@ -256,6 +256,46 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Indicates whether an input element has been triggered. This method is intended to be used
+        /// for touch areas and swipe fields.
+        /// </summary>
+        /// <remarks>Consider using <see cref="VInput.GetTap(int playerId, string elementName)"/>
+        /// for a reduced performance impact.</remarks>
+        /// <returns><c>true</c>, if input was received, <c>false</c> otherwise.</returns>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="elementName">Name of the element to check.</param>
+        public static bool GetInput(VPlayer player, string elementName)
+        {
+            if(player == null)
+                return false;
+
+            return VInput.GetInput(player.PlayerId, elementName);
+        }
+
+        /// <summary>
+        /// Indicates whether an input element has been triggered. This method is intended to be used
+        /// for touch areas and swipe fields.
+        /// </summary>
+        /// <returns><c>true</c>, if input was received, <c>false</c> otherwise.</returns>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="elementName">Name of the element to check.</param>
+        public static bool GetInput(int playerId, string elementName)
+        {
+            if(VInput.Inputs == null)
+                return false;
+
+            if(VInput.Inputs.Count > playerId)
+            {
+                if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
+                {
+                    return VInput.TempInput.StateDown;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Returns <c>true</c> while the user touches a button. Think auto fire.
         /// </summary>
         /// <remarks>Consider using <see cref="VInput.GetButton(int playerId, string elementName)"/>
