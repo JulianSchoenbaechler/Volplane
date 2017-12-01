@@ -121,12 +121,12 @@ namespace Volplane
         /// <summary>
         /// Occurs when a device motion gets registered.
         /// </summary>
-        public event Action<int, string, Vector3> OnAccelerometer;
+        public event Action<int, Vector3> OnAccelerometer;
 
         /// <summary>
         /// Occurs when a device motion gets registered.
         /// </summary>
-        public event Action<int, string, Vector3> OnGyroscope;
+        public event Action<int, Vector3> OnGyroscope;
 
         #endregion
 
@@ -932,14 +932,14 @@ namespace Volplane
                     if(VInput.MotionEvents && (OnAccelerometer != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnAccelerometer(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Accelerometer);
+                            OnAccelerometer(playerId, ((DeviceMotionInput)tempInput).Accelerometer);
                         });
                     }
 
                     if(VInput.MotionEvents && (OnGyroscope != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnGyroscope(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Gyroscope);
+                            OnGyroscope(playerId, ((DeviceMotionInput)tempInput).Gyroscope);
                         });
                     }
 
