@@ -189,6 +189,28 @@ namespace Volplane
         }
 
         /// <summary>
+        /// Save user data. This method tries to persistently store the data on the AirConsole servers.
+        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSaved"/> fires for this player.
+        /// </summary>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="data">JSON data.</param>
+        public void SaveUserData(int playerId, SimpleJSON.JSONObject data)
+        {
+            VolplaneController.Main.SaveUserData(playerId, data);
+        }
+
+        /// <summary>
+        /// Save user data. This method tries to persistently store the data on the AirConsole servers.
+        /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSaved"/> fires for this player.
+        /// </summary>
+        /// <param name="player">Player object.</param>
+        /// <param name="data">JSON data.</param>
+        public void SaveUserData(VPlayer player, SimpleJSON.JSONObject data)
+        {
+            VolplaneController.Main.SaveUserData(player, data);
+        }
+
+        /// <summary>
         /// Sets the standard controller view of the players.
         /// </summary>
         /// <param name="viewName">Controller view name.</param>
