@@ -121,12 +121,12 @@ namespace Volplane
         /// <summary>
         /// Occurs when a device motion gets registered.
         /// </summary>
-        public event Action<int, string, Vector3> OnAccelerometer;
+        public event Action<int, Vector3> OnAccelerometer;
 
         /// <summary>
         /// Occurs when a device motion gets registered.
         /// </summary>
-        public event Action<int, string, Vector3> OnGyroscope;
+        public event Action<int, Vector3> OnGyroscope;
 
         #endregion
 
@@ -249,6 +249,46 @@ namespace Volplane
                     if((VInput.TempInput.Type != ElementInput.InputType.Button) &&
                         (VInput.TempInput.Type != ElementInput.InputType.Motion))
                         return ((AdvancedElementInput)VInput.TempInput).Tap;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Indicates whether an input element has been triggered. This method is intended to be used
+        /// for touch areas and swipe fields.
+        /// </summary>
+        /// <remarks>Consider using <see cref="VInput.GetTap(int playerId, string elementName)"/>
+        /// for a reduced performance impact.</remarks>
+        /// <returns><c>true</c>, if input was received, <c>false</c> otherwise.</returns>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="elementName">Name of the element to check.</param>
+        public static bool GetInput(VPlayer player, string elementName)
+        {
+            if(player == null)
+                return false;
+
+            return VInput.GetInput(player.PlayerId, elementName);
+        }
+
+        /// <summary>
+        /// Indicates whether an input element has been triggered. This method is intended to be used
+        /// for touch areas and swipe fields.
+        /// </summary>
+        /// <returns><c>true</c>, if input was received, <c>false</c> otherwise.</returns>
+        /// <param name="playerId">Player identifier.</param>
+        /// <param name="elementName">Name of the element to check.</param>
+        public static bool GetInput(int playerId, string elementName)
+        {
+            if(VInput.Inputs == null)
+                return false;
+
+            if(VInput.Inputs.Count > playerId)
+            {
+                if(VInput.Inputs[playerId].TryGetValue(elementName, out VInput.TempInput))
+                {
+                    return VInput.TempInput.StateDown;
                 }
             }
 
@@ -731,8 +771,10 @@ namespace Volplane
         public void ControllerUpdate()
         {
             for(int i = 0; i < VInput.Inputs.Count; i++)
-                foreach(ElementInput input in VInput.Inputs[i].Values)
-                    input.Update();
+            {
+                foreach(string key in VInput.Inputs[i].Keys)
+                    VInput.Inputs[i][key].Update();
+            }
 
             while(updateQueue.Count > 0)
                 updateQueue.Dequeue().Invoke();
@@ -892,14 +934,14 @@ namespace Volplane
                     if(VInput.MotionEvents && (OnAccelerometer != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnAccelerometer(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Accelerometer);
+                            OnAccelerometer(playerId, ((DeviceMotionInput)tempInput).Accelerometer);
                         });
                     }
 
                     if(VInput.MotionEvents && (OnGyroscope != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnGyroscope(playerId, data["name"].Value, ((DeviceMotionInput)tempInput).Gyroscope);
+                            OnGyroscope(playerId, ((DeviceMotionInput)tempInput).Gyroscope);
                         });
                     }
 

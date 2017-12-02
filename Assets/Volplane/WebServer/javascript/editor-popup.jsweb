@@ -189,7 +189,7 @@ EditorPopup.prototype.prompt = function(title, text, isName, callback) {
  * @param {String} title - The title displayed as header of the popup.
  * @param {String} src - The page source for the iframe.
  */
-EditorPopup.prototype.iframe = function(title, src) {
+EditorPopup.prototype.iframe = function(title, src, width = 640, height = 360) {
 
     var instance = this;
 
@@ -214,7 +214,9 @@ EditorPopup.prototype.iframe = function(title, src) {
         value: 'OK'
     });
 
-    $popup.append('<iframe src="' + src + '"></iframe>');
+    $popup.append('<br /><iframe src="' + src + '" style="' +
+        'width: ' + width + 'px; ' +
+        'height: ' + height + 'px;"></iframe><br />');
     $inputs.append($default);
     $popup.append($inputs);
 
@@ -237,12 +239,16 @@ EditorPopup.prototype.iframe = function(title, src) {
  */
 EditorPopup.prototype.getPopup = function(name = '') {
 
-    $popup = $('<div/>', {
+    $initial = $('<div/>', {
         'class': 'ce-popup-box',
         'style': 'display: none;'
     });
+    $popup = $('<div/>', {
+        'class': 'ce-popup-wrapper'
+    });
     $popup.append('<h1>' + name + '</h1>');
-    $popup.appendTo($('body'));
+    $popup.appendTo($initial);
+    $initial.appendTo($('body'));
 
     return $popup;
 
@@ -256,7 +262,7 @@ EditorPopup.prototype.getPopup = function(name = '') {
 EditorPopup.prototype.openPopup = function($popup) {
 
     $('body').css('overflow', 'hidden');
-    $popup.fadeIn(50);
+    $popup.parent().fadeIn(50);
 
 };
 
@@ -269,7 +275,7 @@ EditorPopup.prototype.openPopup = function($popup) {
 EditorPopup.prototype.closePopup = function($popup) {
 
     $('body').css('overflow', 'auto');
-    $popup.fadeOut(200, function() { $popup.remove(); });
+    $popup.parent().fadeOut(200, function() { $popup.parent().remove(); });
 
 };
 
