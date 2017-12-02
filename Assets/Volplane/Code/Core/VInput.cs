@@ -771,8 +771,10 @@ namespace Volplane
         public void ControllerUpdate()
         {
             for(int i = 0; i < VInput.Inputs.Count; i++)
-                foreach(ElementInput input in VInput.Inputs[i].Values)
-                    input.Update();
+            {
+                foreach(string key in VInput.Inputs[i].Keys)
+                    VInput.Inputs[i][key].Update();
+            }
 
             while(updateQueue.Count > 0)
                 updateQueue.Dequeue().Invoke();
