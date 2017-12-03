@@ -1,4 +1,6 @@
-![The Volplane Project](logo.png)
+<div style="text-align: center;">
+    <img src="logo.png" alt="The Volplane Project" style="display: inline-block; width: 70%; height: auto;" />
+</div>
 
 # Create games for AirConsole in a breeze!
 
@@ -6,7 +8,7 @@
 creating AirConsole games.
 
 [Website](https://volplane.julian-s.ch/) <br />
-[Documentation](https://volplane.julian-s.ch/pico/doc/start)
+[Documentation](https://volplane.julian-s.ch/doc/start)
 
 
 ## The Project
@@ -28,8 +30,8 @@ and easiest way to build a game for AirConsole.
 ## Quick Start
 
 Please visit [Volplanes website](https://volplane.julian-s.ch/) for detailed information about the project and a full documentation.
-The easiest way to get started is by reading the [install instructions](https://volplane.julian-s.ch/pico/doc/start) and
-[this starting guide here](https://volplane.julian-s.ch/pico/doc/quick-start/index).
+The easiest way to get started is by reading the [install instructions](https://volplane.julian-s.ch/doc/start) and
+[this starting guide here](https://volplane.julian-s.ch/doc/quick-start/index).
     
 
 ## Basic Scripting Usage
