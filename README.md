@@ -1,6 +1,6 @@
-<div style="text-align: center;">
-    <img src="logo.png" alt="The Volplane Project" style="display: inline-block; width: 70%; height: auto;" />
-</div>
+<p align="center">
+    <img src="logo.png" alt="The Volplane Project" height="180" />
+</p>
 
 # Create games for AirConsole in a breeze!
 
