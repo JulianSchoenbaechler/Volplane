@@ -66,8 +66,9 @@ namespace Volplane
         /// UnityIsReady() external WebGL call.
         /// </summary>
         /// <param name="autoScale">If set to <c>true</c> auto scale.</param>
+        /// <param name="objectName">The name of this gameobject for interacting between WebGL and Unity scripting.</param>
         [DllImport("__Internal")]
-        private static extern void UnityIsReady(bool autoScale);
+        private static extern void UnityIsReady(bool autoScale, string objectName);
 
 
         // Instance variables
@@ -165,7 +166,7 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
-                UnityIsReady(Config.AutoScaleCanvas);
+                UnityIsReady(Config.AutoScaleCanvas, gameObject.name);
 
             #endif
         }

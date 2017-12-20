@@ -34,6 +34,7 @@
  */
 function Agent(gameContainer, screenRatio, loadingScreen) {
 
+    this.accessObject = 'Volplane';
     this.compatibilityMode = false;
     this.isStandalone = this.getUrlParameter('unity-editor-websocket-port') != null ? false : true;
     this.isUnityReady = false;
@@ -327,9 +328,9 @@ Agent.prototype.sendToUnity = function(data) {
         if(this.isStandalone) {
 
             if(!this.compatibilityMode)
-                this.game.SendMessage('Volplane', 'ProcessData', JSON.stringify(data));
+                this.game.SendMessage(this.accessObject, 'ProcessData', JSON.stringify(data));
             else
-                SendMessage('Volplane', 'ProcessData', JSON.stringify(data));
+                SendMessage(this.accessObject, 'ProcessData', JSON.stringify(data));
 
         } else {
 
@@ -553,10 +554,11 @@ Agent.prototype.getUrlParameter = function(name) {
  * Indicates that Unity is ready.
  * @param {boolean} autoScaleCanvas - true when canvas should scale automatically. Otherwise false.
  */
-Agent.prototype.unityIsReady = function(autoScaleCanvas) {
+Agent.prototype.unityIsReady = function(autoScaleCanvas, accessObject = 'Volplane') {
 
     var instance = this;
 
+    instance.accessObject = accessObject;
     instance.isUnityReady = true;
     instance.dequeueToUnity();
 
