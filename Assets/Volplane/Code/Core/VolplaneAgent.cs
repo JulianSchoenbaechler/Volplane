@@ -21,7 +21,8 @@
 
 namespace Volplane
 {
-    using SimpleJSON;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace Volplane
         // This list indices can be hardcoded
         protected static List<VPlayer> Players;
 
-        protected static JSONNode CustomState;
+        protected static JObject CustomState;
         protected static string InitialView;
         protected static bool LocalSyncUserData;
 
@@ -46,7 +47,7 @@ namespace Volplane
         public VolplaneAgent()
         {
             if(VolplaneAgent.CustomState == null)
-                VolplaneAgent.CustomState = new JSONObject();
+                VolplaneAgent.CustomState = new JObject();
 
             this.eventQueue = new Queue<Action>(4);
 
@@ -307,7 +308,7 @@ namespace Volplane
         /// </summary>
         /// <param name="playerId">Player identifier.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(int playerId, JSONObject data)
+        public void SaveUserData(int playerId, JObject data)
         {
             SaveUserData(GetPlayer(playerId), data);
         }
@@ -318,7 +319,7 @@ namespace Volplane
         /// </summary>
         /// <param name="player">Player object.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(VPlayer player, JSONObject data)
+        public void SaveUserData(VPlayer player, JObject data)
         {
             if(player != null)
                 player.SaveUserData(data);
@@ -365,7 +366,11 @@ namespace Volplane
         public string GetCurrentView(VPlayer player)
         {
             if(player != null)
-                return VolplaneAgent.CustomState["views"][player.DeviceId].Value;
+            {
+                if((VolplaneAgent.CustomState["views"] != null) &&
+                   (VolplaneAgent.CustomState["views"][player.DeviceId] != null))
+                    return (string)VolplaneAgent.CustomState["views"][player.DeviceId];
+            }
 
             return null;
         }
@@ -613,17 +618,26 @@ namespace Volplane
         /// <param name="acDeviceId">Ac device identifier.</param>
         protected void AllocateCustomStateArrays(int acDeviceId)
         {
+            if(VolplaneAgent.CustomState["active"] == null)
+                VolplaneAgent.CustomState.Add("active", new JArray());
+
+            if(VolplaneAgent.CustomState["views"] == null)
+                VolplaneAgent.CustomState.Add("views", new JArray());
+            
             // Number of fields to allocate
-            int diffDeviceId = acDeviceId - VolplaneAgent.CustomState["active"].Count;
+            int diffDeviceId = acDeviceId - (VolplaneAgent.CustomState["active"] as JArray).Count;
 
             // State management
             for(int i = 0; i <= diffDeviceId; i++)
-                VolplaneAgent.CustomState["active"][-1] = false;
+                (VolplaneAgent.CustomState["active"] as JArray).Add(false);
 
             // View management
             for(int i = 0; i <= diffDeviceId; i++)
-                VolplaneAgent.CustomState["views"][-1] = VolplaneAgent.StandardView == null ? "" : VolplaneAgent.StandardView;
-
+            {
+                (VolplaneAgent.CustomState["views"] as JArray).Add(
+                    VolplaneAgent.StandardView == null ? "" : VolplaneAgent.StandardView
+                );
+            }
         }
 
         /// <summary>
@@ -676,9 +690,9 @@ namespace Volplane
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         /// <param name="data">Input data.</param>
-        protected void ProcessMessages(int acDeviceId, JSONNode data)
+        protected void ProcessMessages(int acDeviceId, JObject data)
         {
-            VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
+            VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"] as JObject);
         }
 
         #endregion

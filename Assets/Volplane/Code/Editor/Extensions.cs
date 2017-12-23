@@ -21,7 +21,8 @@
 
 namespace Volplane.Editor
 {
-    using SimpleJSON;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.IO;
     using System.Text;
@@ -255,7 +256,7 @@ namespace Volplane.Editor
                     break;
 
                 default:
-                    VolplaneController.AirConsole.ProcessData(JSON.Parse(
+                    VolplaneController.AirConsole.ProcessData(JObject.Parse(
                         @"{action:""onReady"",code:""0"", devices:[], server_time_offset: 0, device_id: 0, location: """" }"
                     ));
                     return;

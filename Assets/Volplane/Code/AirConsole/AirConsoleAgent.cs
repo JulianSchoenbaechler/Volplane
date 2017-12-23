@@ -21,7 +21,8 @@
 
 namespace Volplane.AirConsole
 {
-    using SimpleJSON;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -33,7 +34,7 @@ namespace Volplane.AirConsole
     {
         protected VolplaneController controllerSingleton;
         protected bool isConnectionReady = false;
-        protected IDictionary<int, JSONNode> acDevices;
+        protected IDictionary<int, JObject> acDevices;
         protected IList<int> acPlayerNumbers;
         protected int acServerTimeOffset;
         protected string acGameLocation;
@@ -47,7 +48,7 @@ namespace Volplane.AirConsole
         public AirConsoleAgent(VolplaneController singleton)
         {
             this.controllerSingleton = singleton;
-            this.acDevices = new Dictionary<int, JSONNode>();
+            this.acDevices = new Dictionary<int, JObject>();
             this.acPlayerNumbers = new List<int>();
             this.epochTime = new DateTime(1970, 1, 1);
         }
@@ -80,21 +81,21 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> OnMessage;
+        public event Action<int, JObject> OnMessage;
 
         /// <summary>
         /// AirConsole API: onDeviceStateChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> OnDeviceStateChange;
+        public event Action<int, JObject> OnDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onCustomDeviceStateChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> OnCustomDeviceStateChange;
+        public event Action<int, JObject> OnCustomDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onDeviceProfileChange callback.
@@ -129,7 +130,7 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> OnPersistentDataLoaded;
+        public event Action<JObject> OnPersistentDataLoaded;
 
         /// <summary>
         /// AirConsole API: onPersistentDataStored callback.
@@ -143,14 +144,14 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> OnHighScores;
+        public event Action<JObject> OnHighScores;
 
         /// <summary>
         /// AirConsole API: onHighScoreStored callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> OnHighScoreStored;
+        public event Action<JObject> OnHighScoreStored;
 
         #endregion
 
@@ -158,40 +159,40 @@ namespace Volplane.AirConsole
         /// Processes the data send from AirConsole API.
         /// </summary>
         /// <param name="data">The received data.</param>
-        public void ProcessData(JSONNode data)
+        public void ProcessData(JObject data)
         {
-            switch(data["action"].Value)
+            switch((string)data["action"])
             {
                 case "onConnect":
-                    OnConnectInternal(data["device_id"].AsInt);
+                    OnConnectInternal((int)data["device_id"]);
                     break;
 
                 case "onDisconnect":
-                    OnDisconnectInternal(data["device_id"].AsInt);
+                    OnDisconnectInternal((int)data["device_id"]);
                     break;
 
                 case "onReady":
-                    OnReadyInternal(data["code"].Value,
-                                    data["device_id"].AsInt,
-                                    data["devices"].AsArray,
-                                    data["server_time_offset"].AsInt,
-                                    data["location"].Value);
+                    OnReadyInternal((string)data["code"],
+                                    (int)data["device_id"],
+                                    data["devices"].Value<JArray>(),
+                                    (int)data["server_time_offset"],
+                                    (string)data["location"]);
                     break;
 
                 case "onMessage":
-                    OnMessageInternal(data["from"].AsInt, data["data"]);
+                    OnMessageInternal((int)data["from"], data["data"] as JObject);
                     break;
 
                 case "onDeviceStateChange":
-                    OnDeviceStateChangeInternal(data["device_id"].AsInt, data["device_data"]);
+                    OnDeviceStateChangeInternal((int)data["device_id"], data["device_data"] as JObject);
                     break;
 
                 case "onCustomDeviceStateChange":
-                    OnCustomDeviceStateChangeInternal(data["device_id"].AsInt, data["custom_data"]);
+                    OnCustomDeviceStateChangeInternal((int)data["device_id"], data["custom_data"] as JObject);
                     break;
 
                 case "onDeviceProfileChange":
-                    OnDeviceProfileChangeInternal(data["device_id"].AsInt);
+                    OnDeviceProfileChangeInternal((int)data["device_id"]);
                     break;
 
                 case "onAdShow":
@@ -199,27 +200,27 @@ namespace Volplane.AirConsole
                     break;
 
                 case "onAdComplete":
-                    OnAdCompleteInternal(data["ad_was_shown"].AsBool);
+                    OnAdCompleteInternal((bool)data["ad_was_shown"]);
                     break;
 
                 case "onPremium":
-                    OnPremiumInternal(data["device_id"].AsInt);
+                    OnPremiumInternal((int)data["device_id"]);
                     break;
 
                 case "onPersistentDataLoaded":
-                    OnPersistentDataLoadedInternal(data["data"]);
+                    OnPersistentDataLoadedInternal(data["data"].Value<JObject>());
                     break;
 
                 case "onPersistentDataStored":
-                    OnPersistentDataStoredInternal(data["uid"].Value);
+                    OnPersistentDataStoredInternal((string)data["uid"]);
                     break;
 
                 case "onHighScores":
-                    OnHighScoresInternal(data["highscores"]);
+                    OnHighScoresInternal(data["highscores"].Value<JObject>());
                     break;
 
                 case "onHighScoreStored":
-                    OnHighScoreStoredInternal(data["highscore"]);
+                    OnHighScoreStoredInternal(data["highscore"].Value<JObject>());
                     break;
 
                 default:
@@ -236,15 +237,15 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <param name="acDeviceIdReceiver">AirConsole device identifier receiver.</param>
         /// <param name="data">Data.</param>
-        public void Message(int acDeviceIdReceiver, JSONNode data)
+        public void Message(int acDeviceIdReceiver, JToken data)
         {
             if(!IsConnectionReady("message()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "message";
-            stream["to"].AsInt = acDeviceIdReceiver;
-            stream["data"] = data;
+            JObject stream = new JObject();
+            stream.Add("action", "message");
+            stream.Add("to", acDeviceIdReceiver);
+            stream.Add("data", data);
 
             controllerSingleton.Send(stream);
         }
@@ -255,14 +256,14 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="data">Data.</param>
-        public void Broadcast(JSONNode data)
+        public void Broadcast(JToken data)
         {
             if(!IsConnectionReady("broadcast()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "broadcast";
-            stream["data"] = data;
+            JObject stream = new JObject();
+            stream.Add("action", "broadcast");
+            stream.Add("data", data);
 
             controllerSingleton.Send(stream);
         }
@@ -282,7 +283,7 @@ namespace Volplane.AirConsole
                 .Where(id => !(
                     (id == 0) ||
                     (acDevices[id] == null) ||
-                    (FormatGameUrl(acDevices[id]["location"]) != acGameLocation)
+                    (FormatGameUrl((string)acDevices[id]["location"]) != acGameLocation)
                 ))
                 .ToList() as ICollection<int>;
 
@@ -338,7 +339,7 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <returns>The custom device state data.</returns>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        public JSONNode GetCustomDeviceState(int acDeviceId = 0)
+        public JToken GetCustomDeviceState(int acDeviceId = 0)
         {
             if(!IsConnectionReady("getCustomDeviceState()"))
                 return null;
@@ -360,14 +361,14 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="data">Custom device state data.</param>
-        public void SetCustomDeviceState(JSONNode data)
+        public void SetCustomDeviceState(JToken data)
         {
             if(!IsConnectionReady("setCustomDeviceState()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "setCustomDeviceState";
-            stream["data"] = data;
+            JObject stream = new JObject();
+            stream.Add("action", "setCustomDeviceState");
+            stream.Add("data", data);
 
             if(acDevices.Count > 0)
             {
@@ -375,7 +376,7 @@ namespace Volplane.AirConsole
             }
             else
             {
-                JSONNode state = new JSONObject();
+                JObject state = new JObject();
                 state["custom"] = data;
                 acDevices.Add(0, state);
             }
@@ -390,15 +391,15 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <param name="key">Key.</param>
         /// <param name="value">Value.</param>
-        public void SetCustomDeviceStateProperty(string key, JSONNode value)
+        public void SetCustomDeviceStateProperty(string key, JToken value)
         {
             if(!IsConnectionReady("setCustomDeviceStateProperty()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "setCustomDeviceStateProperty";
-            stream["key"] = key;
-            stream["value"] = value;
+            JObject stream = new JObject();
+            stream.Add("action", "setCustomDeviceStateProperty");
+            stream.Add("key", key);
+            stream.Add("value", value);
 
             if(acDevices.Count > 0)
             {
@@ -406,7 +407,7 @@ namespace Volplane.AirConsole
             }
             else
             {
-                JSONNode state = new JSONObject();
+                JObject state = new JObject();
                 state["custom"][key] = value;
                 acDevices.Add(0, state);
             }
@@ -429,7 +430,7 @@ namespace Volplane.AirConsole
             if(acDevices.ContainsKey(acDeviceId))
             {
                 if(acDevices[acDeviceId]["nickname"] != null)
-                    return acDevices[acDeviceId]["nickname"].Value;
+                    return (string)acDevices[acDeviceId]["nickname"];
                 else
                     return String.Format("Guest {0:D}", acDeviceId);
             }
@@ -470,7 +471,7 @@ namespace Volplane.AirConsole
 
             if(acDevices.ContainsKey(acDeviceId))
             {
-                return acDevices[acDeviceId]["uid"].Value;
+                return (string)acDevices[acDeviceId]["uid"];
             }
             else
             {
@@ -494,7 +495,7 @@ namespace Volplane.AirConsole
             if(acDevices.ContainsKey(acDeviceId))
             {
                 if(acDevices[acDeviceId]["auth"] != null)
-                    return acDevices[acDeviceId]["auth"].AsBool;
+                    return (bool)acDevices[acDeviceId]["auth"];
             }
 
             return false;
@@ -556,10 +557,10 @@ namespace Volplane.AirConsole
                 return;
 
             ICollection<int> controllerIds = GetControllerDeviceIds();
-            JSONObject stream = new JSONObject();
+            JObject stream = new JObject();
 
-            stream["action"] = "setActivePlayers";
-            stream["max_players"].AsInt = maxPlayers;
+            stream.Add("action", "setActivePlayers");
+            stream.Add("max_players", maxPlayers);
 
             acPlayerNumbers.Clear();
 
@@ -581,8 +582,8 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("showAd()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "showAd";
+            JObject stream = new JObject();
+            stream.Add("action", "showAd");
 
             controllerSingleton.Send(stream);
         }
@@ -619,7 +620,7 @@ namespace Volplane.AirConsole
             if(acDevices.ContainsKey(acDeviceId))
             {
                 if(acDevices[acDeviceId]["premium"] != null)
-                    return acDevices[acDeviceId]["premium"].AsBool;
+                    return (bool)acDevices[acDeviceId]["premium"];
             }
 
             return false;
@@ -633,16 +634,16 @@ namespace Volplane.AirConsole
         /// <param name="key">Key.</param>
         /// <param name="value">Value data.</param>
         /// <param name="uid">User id.</param>
-        public void StorePersistentData(string key, JSONNode value, string uid = null)
+        public void StorePersistentData(string key, JToken value, string uid = null)
         {
             if(!IsConnectionReady("storePersistentData()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "storePersistentData";
-            stream["key"] = key;
-            stream["value"] = value;
-            stream["uid"] = uid == null ? GetUID() : uid;
+            JObject stream = new JObject();
+            stream.Add("action", "storePersistentData");
+            stream.Add("key", key);
+            stream.Add("value", value);
+            stream.Add("uid", uid == null ? GetUID() : uid);
 
             controllerSingleton.Send(stream);
         }
@@ -661,16 +662,16 @@ namespace Volplane.AirConsole
             if(uids == null)
                 return;
 
-            JSONArray streamUids = new JSONArray();
+            JArray streamUids = new JArray();
 
             foreach(string uid in uids)
             {
-                streamUids[-1] = uid;
+                streamUids.Add(uid);
             }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "requestPersistentData";
-            stream["uids"] = streamUids;
+            JObject stream = new JObject();
+            stream.Add("action", "requestPersistentData");
+            stream.Add("uids", streamUids);
 
             controllerSingleton.Send(stream);
         }
@@ -704,32 +705,32 @@ namespace Volplane.AirConsole
                                    string levelVersion,
                                    float score,
                                    ICollection<string> uids = null,
-                                   JSONNode data = null,
+                                   JToken data = null,
                                    string scoreString = null)
         {
             if(!IsConnectionReady("storeHighScore()"))
                 return;
 
-            JSONArray streamUids = null;
+            JArray streamUids = null;
 
             if(uids != null)
             {
-                streamUids = new JSONArray();
+                streamUids = new JArray();
 
                 foreach(string uid in uids)
                 {
-                    streamUids[-1] = uid;
+                    streamUids.Add(uid);
                 }
             }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "storeHighScore";
-            stream["level_name"] = levelName;
-            stream["level_version"] = levelName;
-            stream["score"].AsFloat = score;
-            stream["uid"] = streamUids;
-            stream["data"] = data;
-            stream["score_string"] = scoreString;
+            JObject stream = new JObject();
+            stream.Add("action", "storeHighScore");
+            stream.Add("level_name", levelName);
+            stream.Add("level_version", levelVersion);
+            stream.Add("score", score);
+            if(streamUids != null)      stream.Add("uid", streamUids);
+            if(data != null)            stream.Add("data", data);
+            if(scoreString != null)     stream.Add("score_string", scoreString);
 
             controllerSingleton.Send(stream);
         }
@@ -749,7 +750,7 @@ namespace Volplane.AirConsole
                                    string levelVersion,
                                    float score,
                                    string uid = null,
-                                   JSONNode data = null,
+                                   JToken data = null,
                                    string scoreString = null)
         {
             if(!IsConnectionReady("storeHighScore()"))
@@ -780,39 +781,39 @@ namespace Volplane.AirConsole
                 return;
 
             // UIDs
-            JSONArray streamUids = null;
+            JArray streamUids = null;
 
             if(uids != null)
             {
-                streamUids = new JSONArray();
+                streamUids = new JArray();
 
                 foreach(string uid in uids)
                 {
-                    streamUids[-1] = uid;
+                    streamUids.Add(uid);
                 }
             }
 
             // Ranks
-            JSONArray streamRanks = null;
+            JArray streamRanks = null;
 
             if(ranks != null)
             {
-                streamRanks = new JSONArray();
+                streamRanks = new JArray();
 
                 foreach(string rank in ranks)
                 {
-                    streamRanks[-1] = rank;
+                    streamRanks.Add(rank);
                 }
             }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "requestHighScore";
-            stream["level_name"] = levelName;
-            stream["level_version"] = levelName;
-            stream["uid"] = streamUids;
-            stream["ranks"] = streamRanks;
-            stream["total"] = total;
-            stream["total"] = top;
+            JObject stream = new JObject();
+            stream.Add("action", "requestHighScore");
+            stream.Add("level_name", levelName);
+            stream.Add("level_version", levelVersion);
+            if(streamUids != null)  stream.Add("uid", streamUids);
+            if(streamRanks != null) stream.Add("ranks", streamRanks);
+            if(total != -1)         stream.Add("total", total);
+            if(top != -1)           stream.Add("top", top);
 
             controllerSingleton.Send(stream);
         }
@@ -827,8 +828,8 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("navigateHome()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "navigateHome";
+            JObject stream = new JObject();
+            stream.Add("action", "navigateHome");
 
             controllerSingleton.Send(stream);
         }
@@ -844,9 +845,9 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("navigateTo()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "navigateTo";
-            stream["data"] = url;
+            JObject stream = new JObject();
+            stream.Add("action", "navigateTo");
+            stream.Add("data", url);
 
             controllerSingleton.Send(stream);
         }
@@ -862,9 +863,9 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("showDefaultUI()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "showDefaultUI";
-            stream["data"].AsBool = showDefaultUI;
+            JObject stream = new JObject();
+            stream.Add("action", "showDefaultUI");
+            stream.Add("data", showDefaultUI);
 
             controllerSingleton.Send(stream);
         }
@@ -937,7 +938,7 @@ namespace Volplane.AirConsole
         /// <param name="acLocation">AirConsole game url.</param>
         protected void OnReadyInternal(string acGameCode,
                                        int acDeviceId,
-                                       JSONNode acDevices,
+                                       JArray acDevices,
                                        int acServerTimeOffset,
                                        string acLocation)
         {
@@ -953,11 +954,11 @@ namespace Volplane.AirConsole
 
             for(int i = 0; i < acDevices.Count; i++)
             {
-                if(acDevices.AsArray[i].AsObject == null)
+                if(acDevices[i] == null)
                     continue;
 
-                if(acDevices.AsArray[i].AsObject.Count > 0)
-                    this.acDevices.Add(i, acDevices.AsArray[i]);
+                if(acDevices[i].HasValues)
+                    this.acDevices.Add(i, acDevices[i] as JObject);
             }
 
             if(OnReady != null)
@@ -971,7 +972,7 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <param name="acDeviceIdSender">AirConsole device identifier sender.</param>
         /// <param name="data">Message data.</param>
-        protected void OnMessageInternal(int acDeviceIdSender, JSONNode data)
+        protected void OnMessageInternal(int acDeviceIdSender, JObject data)
         {
             if(OnMessage != null)
                 OnMessage(acDeviceIdSender, data);
@@ -984,7 +985,7 @@ namespace Volplane.AirConsole
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         /// <param name="state">Devic state.</param>
-        protected void OnDeviceStateChangeInternal(int acDeviceId, JSONNode state)
+        protected void OnDeviceStateChangeInternal(int acDeviceId, JObject state)
         {
             if(acDevices.ContainsKey(acDeviceId))
                 acDevices[acDeviceId] = state;
@@ -1001,7 +1002,7 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnCustomDeviceStateChangeInternal(int acDeviceId, JSONNode state)
+        protected void OnCustomDeviceStateChangeInternal(int acDeviceId, JObject state)
         {
             if(OnCustomDeviceStateChange != null)
                 OnCustomDeviceStateChange(acDeviceId, state);
@@ -1060,7 +1061,7 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="data">Loaded data.</param>
-        protected void OnPersistentDataLoadedInternal(JSONNode data)
+        protected void OnPersistentDataLoadedInternal(JObject data)
         {
             if(OnPersistentDataLoaded != null)
                 OnPersistentDataLoaded(data);
@@ -1084,7 +1085,7 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acHighscoreData">AirConsole highscore data.</param>
-        protected void OnHighScoresInternal(JSONNode acHighscoreData)
+        protected void OnHighScoresInternal(JObject acHighscoreData)
         {
             if(OnHighScores != null)
                 OnHighScores(acHighscoreData);
@@ -1096,7 +1097,7 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acNewRecordData">AirConsole new highscore record data.</param>
-        protected void OnHighScoreStoredInternal(JSONNode acNewRecordData)
+        protected void OnHighScoreStoredInternal(JObject acNewRecordData)
         {
             if(OnHighScoreStored != null)
                 OnHighScoreStored(acNewRecordData);

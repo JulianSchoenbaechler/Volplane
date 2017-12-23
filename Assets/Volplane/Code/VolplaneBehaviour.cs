@@ -194,7 +194,7 @@ namespace Volplane
         /// </summary>
         /// <param name="playerId">Player identifier.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(int playerId, SimpleJSON.JSONObject data)
+        public void SaveUserData(int playerId, Newtonsoft.Json.Linq.JObject data)
         {
             VolplaneController.Main.SaveUserData(playerId, data);
         }
@@ -205,7 +205,7 @@ namespace Volplane
         /// </summary>
         /// <param name="player">Player object.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(VPlayer player, SimpleJSON.JSONObject data)
+        public void SaveUserData(VPlayer player, Newtonsoft.Json.Linq.JObject data)
         {
             VolplaneController.Main.SaveUserData(player, data);
         }

@@ -21,7 +21,8 @@
 
 namespace Volplane
 {
-    using SimpleJSON;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -787,7 +788,7 @@ namespace Volplane
         /// </summary>
         /// <param name="playerId">Player identifier.</param>
         /// <param name="data">Input data.</param>
-        public void ProcessInput(int playerId, JSONNode data)
+        public void ProcessInput(int playerId, JObject data)
         {
             int diffPlayerCount = playerId - VInput.Inputs.Count;
 
@@ -796,9 +797,9 @@ namespace Volplane
                 VInput.Inputs.Add(new Dictionary<string, ElementInput>());
 
             // Get input object by name, or create new one if not specified yet
-            if(!VInput.Inputs[playerId].TryGetValue(data["name"].Value, out tempInput))
+            if(!VInput.Inputs[playerId].TryGetValue((string)data["name"], out tempInput))
             {
-                switch(data["type"].Value)
+                switch((string)data["type"])
                 {
                     case "button":
                         tempInput = new ElementInput();
@@ -817,10 +818,10 @@ namespace Volplane
                         break;
                 }
 
-                VInput.Inputs[playerId].Add(data["name"].Value, tempInput);
+                VInput.Inputs[playerId].Add((string)data["name"], tempInput);
 
                 if(Config.DebugLog == (int)DebugState.All)
-                    VDebug.LogFormat("[Volplane (Input Handling)] New input registered: '{0:G}'.", data["name"].Value);
+                    VDebug.LogFormat("[Volplane (Input Handling)] New input registered: '{0:G}'.", (string)data["name"]);
             }
 
             // Enqueue processing if the same input changed state in the same frame
@@ -836,24 +837,24 @@ namespace Volplane
                 return;
             }
 
-            tempInput.State = data["data"]["state"].AsBool;
-            tempInput.Delay = (int)(VolplaneController.AirConsole.GetServerTime() - data["data"]["timeStamp"].AsLong);
+            tempInput.State = (bool)data["data"]["state"];
+            tempInput.Delay = (int)(VolplaneController.AirConsole.GetServerTime() - (long)data["data"]["timeStamp"]);
 
             // Type specific properties
-            switch(data["type"].Value)
+            switch((string)data["type"])
             {
                 case "dpad":
 
                     tempInput.Type = ElementInput.InputType.DPad;
-                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    ((AdvancedElementInput)tempInput).HadDirections = data["data"]["hadDirections"].AsBool;
+                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2((float)data["data"]["x"], (float)data["data"]["y"]);
+                    ((AdvancedElementInput)tempInput).HadDirections = (bool)data["data"]["hadDirections"];
                     tempInput.Dirty = true;
 
                     // Event
                     if(VInput.DPadEvents && (OnDPad != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnDPad(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+                            OnDPad(playerId, (string)data["name"], ((AdvancedElementInput)tempInput).Coordinates);
                         });
                     }
 
@@ -862,15 +863,15 @@ namespace Volplane
                 case "joystick":
 
                     tempInput.Type = ElementInput.InputType.Joystick;
-                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    ((AdvancedElementInput)tempInput).HadDirections = data["data"]["hadDirections"].AsBool;
+                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2((float)data["data"]["x"], (float)data["data"]["y"]);
+                    ((AdvancedElementInput)tempInput).HadDirections = (bool)data["data"]["hadDirections"];
                     tempInput.Dirty = true;
 
                     // Event
                     if(VInput.JoystickEvents && (OnJoystick != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnJoystick(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+                            OnJoystick(playerId, (string)data["name"], ((AdvancedElementInput)tempInput).Coordinates);
                         });
                     }
 
@@ -879,15 +880,15 @@ namespace Volplane
                 case "swipe":
 
                     tempInput.Type = ElementInput.InputType.SwipeField;
-                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    ((AdvancedElementInput)tempInput).HadDirections = data["data"]["hadDirections"].AsBool;
+                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2((float)data["data"]["x"], (float)data["data"]["y"]);
+                    ((AdvancedElementInput)tempInput).HadDirections = (bool)data["data"]["hadDirections"];
 
-                    if(data["data"]["distance"].AsFloat != 0f)
+                    if((float)data["data"]["distance"] > 0f)
                     {
-                        ((AnalogElementInput)tempInput).Distance = data["data"]["distance"].AsFloat;
-                        ((AnalogElementInput)tempInput).Angle = data["data"]["angle"].AsFloat;
-                        ((AnalogElementInput)tempInput).Degree = data["data"]["degree"].AsFloat;
-                        ((AnalogElementInput)tempInput).Speed = data["data"]["speed"].AsFloat;
+                        ((AnalogElementInput)tempInput).Distance = (float)data["data"]["distance"];
+                        ((AnalogElementInput)tempInput).Angle = (float)data["data"]["angle"];
+                        ((AnalogElementInput)tempInput).Degree = (float)data["data"]["degree"];
+                        ((AnalogElementInput)tempInput).Speed = (float)data["data"]["speed"];
                     }
 
                     tempInput.Dirty = true;
@@ -896,7 +897,7 @@ namespace Volplane
                     if(VInput.SwipeEvents && (OnSwipe != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnSwipe(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+                            OnSwipe(playerId, (string)data["name"], ((AdvancedElementInput)tempInput).Coordinates);
                         });
                     }
 
@@ -905,15 +906,15 @@ namespace Volplane
                 case "touch":
 
                     tempInput.Type = ElementInput.InputType.TouchArea;
-                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2(data["data"]["x"].AsFloat, data["data"]["y"].AsFloat);
-                    ((AdvancedElementInput)tempInput).Move = data["data"]["move"].AsBool;
+                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2((float)data["data"]["x"], (float)data["data"]["y"]);
+                    ((AdvancedElementInput)tempInput).Move = (bool)data["data"]["move"];
                     tempInput.Dirty = true;
 
                     // Event
                     if(VInput.TouchEvents && (OnTouch != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnTouch(playerId, data["name"].Value, ((AdvancedElementInput)tempInput).Coordinates);
+                            OnTouch(playerId, (string)data["name"], ((AdvancedElementInput)tempInput).Coordinates);
                         });
                     }
 
@@ -922,12 +923,12 @@ namespace Volplane
                 case "motion":
 
                     tempInput.Type = ElementInput.InputType.Motion;
-                    ((DeviceMotionInput)tempInput).Accelerometer = new Vector3(data["data"]["x"].AsFloat,
-                                                                               data["data"]["y"].AsFloat,
-                                                                               data["data"]["z"].AsFloat);
-                    ((DeviceMotionInput)tempInput).Gyroscope = new Vector3(data["data"]["alpha"].AsFloat,
-                                                                           data["data"]["beta"].AsFloat,
-                                                                           data["data"]["gamma"].AsFloat);
+                    ((DeviceMotionInput)tempInput).Accelerometer = new Vector3((float)data["data"]["x"],
+                                                                               (float)data["data"]["y"],
+                                                                               (float)data["data"]["z"]);
+                    ((DeviceMotionInput)tempInput).Gyroscope = new Vector3((float)data["data"]["alpha"],
+                                                                           (float)data["data"]["beta"],
+                                                                           (float)data["data"]["gamma"]);
                     tempInput.Dirty = true;
 
                     // Events
@@ -956,7 +957,7 @@ namespace Volplane
                     if(VInput.ButtonEvents && (OnButton != null))
                     {
                         updateQueue.Enqueue(delegate {
-                            OnButton(playerId, data["name"].Value, tempInput.State);
+                            OnButton(playerId, (string)data["name"], tempInput.State);
                         });
                     }
 
