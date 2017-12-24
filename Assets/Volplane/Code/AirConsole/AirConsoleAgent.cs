@@ -401,16 +401,16 @@ namespace Volplane.AirConsole
             stream.Add("key", key);
             stream.Add("value", value);
 
-            if(acDevices.Count > 0)
-            {
-                acDevices[0]["custom"][key] = value;
-            }
+            if(acDevices.Count == 0)
+                acDevices.Add(0, new JObject());
+
+            if(acDevices[0]["custom"] == null)
+                acDevices[0].Add("custom", new JObject());
+
+            if(acDevices[0]["custom"][key] == null)
+                (acDevices[0]["custom"] as JObject).Add(key, value);
             else
-            {
-                JObject state = new JObject();
-                state["custom"][key] = value;
-                acDevices.Add(0, state);
-            }
+                acDevices[0]["custom"][key] = value;
 
             controllerSingleton.Send(stream);
         }

@@ -447,7 +447,7 @@ namespace Volplane
             {
                 if(data["fontColor"] == null)
                 {
-                    data.Add("fontSize", String.Format("rgba({0:F0},{1:F0},{2:F0},{3:F0})",
+                    data.Add("fontColor", String.Format("rgba({0:F0},{1:F0},{2:F0},{3:F0})",
                                                        value.r * 255f,
                                                        value.g * 255f,
                                                        value.b * 255f,

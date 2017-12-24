@@ -838,7 +838,10 @@ namespace Volplane
             }
 
             tempInput.State = (bool)data["data"]["state"];
-            tempInput.Delay = (int)(VolplaneController.AirConsole.GetServerTime() - (long)data["data"]["timeStamp"]);
+
+            // Hack
+            if(data["data"]["timeStamp"] != null)
+                tempInput.Delay = (int)(VolplaneController.AirConsole.GetServerTime() - (long)data["data"]["timeStamp"]);
 
             // Type specific properties
             switch((string)data["type"])
@@ -862,19 +865,25 @@ namespace Volplane
 
                 case "joystick":
 
-                    tempInput.Type = ElementInput.InputType.Joystick;
-                    ((AdvancedElementInput)tempInput).Coordinates = new Vector2((float)data["data"]["x"], (float)data["data"]["y"]);
-                    ((AdvancedElementInput)tempInput).HadDirections = (bool)data["data"]["hadDirections"];
-                    tempInput.Dirty = true;
-
-                    // Event
-                    if(VInput.JoystickEvents && (OnJoystick != null))
+                    // Hack
+                    if((data["data"]["x"] != null) && (data["data"]["y"] != null))
                     {
-                        updateQueue.Enqueue(delegate {
-                            OnJoystick(playerId, (string)data["name"], ((AdvancedElementInput)tempInput).Coordinates);
-                        });
-                    }
+                        tempInput.Type = ElementInput.InputType.Joystick;
+                        ((AdvancedElementInput)tempInput).Coordinates = new Vector2((float)data["data"]["x"], (float)data["data"]["y"]);
 
+                        if(data["data"]["hadDirections"] != null)
+                            ((AdvancedElementInput)tempInput).HadDirections = (bool)data["data"]["hadDirections"];
+                        
+                        tempInput.Dirty = true;
+
+                        // Event
+                        if(VInput.JoystickEvents && (OnJoystick != null))
+                        {
+                            updateQueue.Enqueue(delegate {
+                                OnJoystick(playerId, (string)data["name"], ((AdvancedElementInput)tempInput).Coordinates);
+                            });
+                        }
+                    }
                     break;
 
                 case "swipe":

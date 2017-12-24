@@ -324,12 +324,17 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "view");
             data.Add("name", viewName);
-            data.Add("properties", new JProperty("color", String.Format(
-                "rgb({0:F0}, {1:F0}, {2:F0})",
-                color.r * 255f,
-                color.g * 255f,
-                color.b * 255f
-            )));
+            data.Add("properties", new JObject {
+                {
+                    "color",
+                    String.Format(
+                        "rgb({0:F0}, {1:F0}, {2:F0})",
+                        color.r * 255f,
+                        color.g * 255f,
+                        color.b * 255f
+                    )
+                }
+            });
 
             VolplaneController.AirConsole.Message(DeviceId, new JObject { { "volplane", data } });
         }
@@ -346,7 +351,7 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "view");
             data.Add("name", viewName);
-            data.Add("properties", new JProperty("image", String.Format("img/{0:G}", image)));
+            data.Add("properties", new JObject { { "image", String.Format("img/{0:G}", image) } });
 
             VolplaneController.AirConsole.Message(DeviceId, new JObject { { "volplane", data } });
         }
@@ -364,7 +369,7 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "element");
             data.Add("name", elementName);
-            data.Add("properties", new JProperty("hidden", true));
+            data.Add("properties", new JObject { { "hidden", true } });
 
             if(CurrentView != null)
                 data.Add("view", CurrentView);
@@ -381,7 +386,7 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "element");
             data.Add("name", elementName);
-            data.Add("properties", new JProperty("hidden", false));
+            data.Add("properties", new JObject { { "hidden", false } });
 
             if(CurrentView != null)
                 data.Add("view", CurrentView);
@@ -398,7 +403,7 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "element");
             data.Add("name", elementName);
-            data.Add("properties", new JProperty("toggle", true));
+            data.Add("properties", new JObject { { "toggle", true } });
 
             if(CurrentView != null)
                 data.Add("view", CurrentView);
@@ -416,7 +421,7 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "element");
             data.Add("name", elementName);
-            data.Add("properties", new JProperty("text", text));
+            data.Add("properties", new JObject { { "text", text } });
 
             if(CurrentView != null)
                 data.Add("view", CurrentView);
@@ -436,7 +441,7 @@ namespace Volplane
             JObject data = new JObject();
             data.Add("action", "element");
             data.Add("name", elementName);
-            data.Add("properties", new JProperty("image", String.Format("img/{0:G}", image)));
+            data.Add("properties", new JObject { { "image", String.Format("img/{0:G}", image) } });
 
             if(CurrentView != null)
                 data.Add("view", CurrentView);
@@ -574,7 +579,9 @@ namespace Volplane
             {
                 UID = (string)data["uid"];
                 IsUsingBrowser = (string)data["client"]["app"] == "web";
-                HasSlowConnection = (bool)data["slow_connection"];
+
+                if(data["slow_connection"] != null)
+                    HasSlowConnection = (bool)data["slow_connection"];
             }
         }
 
