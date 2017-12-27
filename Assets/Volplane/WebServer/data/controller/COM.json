@@ -1,0 +1,38 @@
+﻿{
+    "name" : "COM",
+    "views" : {
+        "start" : {
+            "content" : [
+                {
+                    "type" : "button",
+                    "name" : "basic",
+                    "width" : 100,
+                    "height" : 60,
+                    "x" : 0,
+                    "y" : 15,
+                    "image" : "img/button-big.png",
+                    "hidden" : false,
+                    "text" : "",
+                    "font" : "",
+                    "fontSize" : 12,
+                    "fontColor" : "rgb(248, 248, 236)",
+                    "highlightImage" : "img/button-big-highlight.png"
+                }
+            ],
+            "gridX" : 5,
+            "gridY" : 5,
+            "color" : "rgb(31, 29, 42)"
+        }
+    },
+    "fontList" : [
+        "fonts/Diane de France.eot",
+        "fonts/Diane de France.otf",
+        "fonts/Diane de France.svg",
+        "fonts/Diane de France.ttf",
+        "fonts/Diane de France.woff"
+    ],
+    "layout" : "portrait",
+    "synchronizeTime" : true,
+    "deviceMotion" : false,
+    "lastEdit" : 1514390579
+}
