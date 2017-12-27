@@ -43,13 +43,13 @@ namespace Volplane
         /// All Volplane functionality.
         /// </summary>
         /// <value>Volplane agent.</value>
-        public static VolplaneAgent Main { get; private set; }
+        //public static VolplaneAgent Main { get; private set; }
 
         /// <summary>
         /// Controller input handling.
         /// </summary>
         /// <value>Implemented input handling object.</value>
-        public static VInput InputHandling { get; private set; }
+        //public static VInput InputHandling { get; private set; }
 
         /// <summary>
         /// This singleton.
@@ -121,7 +121,7 @@ namespace Volplane
 
             // AirConsole agent
             VolplaneController.AirConsole = new AirConsoleAgent(this);
-
+            /*
             // Volplane agent
             VolplaneController.Main = new VolplaneAgent();
 
@@ -130,7 +130,8 @@ namespace Volplane
 
             // Use persistent data for the connected players
             VolplaneController.Main.UsePersistentData(this.usePersistentData);
-
+            */
+            /*
             // Initialize all VolplaneBehaviours in the Scene
             VolplaneBehaviour[] volplaneInstances = Resources.FindObjectsOfTypeAll<VolplaneBehaviour>();
 
@@ -140,6 +141,7 @@ namespace Volplane
                 typeof(VolplaneBehaviour).GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance)
                     .Invoke(volplaneInstances[i], null);
             }
+            */
         }
 
         /// <summary>
@@ -191,7 +193,7 @@ namespace Volplane
                 VolplaneController.AirConsole.Dispose();
                 VolplaneController.AirConsole = null;
             }
-
+            /*
             if(VolplaneController.Main != null)
             {
                 VolplaneController.Main.Dispose();
@@ -203,6 +205,7 @@ namespace Volplane
                 VolplaneController.InputHandling.Dispose();
                 VolplaneController.InputHandling = null;
             }
+            */
         }
 
         /// <summary>
@@ -225,7 +228,7 @@ namespace Volplane
                 VolplaneController.AirConsole.Dispose();
                 VolplaneController.AirConsole = null;
             }
-
+            /*
             if(VolplaneController.Main != null)
             {
                 VolplaneController.Main.Dispose();
@@ -237,6 +240,7 @@ namespace Volplane
                 VolplaneController.InputHandling.Dispose();
                 VolplaneController.InputHandling = null;
             }
+            */
         }
 
         /// <summary>
@@ -244,8 +248,8 @@ namespace Volplane
         /// </summary>
         private void Update()
         {
-            VolplaneController.Main.ControllerUpdate();
-            VolplaneController.InputHandling.ControllerUpdate();
+            //VolplaneController.Main.ControllerUpdate();
+            //VolplaneController.InputHandling.ControllerUpdate();
         }
     }
 }
