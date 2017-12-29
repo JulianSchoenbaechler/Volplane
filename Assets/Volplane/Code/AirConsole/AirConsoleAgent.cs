@@ -22,6 +22,8 @@
 namespace Volplane.AirConsole
 {
     using SimpleJSON;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -157,9 +159,11 @@ namespace Volplane.AirConsole
         /// <summary>
         /// Processes the data send from AirConsole API.
         /// </summary>
-        /// <param name="data">The received data.</param>
-        public void ProcessData(JSONNode data)
+        /// <param name="data">The received data formatted as JSON string.</param>
+        public void ProcessData(string data)
         {
+            
+            /*
             switch(data["action"].Value)
             {
                 case "onConnect":
@@ -225,6 +229,7 @@ namespace Volplane.AirConsole
                 default:
                     break;
             }
+            */
         }
 
         #region AirConsole Public Methods
@@ -896,6 +901,8 @@ namespace Volplane.AirConsole
             OnPersistentDataStored = null;
             OnHighScores = null;
             OnHighScoreStored = null;
+
+            GC.SuppressFinalize(this);
         }
 
 
@@ -1140,6 +1147,16 @@ namespace Volplane.AirConsole
             url = rule.Replace(url, "");
 
             return url;
+        }
+
+        /// <summary>
+        /// Air console data structure.
+        /// </summary>
+        private class AirConsoleData
+        {
+            public string Action { get; set; }
+            public JRaw Data { get; set; }
+            public JRaw Data { get; set; }
         }
     }
 }
