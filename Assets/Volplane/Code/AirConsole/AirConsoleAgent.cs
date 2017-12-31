@@ -26,8 +26,9 @@ namespace Volplane.AirConsole
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
     using UnityEngine;
 
@@ -40,6 +41,7 @@ namespace Volplane.AirConsole
         protected int acServerTimeOffset;
         protected string acGameLocation;
 
+        private AirConsoleData currentData;
         private DateTime epochTime;
 
         /// <summary>
@@ -52,6 +54,7 @@ namespace Volplane.AirConsole
             this.acDevices = new Dictionary<int, JSONNode>();
             this.acPlayerNumbers = new List<int>();
             this.epochTime = new DateTime(1970, 1, 1);
+            this.currentData = new AirConsoleData(2048);
         }
 
         #region AirConsole Events
@@ -162,40 +165,78 @@ namespace Volplane.AirConsole
         /// <param name="data">The received data formatted as JSON string.</param>
         public void ProcessData(string data)
         {
-            
-            /*
-            switch(data["action"].Value)
+            // Reading task(s) from JSON
+            using(var sr = new StringReader(data))
+            using(var reader = new JsonTextReader(sr))
+            {
+                while(reader.Read())
+                {
+                    if((reader.TokenType == JsonToken.PropertyName) && (reader.Depth == 1))
+                    {
+                        switch(reader.Value.ToString())
+                        {
+                            case "action":
+                                currentData.Action = reader.ReadAsString();
+                                break;
+
+                            case "device_id":
+                            case "from":
+                                currentData.DeviceId = reader.ReadAsInt32();
+                                break;
+
+                            case "uid":
+                                currentData.StringData = reader.ReadAsString();
+                                break;
+
+                            case "ad_was_shown":
+                                currentData.StateData = reader.ReadAsBoolean();
+                                break;
+
+                            default:
+                                // Reset StringBuilder
+                                currentData.Data.Length = 0;
+
+                                using(var tw = new StringWriter(currentData.Data))
+                                using(var writer = new JsonTextWriter(tw))
+                                {
+                                    reader.Read();
+                                    writer.WriteToken(reader);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // Calling task(s)
+            switch(currentData.Action)
             {
                 case "onConnect":
-                    OnConnectInternal(data["device_id"].AsInt);
+                    OnConnectInternal();
                     break;
 
                 case "onDisconnect":
-                    OnDisconnectInternal(data["device_id"].AsInt);
+                    OnDisconnectInternal();
                     break;
 
                 case "onReady":
-                    OnReadyInternal(data["code"].Value,
-                                    data["device_id"].AsInt,
-                                    data["devices"].AsArray,
-                                    data["server_time_offset"].AsInt,
-                                    data["location"].Value);
+                    OnReadyInternal();
                     break;
 
                 case "onMessage":
-                    OnMessageInternal(data["from"].AsInt, data["data"]);
+                    OnMessageInternal();
                     break;
 
                 case "onDeviceStateChange":
-                    OnDeviceStateChangeInternal(data["device_id"].AsInt, data["device_data"]);
+                    OnDeviceStateChangeInternal();
                     break;
 
                 case "onCustomDeviceStateChange":
-                    OnCustomDeviceStateChangeInternal(data["device_id"].AsInt, data["custom_data"]);
+                    OnCustomDeviceStateChangeInternal();
                     break;
 
                 case "onDeviceProfileChange":
-                    OnDeviceProfileChangeInternal(data["device_id"].AsInt);
+                    OnDeviceProfileChangeInternal();
                     break;
 
                 case "onAdShow":
@@ -203,33 +244,32 @@ namespace Volplane.AirConsole
                     break;
 
                 case "onAdComplete":
-                    OnAdCompleteInternal(data["ad_was_shown"].AsBool);
+                    OnAdCompleteInternal();
                     break;
 
                 case "onPremium":
-                    OnPremiumInternal(data["device_id"].AsInt);
+                    OnPremiumInternal();
                     break;
 
                 case "onPersistentDataLoaded":
-                    OnPersistentDataLoadedInternal(data["data"]);
+                    OnPersistentDataLoadedInternal();
                     break;
 
                 case "onPersistentDataStored":
-                    OnPersistentDataStoredInternal(data["uid"].Value);
+                    OnPersistentDataStoredInternal();
                     break;
 
                 case "onHighScores":
-                    OnHighScoresInternal(data["highscores"]);
+                    OnHighScoresInternal();
                     break;
 
                 case "onHighScoreStored":
-                    OnHighScoreStoredInternal(data["highscore"]);
+                    OnHighScoreStoredInternal();
                     break;
 
                 default:
                     break;
             }
-            */
         }
 
         #region AirConsole Public Methods
@@ -1154,9 +1194,21 @@ namespace Volplane.AirConsole
         /// </summary>
         private class AirConsoleData
         {
+            public AirConsoleData()
+            {
+                this.Data = new StringBuilder(256);
+            }
+
+            public AirConsoleData(int dataCapacity)
+            {
+                this.Data = new StringBuilder(dataCapacity);
+            }
+
             public string Action { get; set; }
-            public JRaw Data { get; set; }
-            public JRaw Data { get; set; }
+            public int? DeviceId { get; set; }
+            public bool? StateData { get; set; }
+            public string StringData { get; set; }
+            public StringBuilder Data { get; set; }
         }
     }
 }

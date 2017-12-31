@@ -74,7 +74,7 @@ namespace Volplane
         // Instance variables
 
         [SerializeField] private bool usePersistentData = false;
-
+        public SpeedTest st;
         #if UNITY_EDITOR
         private WebSocketServer websocketServer;
         private VolplaneWebsocketService websocketService;
@@ -86,7 +86,9 @@ namespace Volplane
         /// <param name="data">JSON formatted data sent from clients implemented AirConsole API.</param>
         public void ProcessData(string data)
         {
+            st.ResetAndStart();
             VolplaneController.AirConsole.ProcessData(data);
+            st.Stop();
         }
 
         /// <summary>

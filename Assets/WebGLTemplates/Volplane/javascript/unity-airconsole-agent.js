@@ -193,11 +193,13 @@ Agent.prototype.initAirConsole = function() {
     instance.airconsole.onReady = function(code) {
         instance.sendToUnity({
             'action': 'onReady',
-            'code': code,
             'device_id': instance.airconsole.device_id,
-            'devices': instance.airconsole.devices,
-            'server_time_offset': instance.airconsole.server_time_offset,
-            'location': window.location.href
+            'data': {
+                'code': code,
+                'devices': instance.airconsole.devices,
+                'server_time_offset': instance.airconsole.server_time_offset,
+                'location': window.location.href
+            }
         });
     };
 

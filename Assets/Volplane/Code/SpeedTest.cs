@@ -15,18 +15,15 @@ public class SpeedTest : MonoBehaviour
         stopwatch = Stopwatch.StartNew();
     }
 
-    private void Start()
+    public void ResetAndStart()
     {
-        VolplaneController.AirConsole.OnMessage += Message;
+        stopwatch.Reset();
+        stopwatch.Start();
     }
 
-    private void Message(int device, JSONNode data)
+    public void Stop()
     {
-        long receiveTime = VolplaneController.AirConsole.GetServerTime();
-        long sendTime = data["volplane"]["data"]["timeStamp"].AsLong;
-
         stopwatch.Stop();
-        long processing = stopwatch.ElapsedMilliseconds;
-        UnityEngine.Debug.LogFormat("Connection: {0}\nProcessing: {1}", receiveTime - sendTime, processing);
+        UnityEngine.Debug.LogFormat("Stopwatch: {0}ms, {1} ticks", stopwatch.ElapsedMilliseconds, stopwatch.ElapsedTicks);
     }
 }
