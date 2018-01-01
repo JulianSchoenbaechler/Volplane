@@ -705,7 +705,7 @@ namespace Volplane
             VolplaneController.AirConsole.OnAdShow -= WaitForAd;
             VolplaneController.AirConsole.OnAdComplete -= AdCompleted;
 
-            // Unassign won events
+            // Unassign events
             OnStateChange = null;
         }
 
