@@ -86,14 +86,14 @@ namespace Volplane
         /// <param name="data">JSON formatted data sent from clients implemented AirConsole API.</param>
         public void ProcessData(string data)
         {
-            VolplaneController.AirConsole.ProcessData(JSON.Parse(data));
+            VolplaneController.AirConsole.ProcessData(data);
         }
 
         /// <summary>
         /// Method for sending data to AirConsole API.
         /// </summary>
-        /// <param name="data">JSON data.</param>
-        public void Send(JSONObject data)
+        /// <param name="data">Data in JSON format.</param>
+        public void Send(string data)
         {
             #if UNITY_EDITOR
 

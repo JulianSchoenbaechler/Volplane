@@ -21,9 +21,7 @@
 
 namespace Volplane.Net
 {
-    using SimpleJSON;
     using System;
-    using UnityEngine;
     using WebSocketSharp;
     using WebSocketSharp.Server;
 
@@ -52,12 +50,12 @@ namespace Volplane.Net
         public event Action<string> dataReceived;
 
         /// <summary>
-        /// Sending JSON data.
+        /// Sending string data.
         /// </summary>
-        /// <param name="data">JSON data.</param>
-        public void Message(JSONObject data)
+        /// <param name="data">Data.</param>
+        public void Message(string data)
         {
-            Send(data.ToString() + suffix);
+            Send(data + suffix);
         }
 
         /// <summary>
