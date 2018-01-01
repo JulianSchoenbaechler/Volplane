@@ -27,7 +27,7 @@ namespace Volplane.AirConsole
 
     public partial class AirConsoleAgent
     {
-        private class Device
+        protected class Device
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="Volplane.AirConsole.AirConsoleAgent+Device"/> class.
@@ -85,7 +85,7 @@ namespace Volplane.AirConsole
                                 
                                 if(currentProperty == "location")
                                 {
-                                    deviceObject.Nickname = reader.Value.ToString();
+                                    deviceObject.Location = reader.Value.ToString();
                                 }
                                 else if(currentProperty == "uid")
                                 {

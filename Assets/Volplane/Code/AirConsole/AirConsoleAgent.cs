@@ -36,7 +36,7 @@ namespace Volplane.AirConsole
     {
         protected VolplaneController controllerSingleton;
         protected bool isConnectionReady = false;
-        protected IDictionary<int, JSONNode> acDevices;
+        protected IDictionary<int, Device> acDevices;
         protected IList<int> acPlayerNumbers;
         protected int acServerTimeOffset;
         protected string acGameLocation;
@@ -51,7 +51,7 @@ namespace Volplane.AirConsole
         public AirConsoleAgent(VolplaneController singleton)
         {
             this.controllerSingleton = singleton;
-            this.acDevices = new Dictionary<int, JSONNode>();
+            this.acDevices = new Dictionary<int, Device>();
             this.acPlayerNumbers = new List<int>();
             this.epochTime = new DateTime(1970, 1, 1);
             this.currentData = new APIData(2048);
@@ -271,7 +271,7 @@ namespace Volplane.AirConsole
 
             controllerSingleton.Send(stream);
         }
-
+        /*
         /// <summary>
         /// AirConsole API: getControllerDeviceIds function.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
@@ -873,7 +873,7 @@ namespace Volplane.AirConsole
 
             controllerSingleton.Send(stream);
         }
-
+        */
         #endregion
 
         /// <summary>
@@ -939,36 +939,62 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acGameCode">AirConsole game code.</param>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        /// <param name="acDevices">AirConsole connected devices.</param>
-        /// <param name="acServerTimeOffset">AirConsole server time offset.</param>
-        /// <param name="acLocation">AirConsole game url.</param>
         protected void OnReadyInternal()
         {
-            /*
-            if((acDeviceId != 0) || (acDevices == null))
+            if(currentData.DeviceId != 0)
                 return;
 
             if(!isConnectionReady)
                 isConnectionReady = true;
 
-            this.acServerTimeOffset = acServerTimeOffset;
-            this.acGameLocation = FormatGameUrl(acLocation);
+            // Initialization data from the web interface will be parsed with LINQ for
+            // easier management.
+            // This process will run only once -> therefore speed, and memory allocations
+            // are quite insignificant.
+            JObject initData = JObject.Parse(currentData.Data.ToString());
+            JArray acDevices = initData["devices"] as JArray;
+
+            if(acDevices == null)
+                return;
+
+            this.acServerTimeOffset = (int)initData["server_time_offset"];
+            this.acGameLocation = FormatGameUrl((string)initData["location"]);
             this.acDevices.Clear();
 
             for(int i = 0; i < acDevices.Count; i++)
             {
-                if(acDevices.AsArray[i].AsObject == null)
+                if(acDevices[i] == null)
                     continue;
 
-                if(acDevices.AsArray[i].AsObject.Count > 0)
-                    this.acDevices.Add(i, acDevices.AsArray[i]);
+                if(acDevices[i].HasValues)
+                {
+                    this.acDevices.Add(
+                        i,
+                        Device.FromJSON(acDevices[i].ToString())
+                    );
+
+                    // Debug: dump device data
+                    Debug.LogFormat(
+                        "Location: {0:G}\n" +
+                        "Nickname: {1:G}\n" +
+                        "UID: {2:G}\n" +
+                        "IsLoggedIn: {3:F}\n" +
+                        "IsHero: {4:F}\n" +
+                        "IsUsingBrowser: {5:F}\n" +
+                        "HasSlowConnection: {6:F}",
+                        this.acDevices[i].Location,
+                        this.acDevices[i].Nickname,
+                        this.acDevices[i].UID,
+                        this.acDevices[i].IsLoggedIn,
+                        this.acDevices[i].IsHero,
+                        this.acDevices[i].IsUsingBrowser,
+                        this.acDevices[i].HasSlowConnection
+                    );
+                }
             }
 
             if(OnReady != null)
-                OnReady(acGameCode);
-            */
+                OnReady((string)initData["code"]);
         }
 
         /// <summary>
@@ -992,15 +1018,47 @@ namespace Volplane.AirConsole
         protected void OnDeviceStateChangeInternal()
         {
             // AirConsole device identifier and device state data in current APIData packet
-            /*
-            if(acDevices.ContainsKey(currentData.DeviceId))
-                acDevices[currentData.DeviceId] = state;
+
+            if(currentData.DeviceId == null)
+                return;
+
+            int index = (int)currentData.DeviceId;
+            
+            if(acDevices.ContainsKey(index))
+            {
+                Device.PopulateFromJSON(
+                    currentData.Data.ToString(),
+                    acDevices[index]
+                );
+            }
             else
-                acDevices.Add(acDeviceId, state);
+            {
+                acDevices.Add(
+                    index,
+                    Device.FromJSON(currentData.Data.ToString())
+                );
+            }
+
+            // Debug: dump device data
+            Debug.LogFormat(
+                "Location: {0:G}\n" +
+                "Nickname: {1:G}\n" +
+                "UID: {2:G}\n" +
+                "IsLoggedIn: {3:F}\n" +
+                "IsHero: {4:F}\n" +
+                "IsUsingBrowser: {5:F}\n" +
+                "HasSlowConnection: {6:F}",
+                this.acDevices[index].Location,
+                this.acDevices[index].Nickname,
+                this.acDevices[index].UID,
+                this.acDevices[index].IsLoggedIn,
+                this.acDevices[index].IsHero,
+                this.acDevices[index].IsUsingBrowser,
+                this.acDevices[index].HasSlowConnection
+            );
 
             if(OnDeviceStateChange != null)
-                OnDeviceStateChange(acDeviceId, state);
-            */
+                OnDeviceStateChange(index, currentData.Data.ToString());
         }
 
         /// <summary>
