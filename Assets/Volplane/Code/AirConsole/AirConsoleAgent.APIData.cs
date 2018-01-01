@@ -54,6 +54,7 @@ namespace Volplane.AirConsole
             public bool? StateData { get; set; }
             public string StringData { get; set; }
             public StringBuilder Data { get; set; }
+            public bool AssignedData { get; private set; }
 
             /// <summary>
             /// Create APIData object directly from a JSON string.
@@ -75,6 +76,8 @@ namespace Volplane.AirConsole
             /// <param name="dataObject">The object to populate.</param>
             public static void PopulateFromJSON(string json, APIData dataObject)
             {
+                dataObject.AssignedData = false;
+
                 using(var sr = new StringReader(json))
                 using(var reader = new JsonTextReader(sr))
                 {
@@ -111,6 +114,8 @@ namespace Volplane.AirConsole
                                         reader.Read();
                                         writer.WriteToken(reader);
                                     }
+
+                                    dataObject.AssignedData = true;
                                     break;
                             }
                         }

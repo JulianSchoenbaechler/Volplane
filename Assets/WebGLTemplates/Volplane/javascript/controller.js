@@ -1239,7 +1239,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         };
 
         // Callback function - onCustomDeviceStateChange event
-        instance.airconsole.onCustomDeviceStateChange = function(deviceId, data) {
+        instance.airconsole.onCustomDeviceStateChange = function(deviceId, data) {console.log('onCustomDeviceStateChange / device: ' + deviceId.toString());console.log(data);
 
             if(typeof data.volplane == 'undefined')
                 return;
@@ -1259,7 +1259,7 @@ VolplaneController.prototype.init = function(standardView, controllerData) {
         };
 
         // Callback function - onMessage event
-        instance.airconsole.onMessage = function(deviceId, data) {
+        instance.airconsole.onMessage = function(deviceId, data) {console.log('onMessage / device: ' + deviceId.toString());console.log(data);
 
             if(typeof data.volplane == 'undefined')
                 return;

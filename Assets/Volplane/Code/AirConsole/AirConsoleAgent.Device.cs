@@ -28,7 +28,7 @@ namespace Volplane.AirConsole
 
     public partial class AirConsoleAgent
     {
-        protected class Device
+        public class Device
         {
             /// <summary>
             /// Initializes a new instance of the <see cref="Volplane.AirConsole.AirConsoleAgent+Device"/> class.

@@ -447,16 +447,26 @@ namespace Volplane.AirConsole
 
             if(acDevices.Count > 0)
             {
-                parsedData = JObject.Parse(acDevices[0].CustomData.ToString());
+                if(acDevices[0].CustomData.Length > 0)
+                {
+                    parsedData = JObject.Parse(acDevices[0].CustomData.ToString());
 
-                if(parsedData["custom"] == null)
-                    parsedData.Add("custom", new JObject());
+                    if(parsedData["custom"] == null)
+                        parsedData.Add("custom", new JObject());
 
-                if(parsedData["custom"][key] == null)
-                    (parsedData["custom"] as JObject).Add("key", JToken.Parse(value));
+                    if(parsedData["custom"][key] == null)
+                        (parsedData["custom"] as JObject).Add("key", JToken.Parse(value));
+                    else
+                        parsedData["custom"][key] = JToken.Parse(value);
+                }
                 else
-                    parsedData["custom"][key] = JToken.Parse(value);
-                
+                {
+                    parsedData = new JObject();
+                    parsedData.Add("custom", new JObject {
+                        { key, JToken.Parse(value) }
+                    });
+                }
+
                 acDevices[0].CustomData.Length = 0;
                 acDevices[0].CustomData.Append(parsedData.ToString());
             }
@@ -615,6 +625,7 @@ namespace Volplane.AirConsole
                 return;
 
             ICollection<int> controllerIds = GetControllerDeviceIds();
+            int i = 0;
 
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
@@ -631,7 +642,10 @@ namespace Volplane.AirConsole
 
             foreach(int id in controllerIds)
             {
-                acPlayerNumbers.Add(id);
+                if(i < maxPlayers)
+                    acPlayerNumbers.Add(id);
+
+                i++;
             }
 
             controllerSingleton.Send(sendData.ToString());
@@ -1080,24 +1094,6 @@ namespace Volplane.AirConsole
                         i,
                         Device.FromJSON(acDevices[i].ToString())
                     );
-
-                    // Debug: dump device data
-                    Debug.LogFormat(
-                        "Location: {0:G}\n" +
-                        "Nickname: {1:G}\n" +
-                        "UID: {2:G}\n" +
-                        "IsLoggedIn: {3:F}\n" +
-                        "IsHero: {4:F}\n" +
-                        "IsUsingBrowser: {5:F}\n" +
-                        "HasSlowConnection: {6:F}",
-                        this.acDevices[i].Location,
-                        this.acDevices[i].Nickname,
-                        this.acDevices[i].UID,
-                        this.acDevices[i].IsLoggedIn,
-                        this.acDevices[i].IsHero,
-                        this.acDevices[i].IsUsingBrowser,
-                        this.acDevices[i].HasSlowConnection
-                    );
                 }
             }
 
@@ -1131,39 +1127,29 @@ namespace Volplane.AirConsole
                 return;
 
             int index = (int)currentData.DeviceId;
-            
-            if(acDevices.ContainsKey(index))
-            {
-                Device.PopulateFromJSON(
-                    currentData.Data.ToString(),
-                    acDevices[index]
-                );
-            }
-            else
-            {
-                acDevices.Add(
-                    index,
-                    Device.FromJSON(currentData.Data.ToString())
-                );
-            }
 
-            // Debug: dump device data
-            Debug.LogFormat(
-                "Location: {0:G}\n" +
-                "Nickname: {1:G}\n" +
-                "UID: {2:G}\n" +
-                "IsLoggedIn: {3:F}\n" +
-                "IsHero: {4:F}\n" +
-                "IsUsingBrowser: {5:F}\n" +
-                "HasSlowConnection: {6:F}",
-                this.acDevices[index].Location,
-                this.acDevices[index].Nickname,
-                this.acDevices[index].UID,
-                this.acDevices[index].IsLoggedIn,
-                this.acDevices[index].IsHero,
-                this.acDevices[index].IsUsingBrowser,
-                this.acDevices[index].HasSlowConnection
-            );
+            // Assigned data -> if not: disconnected...
+            if(currentData.AssignedData)
+            {
+                if(acDevices.ContainsKey(index))
+                {
+                    Device.PopulateFromJSON(
+                        currentData.Data.ToString(),
+                        acDevices[index]
+                    );
+                }
+                else
+                {
+                    acDevices.Add(
+                        index,
+                        Device.FromJSON(currentData.Data.ToString())
+                    );
+                }
+            }
+            else if(acDevices.ContainsKey(index))
+            {
+                acDevices.Remove(index);
+            }
 
             if(OnDeviceStateChange != null)
                 OnDeviceStateChange(index, currentData.Data.ToString());

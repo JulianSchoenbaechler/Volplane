@@ -86,9 +86,7 @@ namespace Volplane
         /// <param name="data">JSON formatted data sent from clients implemented AirConsole API.</param>
         public void ProcessData(string data)
         {
-            st.ResetAndStart();
             VolplaneController.AirConsole.ProcessData(data);
-            st.Stop();
         }
 
         /// <summary>
