@@ -21,7 +21,6 @@
 
 namespace Volplane.AirConsole
 {
-    using SimpleJSON;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System;
@@ -40,6 +39,7 @@ namespace Volplane.AirConsole
         protected IList<int> acPlayerNumbers;
         protected int acServerTimeOffset;
         protected string acGameLocation;
+        protected StringBuilder sendData;
 
         private APIData currentData;
         private DateTime epochTime;
@@ -55,6 +55,7 @@ namespace Volplane.AirConsole
             this.acPlayerNumbers = new List<int>();
             this.epochTime = new DateTime(1970, 1, 1);
             this.currentData = new APIData(2048);
+            this.sendData = new StringBuilder(512);
         }
 
         #region AirConsole Events
@@ -240,18 +241,27 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="acDeviceIdReceiver">AirConsole device identifier receiver.</param>
-        /// <param name="data">Data.</param>
-        public void Message(int acDeviceIdReceiver, JSONNode data)
+        /// <param name="data">Data in JSON format.</param>
+        public void Message(int acDeviceIdReceiver, string data)
         {
             if(!IsConnectionReady("message()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "message";
-            stream["to"].AsInt = acDeviceIdReceiver;
-            stream["data"] = data;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("message");
+                writer.WritePropertyName("to");
+                writer.WriteValue(acDeviceIdReceiver);
+                writer.WritePropertyName("data");
+                writer.WriteRawValue(data);
+                writer.WriteEnd();
+            }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -259,19 +269,27 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="data">Data.</param>
-        public void Broadcast(JSONNode data)
+        /// <param name="data">Data in JSON format.</param>
+        public void Broadcast(string data)
         {
             if(!IsConnectionReady("broadcast()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "broadcast";
-            stream["data"] = data;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("broadcast");
+                writer.WritePropertyName("data");
+                writer.WriteRawValue(data);
+                writer.WriteEnd();
+            }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
-        /*
+
         /// <summary>
         /// AirConsole API: getControllerDeviceIds function.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
@@ -287,7 +305,7 @@ namespace Volplane.AirConsole
                 .Where(id => !(
                     (id == 0) ||
                     (acDevices[id] == null) ||
-                    (FormatGameUrl(acDevices[id]["location"]) != acGameLocation)
+                    (FormatGameUrl(acDevices[id].Location) != acGameLocation)
                 ))
                 .ToList() as ICollection<int>;
 
@@ -341,16 +359,16 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <returns>The custom device state data.</returns>
+        /// <returns>The JSON formatted custom device state data.</returns>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
-        public JSONNode GetCustomDeviceState(int acDeviceId = 0)
+        public string GetCustomDeviceState(int acDeviceId = 0)
         {
             if(!IsConnectionReady("getCustomDeviceState()"))
                 return null;
 
             if(acDevices.ContainsKey(acDeviceId))
             {
-                return acDevices[acDeviceId]["custom"];
+                return acDevices[acDeviceId].CustomData.ToString();
             }
             else
             {
@@ -364,28 +382,37 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="data">Custom device state data.</param>
-        public void SetCustomDeviceState(JSONNode data)
+        /// <param name="data">Custom device state data as JSON string.</param>
+        public void SetCustomDeviceState(string data)
         {
             if(!IsConnectionReady("setCustomDeviceState()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "setCustomDeviceState";
-            stream["data"] = data;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("setCustomDeviceState");
+                writer.WritePropertyName("data");
+                writer.WriteRawValue(data);
+                writer.WriteEnd();
+            }
 
             if(acDevices.Count > 0)
             {
-                acDevices[0]["custom"] = data;
+                acDevices[0].CustomData.Length = 0;
+                acDevices[0].CustomData.Append(data);
             }
             else
             {
-                JSONNode state = new JSONObject();
-                state["custom"] = data;
-                acDevices.Add(0, state);
+                Device screenDevice = new Device();
+                screenDevice.CustomData.Append(data);
+                acDevices.Add(0, screenDevice);
             }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -394,29 +421,59 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="key">Key.</param>
-        /// <param name="value">Value.</param>
-        public void SetCustomDeviceStateProperty(string key, JSONNode value)
+        /// <param name="value">Value as JSON data string.</param>
+        public void SetCustomDeviceStateProperty(string key, string value)
         {
             if(!IsConnectionReady("setCustomDeviceStateProperty()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "setCustomDeviceStateProperty";
-            stream["key"] = key;
-            stream["value"] = value;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("setCustomDeviceStateProperty");
+                writer.WritePropertyName("key");
+                writer.WriteValue(key);
+                writer.WritePropertyName("value");
+                writer.WriteRawValue(value);
+                writer.WriteEnd();
+            }
+
+            // Currently changing a specific property of custom data by parsing current data
+            // through LINQ and serialize again. This is not optimized yet, but won't
+            // be used by Volplane.
+            JObject parsedData;
 
             if(acDevices.Count > 0)
             {
-                acDevices[0]["custom"][key] = value;
+                parsedData = JObject.Parse(acDevices[0].CustomData.ToString());
+
+                if(parsedData["custom"] == null)
+                    parsedData.Add("custom", new JObject());
+
+                if(parsedData["custom"][key] == null)
+                    (parsedData["custom"] as JObject).Add("key", JToken.Parse(value));
+                else
+                    parsedData["custom"][key] = JToken.Parse(value);
+                
+                acDevices[0].CustomData.Length = 0;
+                acDevices[0].CustomData.Append(parsedData.ToString());
             }
             else
             {
-                JSONNode state = new JSONObject();
-                state["custom"][key] = value;
-                acDevices.Add(0, state);
+                parsedData = new JObject();
+                parsedData.Add("custom", new JObject {
+                    { key, JToken.Parse(value) }
+                });
+
+                Device screenDevice = new Device();
+                screenDevice.CustomData.Append(parsedData.ToString());
+                acDevices.Add(0, screenDevice);
             }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -433,8 +490,8 @@ namespace Volplane.AirConsole
 
             if(acDevices.ContainsKey(acDeviceId))
             {
-                if(acDevices[acDeviceId]["nickname"] != null)
-                    return acDevices[acDeviceId]["nickname"].Value;
+                if((acDevices[acDeviceId].Nickname != null) && (acDevices[acDeviceId].Nickname.Length > 0))
+                    return acDevices[acDeviceId].Nickname;
                 else
                     return String.Format("Guest {0:D}", acDeviceId);
             }
@@ -475,7 +532,7 @@ namespace Volplane.AirConsole
 
             if(acDevices.ContainsKey(acDeviceId))
             {
-                return acDevices[acDeviceId]["uid"].Value;
+                return acDevices[acDeviceId].UID;
             }
             else
             {
@@ -497,10 +554,7 @@ namespace Volplane.AirConsole
                 return false;
 
             if(acDevices.ContainsKey(acDeviceId))
-            {
-                if(acDevices[acDeviceId]["auth"] != null)
-                    return acDevices[acDeviceId]["auth"].AsBool;
-            }
+                return acDevices[acDeviceId].IsLoggedIn;
 
             return false;
         }
@@ -561,10 +615,17 @@ namespace Volplane.AirConsole
                 return;
 
             ICollection<int> controllerIds = GetControllerDeviceIds();
-            JSONObject stream = new JSONObject();
 
-            stream["action"] = "setActivePlayers";
-            stream["max_players"].AsInt = maxPlayers;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("setActivePlayers");
+                writer.WritePropertyName("max_players");
+                writer.WriteValue(maxPlayers);
+                writer.WriteEnd();
+            }
 
             acPlayerNumbers.Clear();
 
@@ -573,7 +634,8 @@ namespace Volplane.AirConsole
                 acPlayerNumbers.Add(id);
             }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -586,10 +648,17 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("showAd()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "showAd";
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("showAd");
+                writer.WriteEnd();
+            }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -622,10 +691,7 @@ namespace Volplane.AirConsole
                 return false;
 
             if(acDevices.ContainsKey(acDeviceId))
-            {
-                if(acDevices[acDeviceId]["premium"] != null)
-                    return acDevices[acDeviceId]["premium"].AsBool;
-            }
+                return acDevices[acDeviceId].IsHero;
 
             return false;
         }
@@ -636,20 +702,30 @@ namespace Volplane.AirConsole
         /// for the AirConsole documentation.
         /// </summary>
         /// <param name="key">Key.</param>
-        /// <param name="value">Value data.</param>
+        /// <param name="value">Value data as JSON string.</param>
         /// <param name="uid">User id.</param>
-        public void StorePersistentData(string key, JSONNode value, string uid = null)
+        public void StorePersistentData(string key, string value, string uid = null)
         {
             if(!IsConnectionReady("storePersistentData()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "storePersistentData";
-            stream["key"] = key;
-            stream["value"] = value;
-            stream["uid"] = uid == null ? GetUID() : uid;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("storePersistentData");
+                writer.WritePropertyName("key");
+                writer.WriteValue(key);
+                writer.WritePropertyName("value");
+                writer.WriteRawValue(value);
+                writer.WritePropertyName("uid");
+                writer.WriteValue(uid ?? GetUID());
+                writer.WriteEnd();
+            }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -666,18 +742,24 @@ namespace Volplane.AirConsole
             if(uids == null)
                 return;
 
-            JSONArray streamUids = new JSONArray();
-
-            foreach(string uid in uids)
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
             {
-                streamUids[-1] = uid;
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("requestPersistentData");
+                writer.WritePropertyName("uids");
+                writer.WriteStartArray();
+
+                foreach(string uid in uids)
+                    writer.WriteValue(uid);
+
+                writer.WriteEndArray();
+                writer.WriteEnd();
             }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "requestPersistentData";
-            stream["uids"] = streamUids;
-
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -703,40 +785,46 @@ namespace Volplane.AirConsole
         /// <param name="levelVersion">Level version.</param>
         /// <param name="score">Score.</param>
         /// <param name="uids">User ids.</param>
-        /// <param name="data">Highscore data.</param>
+        /// <param name="data">Highscore data as JSON string.</param>
         /// <param name="scoreString">Human readable score.</param>
         public void StoreHighScore(string levelName,
                                    string levelVersion,
                                    float score,
                                    ICollection<string> uids = null,
-                                   JSONNode data = null,
+                                   string data = null,
                                    string scoreString = null)
         {
             if(!IsConnectionReady("storeHighScore()"))
                 return;
 
-            JSONArray streamUids = null;
-
-            if(uids != null)
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
             {
-                streamUids = new JSONArray();
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("storeHighScore");
+                writer.WritePropertyName("level_name");
+                writer.WriteValue(levelName);
+                writer.WritePropertyName("level_version");
+                writer.WriteValue(levelVersion);
+                writer.WritePropertyName("score");
+                writer.WriteValue(score);
+                writer.WritePropertyName("uid");
+                writer.WriteStartArray();
 
                 foreach(string uid in uids)
-                {
-                    streamUids[-1] = uid;
-                }
+                    writer.WriteValue(uid);
+
+                writer.WriteEndArray();
+                writer.WritePropertyName("data");
+                writer.WriteRawValue(data);
+                writer.WritePropertyName("score_string");
+                writer.WriteValue(scoreString);
+                writer.WriteEnd();
             }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "storeHighScore";
-            stream["level_name"] = levelName;
-            stream["level_version"] = levelName;
-            stream["score"].AsFloat = score;
-            stream["uid"] = streamUids;
-            stream["data"] = data;
-            stream["score_string"] = scoreString;
-
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -748,13 +836,13 @@ namespace Volplane.AirConsole
         /// <param name="levelVersion">Level version.</param>
         /// <param name="score">Score.</param>
         /// <param name="uid">User id.</param>
-        /// <param name="data">Highscore data.</param>
+        /// <param name="data">Highscore data as JSON string.</param>
         /// <param name="scoreString">Human readable score.</param>
         public void StoreHighScore(string levelName,
                                    string levelVersion,
                                    float score,
                                    string uid = null,
-                                   JSONNode data = null,
+                                   string data = null,
                                    string scoreString = null)
         {
             if(!IsConnectionReady("storeHighScore()"))
@@ -784,42 +872,39 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("requestHighScore()"))
                 return;
 
-            // UIDs
-            JSONArray streamUids = null;
-
-            if(uids != null)
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
             {
-                streamUids = new JSONArray();
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("requestHighScore");
+                writer.WritePropertyName("level_name");
+                writer.WriteValue(levelName);
+                writer.WritePropertyName("level_version");
+                writer.WriteValue(levelVersion);
+                writer.WritePropertyName("uid");
+                writer.WriteStartArray();
 
                 foreach(string uid in uids)
-                {
-                    streamUids[-1] = uid;
-                }
-            }
+                    writer.WriteValue(uid);
 
-            // Ranks
-            JSONArray streamRanks = null;
-
-            if(ranks != null)
-            {
-                streamRanks = new JSONArray();
+                writer.WriteEndArray();
+                writer.WritePropertyName("ranks");
+                writer.WriteStartArray();
 
                 foreach(string rank in ranks)
-                {
-                    streamRanks[-1] = rank;
-                }
+                    writer.WriteValue(rank);
+
+                writer.WriteEndArray();
+                writer.WritePropertyName("total");
+                writer.WriteValue(total);
+                writer.WritePropertyName("top");
+                writer.WriteValue(top);
+                writer.WriteEnd();
             }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "requestHighScore";
-            stream["level_name"] = levelName;
-            stream["level_version"] = levelName;
-            stream["uid"] = streamUids;
-            stream["ranks"] = streamRanks;
-            stream["total"] = total;
-            stream["total"] = top;
-
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -831,11 +916,18 @@ namespace Volplane.AirConsole
         {
             if(!IsConnectionReady("navigateHome()"))
                 return;
+            
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("navigateHome");
+                writer.WriteEnd();
+            }
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "navigateHome";
-
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -849,11 +941,19 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("navigateTo()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "navigateTo";
-            stream["data"] = url;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("navigateTo");
+                writer.WritePropertyName("data");
+                writer.WriteValue(url);
+                writer.WriteEnd();
+            }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
 
         /// <summary>
@@ -867,13 +967,21 @@ namespace Volplane.AirConsole
             if(!IsConnectionReady("showDefaultUI()"))
                 return;
 
-            JSONObject stream = new JSONObject();
-            stream["action"] = "showDefaultUI";
-            stream["data"].AsBool = showDefaultUI;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("showDefaultUI");
+                writer.WritePropertyName("data");
+                writer.WriteValue(showDefaultUI);
+                writer.WriteEnd();
+            }
 
-            controllerSingleton.Send(stream);
+            controllerSingleton.Send(sendData.ToString());
+            sendData.Length = 0;
         }
-        */
+
         #endregion
 
         /// <summary>

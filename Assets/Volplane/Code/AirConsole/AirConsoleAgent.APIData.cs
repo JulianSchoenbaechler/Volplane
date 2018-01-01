@@ -105,8 +105,8 @@ namespace Volplane.AirConsole
                                     // Reset StringBuilder
                                     dataObject.Data.Length = 0;
 
-                                    using(var tw = new StringWriter(dataObject.Data))
-                                    using(var writer = new JsonTextWriter(tw))
+                                    using(var sw = new StringWriter(dataObject.Data))
+                                    using(var writer = new JsonTextWriter(sw))
                                     {
                                         reader.Read();
                                         writer.WriteToken(reader);

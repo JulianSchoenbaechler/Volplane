@@ -94,8 +94,8 @@ namespace Volplane
         /// <summary>
         /// Method for sending data to AirConsole API.
         /// </summary>
-        /// <param name="data">JSON data.</param>
-        public void Send(JSONObject data)
+        /// <param name="data">Data in JSON format.</param>
+        public void Send(string data)
         {
             #if UNITY_EDITOR
 
@@ -104,7 +104,7 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
-                SendData(data.ToString());
+                SendData(data);
 
             #endif
         }
