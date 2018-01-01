@@ -93,7 +93,7 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, string> OnDeviceStateChange;
+        public event Action<int, Device> OnDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onCustomDeviceStateChange callback.
@@ -1145,14 +1145,17 @@ namespace Volplane.AirConsole
                         Device.FromJSON(currentData.Data.ToString())
                     );
                 }
+
+                if(OnDeviceStateChange != null)
+                    OnDeviceStateChange(index, acDevices[index]);
             }
             else if(acDevices.ContainsKey(index))
             {
                 acDevices.Remove(index);
-            }
 
-            if(OnDeviceStateChange != null)
-                OnDeviceStateChange(index, currentData.Data.ToString());
+                if(OnDeviceStateChange != null)
+                    OnDeviceStateChange(index, null);
+            }
         }
 
         /// <summary>
