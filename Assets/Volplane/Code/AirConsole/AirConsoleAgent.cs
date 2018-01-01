@@ -32,7 +32,7 @@ namespace Volplane.AirConsole
     using System.Text.RegularExpressions;
     using UnityEngine;
 
-    public class AirConsoleAgent : IDisposable
+    public partial class AirConsoleAgent : IDisposable
     {
         protected VolplaneController controllerSingleton;
         protected bool isConnectionReady = false;
@@ -41,7 +41,7 @@ namespace Volplane.AirConsole
         protected int acServerTimeOffset;
         protected string acGameLocation;
 
-        private AirConsoleData currentData;
+        private APIData currentData;
         private DateTime epochTime;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Volplane.AirConsole
             this.acDevices = new Dictionary<int, JSONNode>();
             this.acPlayerNumbers = new List<int>();
             this.epochTime = new DateTime(1970, 1, 1);
-            this.currentData = new AirConsoleData(2048);
+            this.currentData = new APIData(2048);
         }
 
         #region AirConsole Events
@@ -85,21 +85,21 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> OnMessage;
+        public event Action<int, string> OnMessage;
 
         /// <summary>
         /// AirConsole API: onDeviceStateChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> OnDeviceStateChange;
+        public event Action<int, string> OnDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onCustomDeviceStateChange callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<int, JSONNode> OnCustomDeviceStateChange;
+        public event Action<int, string> OnCustomDeviceStateChange;
 
         /// <summary>
         /// AirConsole API: onDeviceProfileChange callback.
@@ -134,7 +134,7 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> OnPersistentDataLoaded;
+        public event Action<string> OnPersistentDataLoaded;
 
         /// <summary>
         /// AirConsole API: onPersistentDataStored callback.
@@ -148,14 +148,14 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> OnHighScores;
+        public event Action<string> OnHighScores;
 
         /// <summary>
         /// AirConsole API: onHighScoreStored callback.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        public event Action<JSONNode> OnHighScoreStored;
+        public event Action<string> OnHighScoreStored;
 
         #endregion
 
@@ -166,47 +166,7 @@ namespace Volplane.AirConsole
         public void ProcessData(string data)
         {
             // Reading task(s) from JSON
-            using(var sr = new StringReader(data))
-            using(var reader = new JsonTextReader(sr))
-            {
-                while(reader.Read())
-                {
-                    if((reader.TokenType == JsonToken.PropertyName) && (reader.Depth == 1))
-                    {
-                        switch(reader.Value.ToString())
-                        {
-                            case "action":
-                                currentData.Action = reader.ReadAsString();
-                                break;
-
-                            case "device_id":
-                            case "from":
-                                currentData.DeviceId = reader.ReadAsInt32();
-                                break;
-
-                            case "uid":
-                                currentData.StringData = reader.ReadAsString();
-                                break;
-
-                            case "ad_was_shown":
-                                currentData.StateData = reader.ReadAsBoolean();
-                                break;
-
-                            default:
-                                // Reset StringBuilder
-                                currentData.Data.Length = 0;
-
-                                using(var tw = new StringWriter(currentData.Data))
-                                using(var writer = new JsonTextWriter(tw))
-                                {
-                                    reader.Read();
-                                    writer.WriteToken(reader);
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
+            APIData.PopulateFromJSON(data, currentData);
 
             // Calling task(s)
             switch(currentData.Action)
@@ -953,11 +913,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnConnectInternal(int acDeviceId)
+        protected void OnConnectInternal()
         {
+            // AirConsole device identifier in current APIData packet
+
             if(OnConnect != null)
-                OnConnect(acDeviceId);
+                OnConnect(currentData.DeviceId ?? -1);
         }
 
         /// <summary>
@@ -965,11 +926,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnDisconnectInternal(int acDeviceId)
+        protected void OnDisconnectInternal()
         {
+            // AirConsole device identifier in current APIData packet
+
             if(OnDisconnect != null)
-                OnDisconnect(acDeviceId);
+                OnDisconnect(currentData.DeviceId ?? -1);
         }
 
         /// <summary>
@@ -982,12 +944,9 @@ namespace Volplane.AirConsole
         /// <param name="acDevices">AirConsole connected devices.</param>
         /// <param name="acServerTimeOffset">AirConsole server time offset.</param>
         /// <param name="acLocation">AirConsole game url.</param>
-        protected void OnReadyInternal(string acGameCode,
-                                       int acDeviceId,
-                                       JSONNode acDevices,
-                                       int acServerTimeOffset,
-                                       string acLocation)
+        protected void OnReadyInternal()
         {
+            /*
             if((acDeviceId != 0) || (acDevices == null))
                 return;
 
@@ -1009,6 +968,7 @@ namespace Volplane.AirConsole
 
             if(OnReady != null)
                 OnReady(acGameCode);
+            */
         }
 
         /// <summary>
@@ -1016,12 +976,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceIdSender">AirConsole device identifier sender.</param>
-        /// <param name="data">Message data.</param>
-        protected void OnMessageInternal(int acDeviceIdSender, JSONNode data)
+        protected void OnMessageInternal()
         {
+            // AirConsole device identifier and message data in current APIData packet
+
             if(OnMessage != null)
-                OnMessage(acDeviceIdSender, data);
+                OnMessage(currentData.DeviceId ?? -1, currentData.Data.ToString());
         }
 
         /// <summary>
@@ -1029,17 +989,18 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        /// <param name="state">Devic state.</param>
-        protected void OnDeviceStateChangeInternal(int acDeviceId, JSONNode state)
+        protected void OnDeviceStateChangeInternal()
         {
-            if(acDevices.ContainsKey(acDeviceId))
-                acDevices[acDeviceId] = state;
+            // AirConsole device identifier and device state data in current APIData packet
+            /*
+            if(acDevices.ContainsKey(currentData.DeviceId))
+                acDevices[currentData.DeviceId] = state;
             else
                 acDevices.Add(acDeviceId, state);
 
             if(OnDeviceStateChange != null)
                 OnDeviceStateChange(acDeviceId, state);
+            */
         }
 
         /// <summary>
@@ -1047,11 +1008,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnCustomDeviceStateChangeInternal(int acDeviceId, JSONNode state)
+        protected void OnCustomDeviceStateChangeInternal()
         {
+            // AirConsole device identifier and custom data in current APIData packet
+
             if(OnCustomDeviceStateChange != null)
-                OnCustomDeviceStateChange(acDeviceId, state);
+                OnCustomDeviceStateChange(currentData.DeviceId ?? -1, currentData.Data.ToString());
         }
 
         /// <summary>
@@ -1059,11 +1021,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnDeviceProfileChangeInternal(int acDeviceId)
+        protected void OnDeviceProfileChangeInternal()
         {
+            // AirConsole device identifier in current APIData packet
+
             if(OnDeviceProfileChange != null)
-                OnDeviceProfileChange(acDeviceId);
+                OnDeviceProfileChange(currentData.DeviceId ?? -1);
         }
 
         /// <summary>
@@ -1082,11 +1045,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acAdWasShown">If set to <c>true</c> AirConsole ad was shown.</param>
-        protected void OnAdCompleteInternal(bool acAdWasShown)
+        protected void OnAdCompleteInternal()
         {
+            // Ad was shown state in current APIData packet
+
             if(OnAdComplete != null)
-                OnAdComplete(acAdWasShown);
+                OnAdComplete(currentData.StateData ?? false);
         }
 
         /// <summary>
@@ -1094,11 +1058,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void OnPremiumInternal(int acDeviceId)
+        protected void OnPremiumInternal()
         {
+            // AirConsole device identifier in current APIData packet
+
             if(OnPremium != null)
-                OnPremium(acDeviceId);
+                OnPremium(currentData.DeviceId ?? -1);
         }
 
         /// <summary>
@@ -1106,11 +1071,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="data">Loaded data.</param>
-        protected void OnPersistentDataLoadedInternal(JSONNode data)
+        protected void OnPersistentDataLoadedInternal()
         {
+            // Persistent data in current APIData packet
+
             if(OnPersistentDataLoaded != null)
-                OnPersistentDataLoaded(data);
+                OnPersistentDataLoaded(currentData.Data.ToString());
         }
 
         /// <summary>
@@ -1118,11 +1084,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acUid">Unique user identifier.</param>
-        protected void OnPersistentDataStoredInternal(string acUid)
+        protected void OnPersistentDataStoredInternal()
         {
+            // Unique user identifier in current APIData packet
+
             if(OnPersistentDataStored != null)
-                OnPersistentDataStored(acUid);
+                OnPersistentDataStored(currentData.StringData);
         }
 
         /// <summary>
@@ -1130,11 +1097,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acHighscoreData">AirConsole highscore data.</param>
-        protected void OnHighScoresInternal(JSONNode acHighscoreData)
+        protected void OnHighScoresInternal()
         {
+            // Highscore data in current APIData packet
+
             if(OnHighScores != null)
-                OnHighScores(acHighscoreData);
+                OnHighScores(currentData.Data.ToString());
         }
 
         /// <summary>
@@ -1142,11 +1110,12 @@ namespace Volplane.AirConsole
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
-        /// <param name="acNewRecordData">AirConsole new highscore record data.</param>
-        protected void OnHighScoreStoredInternal(JSONNode acNewRecordData)
+        protected void OnHighScoreStoredInternal()
         {
+            // New highscore record data in current APIData packet
+
             if(OnHighScoreStored != null)
-                OnHighScoreStored(acNewRecordData);
+                OnHighScoreStored(currentData.Data.ToString());
         }
 
         #endregion
@@ -1187,28 +1156,6 @@ namespace Volplane.AirConsole
             url = rule.Replace(url, "");
 
             return url;
-        }
-
-        /// <summary>
-        /// Air console data structure.
-        /// </summary>
-        private class AirConsoleData
-        {
-            public AirConsoleData()
-            {
-                this.Data = new StringBuilder(256);
-            }
-
-            public AirConsoleData(int dataCapacity)
-            {
-                this.Data = new StringBuilder(dataCapacity);
-            }
-
-            public string Action { get; set; }
-            public int? DeviceId { get; set; }
-            public bool? StateData { get; set; }
-            public string StringData { get; set; }
-            public StringBuilder Data { get; set; }
         }
     }
 }
