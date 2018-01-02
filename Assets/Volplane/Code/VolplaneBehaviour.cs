@@ -21,11 +21,12 @@
 
 namespace Volplane
 {
-    using UnityEngine;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
+    using UnityEngine;
 
     public abstract class VolplaneBehaviour : MonoBehaviour
     {
@@ -181,7 +182,7 @@ namespace Volplane
         /// </summary>
         /// <remarks>If the player lost connection or is waiting for an advertisement to complete, the state change will
         /// be delayed.</remarks>
-        /// <param name="playerId">Player object.</param>
+        /// <param name="player">Player object.</param>
         /// <param name="value">Activate (<c>true</c>) or deactivate (<c>false</c>) a player.</param>
         public void SetActive(VPlayer player, bool value)
         {
@@ -194,7 +195,7 @@ namespace Volplane
         /// </summary>
         /// <param name="playerId">Player identifier.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(int playerId, SimpleJSON.JSONObject data)
+        public void SaveUserData(int playerId, JObject data)
         {
             VolplaneController.Main.SaveUserData(playerId, data);
         }
@@ -205,7 +206,7 @@ namespace Volplane
         /// </summary>
         /// <param name="player">Player object.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(VPlayer player, SimpleJSON.JSONObject data)
+        public void SaveUserData(VPlayer player, JObject data)
         {
             VolplaneController.Main.SaveUserData(player, data);
         }
@@ -336,6 +337,7 @@ namespace Volplane
         /// Vibrate the controller of a player for a specified amount of time.
         /// Maximum time is 10 seconds.
         /// </summary>
+        /// <param name="playerId">Player identifier.</param>
         /// <param name="time">Time in seconds.</param>
         public void VibrateController(int playerId, float time)
         {
@@ -346,6 +348,7 @@ namespace Volplane
         /// Vibrate the controller of a player for a specified amount of time.
         /// Maximum time is 10 seconds.
         /// </summary>
+        /// <param name="player">Player object.</param>
         /// <param name="time">Time in seconds.</param>
         public void VibrateController(VPlayer player, float time)
         {
