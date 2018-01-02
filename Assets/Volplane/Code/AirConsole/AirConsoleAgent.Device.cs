@@ -33,10 +33,7 @@ namespace Volplane.AirConsole
             /// <summary>
             /// Initializes a new instance of the <see cref="Volplane.AirConsole.AirConsoleAgent+Device"/> class.
             /// </summary>
-            public Device()
-            {
-                this.CustomData = new StringBuilder(256);
-            }
+            public Device() : this(256) { }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Volplane.AirConsole.AirConsoleAgent+Device"/> class.

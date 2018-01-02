@@ -35,10 +35,7 @@ namespace Volplane.AirConsole
             /// <summary>
             /// Initializes a new instance of the <see cref="Volplane.AirConsole.AirConsoleAgent+APIData"/> class.
             /// </summary>
-            public APIData()
-            {
-                this.Data = new StringBuilder(256);
-            }
+            public APIData() : this(256) { }
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Volplane.AirConsole.AirConsoleAgent+APIData"/> class.
