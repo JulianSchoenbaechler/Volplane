@@ -21,7 +21,7 @@
 
 namespace Volplane.Editor.UI
 {
-    using SimpleJSON;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.IO;
     using System.Text.RegularExpressions;
@@ -144,7 +144,7 @@ namespace Volplane.Editor.UI
                 // Open last build
                 if(GUILayout.Button("Open Last Build"))
                 {
-                    Extensions.OpenBuild();
+                    Volplane.Editor.Extensions.OpenBuild();
                 }
             }
 
@@ -271,10 +271,10 @@ namespace Volplane.Editor.UI
                 // Compare controller data with existing
                 // Copy if newer...
                 string controllerPath = controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1];
-                JSONNode dataNew = FileManager.ReadJSON(controllerPath);
-                JSONNode dataOld = FileManager.ReadJSON(controllerDestinationPath);
+                JToken dataNew = FileManager.ReadJSON(controllerPath);
+                JToken dataOld = FileManager.ReadJSON(controllerDestinationPath);
 
-                if((dataOld == null) || (dataNew["lastEdit"].AsInt > dataOld["lastEdit"].AsInt))
+                if((dataOld == null) || ((int)dataNew["lastEdit"] > (int)dataOld["lastEdit"]))
                 {
                     // Copy selected controller data into WebGL template
                     File.Copy(controllerPath,
