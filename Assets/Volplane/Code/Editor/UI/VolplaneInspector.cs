@@ -218,7 +218,7 @@ namespace Volplane.Editor.UI
         /// </summary>
         private void ReloadControllerList()
         {
-            JSONArray jsonControllerList = new JSONArray();
+            JArray jsonControllerList = new JArray();
 
             // Get all controllers
             controllerPaths = Directory.GetFiles(controllerFolderPath, "*.json", SearchOption.TopDirectoryOnly);
@@ -231,7 +231,7 @@ namespace Volplane.Editor.UI
             for(int i = 1; i < controllerList.Length; i++)
             {
                 controllerList[i] = Path.GetFileNameWithoutExtension(controllerPaths[i - 1]);
-                jsonControllerList[-1] = controllerList[i];
+                jsonControllerList.Add(controllerList[i]);
 
                 if(Config.SelectedController == controllerList[i])
                     tempSelectedController = controllerList[i];
