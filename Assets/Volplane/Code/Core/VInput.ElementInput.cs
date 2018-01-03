@@ -21,6 +21,8 @@
 
 namespace Volplane
 {
+    using Newtonsoft.Json;
+    using System.IO;
 	using UnityEngine;
 
     public sealed partial class VInput
@@ -46,6 +48,25 @@ namespace Volplane
 
                 this.StateDown = false;
                 this.StateUp = false;
+                this.Tap = false;
+
+                this.X = 0f;
+                this.Y = 0f;
+
+                this.HadDirections = true;
+                this.Move = false;
+
+                this.AX = 0f;
+                this.AY = 0f;
+                this.AZ = 0f;
+                this.Alpha = 0f;
+                this.Beta = 0f;
+                this.Gamma = 0f;
+
+                this.Distance = 0f;
+                this.Angle = 0f;
+                this.Degree = 0f;
+                this.Speed = 0f;
 
                 this.Dirty = false;
             }
@@ -63,77 +84,37 @@ namespace Volplane
                 Motion
             }
 
-            public InputType Type { get; set; }
-            public bool State { get; set; }
-            public int Delay { get; set; }
+            public InputType Type { get; set; }             // Input type
+            public bool State { get; set; }                 // Input state
+            public int Delay { get; set; }                  // Connection delay
 
-            public bool StateDown { get; protected set; }
-            public bool StateUp { get; protected set; }
+            public bool StateDown { get; protected set; }   // Input state per frame - down
+            public bool StateUp { get; protected set; }     // Input state per frame -  up
+            public bool Tap { get; protected set; }         // Tap input indicator
+            public bool Move { get; set; }                  // Moved input indicator
+            public bool HadDirections { get; set; }         // Triggered directions input indicator
 
-            public bool Dirty { get; set; }
+            public float X  { get; set; }                   // Coordinates
+            public float Y  { get; set; }
+
+            public float Distance { get; set; }             // Swipe distance
+            public float Angle { get; set; }                // Swipe angle in radians
+            public float Degree { get; set; }               // Swipe angle in degree
+            public float Speed { get; set; }                // Swipe speed
+
+            public float AX  { get; set; }                  // Accelerometer (x, y, z)
+            public float AY  { get; set; }
+            public float AZ  { get; set; }
+            public float Alpha  { get; set; }               // Gyroscope (alpha, beta, gamma)
+            public float Beta  { get; set; }
+            public float Gamma  { get; set; }
+
+            public bool Dirty { get; set; }                 // Changed input indicator
 
             /// <summary>
             /// Update must be called every frame.
             /// </summary>
             public virtual void Update()
-            {
-                if(StateUp)
-                    StateUp = false;
-
-                if(StateDown)
-                    StateDown = false;
-
-                if(State && !oldState)
-                    StateDown = true;
-                else if(!State && oldState)
-                    StateUp = true;
-
-                oldState = State;
-
-                Dirty = false;
-            }
-        }
-
-        /// <summary>
-        /// Local representation of an advanced element input.
-        /// </summary>
-        private class AdvancedElementInput : ElementInput
-        {
-            protected Vector2 coordinates;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Volplane.VInput+AdvancedElementInput"/> class.
-            /// </summary>
-            public AdvancedElementInput() : base()
-            {
-                // Standard values
-                this.coordinates = Vector2.zero;
-
-                this.HadDirections = true;
-                this.Move = false;
-                this.Rotation = Quaternion.identity;
-
-                this.StateDown = false;
-                this.StateUp = false;
-                this.Tap = false;
-            }
-
-            public bool HadDirections { get; set; }
-            public bool Move { get; set; }
-            public Quaternion Rotation { get; set; }
-
-            public Vector2 Coordinates
-            {
-                get { return coordinates; }
-                set { coordinates = value; }
-            }
-
-            public bool Tap { get; protected set; }
-
-            /// <summary>
-            /// Update must be called every frame.
-            /// </summary>
-            public override void Update()
             {
                 if(Tap)
                     Tap = false;
@@ -157,59 +138,6 @@ namespace Volplane
                 oldState = State;
 
                 Dirty = false;
-            }
-        }
-
-        /// <summary>
-        /// Local representation of an analog element input.
-        /// </summary>
-        private class AnalogElementInput : AdvancedElementInput
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Volplane.VInput+AnalogElementInput"/> class.
-            /// </summary>
-            public AnalogElementInput() : base()
-            {
-                // Standard values
-                this.Distance = 0f;
-                this.Angle = 0f;
-                this.Degree = 0f;
-                this.Speed = 0f;
-            }
-
-            public float Distance { get; set; }
-            public float Angle { get; set; }
-            public float Degree { get; set; }
-            public float Speed { get; set; }
-        }
-
-        /// <summary>
-        /// Local representation of a device motion input.
-        /// </summary>
-        private class DeviceMotionInput : ElementInput
-        {
-            protected Vector3 accelerometer, gyroscope;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Volplane.VInput+DeviceMotionInput"/> class.
-            /// </summary>
-            public DeviceMotionInput() : base()
-            {
-                // Standard values
-                this.accelerometer = Vector3.zero;
-                this.gyroscope = Vector3.zero;
-            }
-
-            public Vector3 Accelerometer
-            {
-                get { return accelerometer; }
-                set { accelerometer = value; }
-            }
-
-            public Vector3 Gyroscope
-            {
-                get { return gyroscope; }
-                set { gyroscope = value; }
             }
         }
     }
