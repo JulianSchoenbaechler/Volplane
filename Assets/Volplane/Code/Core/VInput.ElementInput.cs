@@ -44,7 +44,6 @@ namespace Volplane
 
                 this.Type = InputType.Button;
                 this.State = false;
-                this.Delay = 0;
 
                 this.StateDown = false;
                 this.StateUp = false;
@@ -68,6 +67,7 @@ namespace Volplane
                 this.Degree = 0f;
                 this.Speed = 0f;
 
+                this.Delay = 0;
                 this.Dirty = false;
             }
 
@@ -86,7 +86,6 @@ namespace Volplane
 
             public InputType Type { get; set; }             // Input type
             public bool State { get; set; }                 // Input state
-            public int Delay { get; set; }                  // Connection delay
 
             public bool StateDown { get; protected set; }   // Input state per frame - down
             public bool StateUp { get; protected set; }     // Input state per frame -  up
@@ -109,6 +108,7 @@ namespace Volplane
             public float Beta  { get; set; }
             public float Gamma  { get; set; }
 
+            public int Delay { get; set; }                  // Connection delay
             public bool Dirty { get; set; }                 // Changed input indicator
 
             /// <summary>
