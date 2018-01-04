@@ -113,7 +113,10 @@ namespace Volplane
         {
             // Use this object as singleton
             if((VolplaneSingleton != null) && (VolplaneSingleton != this))
+            {
                 Destroy(this.gameObject);
+                return;
+            }
 
             VolplaneSingleton = this;
             DontDestroyOnLoad(this.gameObject);
