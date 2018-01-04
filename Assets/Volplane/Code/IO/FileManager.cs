@@ -107,7 +107,7 @@ namespace Volplane.IO
             // Check if path is a directory
             if(Path.GetExtension(filePath) == String.Empty)
             {
-                if(jsonData["name"] == null)
+                if((jsonData.Type == JTokenType.Object) && (jsonData["name"] == null))
                 {
                     if(Config.DebugLog == (int)DebugState.All)
                         VDebug.LogError("[Volplane (FileManager)] Invalid file path. Could not write file.");
@@ -124,7 +124,10 @@ namespace Volplane.IO
                 writer.Write(sbContent);
             }
 
-            return (string)jsonData["name"];
+            if((jsonData.Type == JTokenType.Object) && (jsonData["name"] != null))
+                return (string)jsonData["name"];
+
+            return null;
         }
 
         /// <summary>
