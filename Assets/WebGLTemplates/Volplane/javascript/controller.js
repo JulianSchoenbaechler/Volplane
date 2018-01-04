@@ -213,6 +213,8 @@ VolplaneController.prototype.newDPad = function(elementObject, viewName, $viewSe
                 name: elementObject.name,
                 type: 'dpad',
                 data: {
+                    x: 0,
+                    y: 0,
                     state: false,
                     hadDirections: (elementObject.relative || false) ? hadDirections : false,
                     timeStamp: instance.airconsole.getServerTime()
@@ -297,6 +299,8 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                     name: elementObject.name,
                     type: 'joystick',
                     data: {
+                        x: 0,
+                        y: 0,
                         state: false,
                         timeStamp: instance.airconsole.getServerTime()
                     }
@@ -382,6 +386,8 @@ VolplaneController.prototype.newJoystick = function(elementObject, viewName, $vi
                     name: elementObject.name,
                     type: 'joystick',
                     data: {
+                        x: 0,
+                        y: 0,
                         state: false,
                         hadDirections: hadDirections,
                         timeStamp: instance.airconsole.getServerTime()
