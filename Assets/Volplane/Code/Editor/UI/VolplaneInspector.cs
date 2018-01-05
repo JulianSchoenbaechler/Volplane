@@ -274,7 +274,9 @@ namespace Volplane.Editor.UI
                 JToken dataNew = FileManager.ReadJSON(controllerPath);
                 JToken dataOld = FileManager.ReadJSON(controllerDestinationPath);
 
-                if((dataOld == null) || ((int)dataNew["lastEdit"] > (int)dataOld["lastEdit"]))
+                if((dataOld == null) ||
+                   !dataOld.HasValues ||
+                   ((int)dataNew["lastEdit"] > (int)dataOld["lastEdit"]))
                 {
                     // Copy selected controller data into WebGL template
                     File.Copy(controllerPath,
