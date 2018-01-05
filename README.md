@@ -64,7 +64,7 @@ public class Demo : VolplaneBehaviour
 
 ## Copyright / License
 
-The project is licensed under the [GNU GPL v3](LICENSE). Copyright by [Julian Sch&ouml;nb&auml;chler](https://julian-s.ch/), 2017.
+The project is licensed under the [GNU GPL v3](LICENSE). Copyright by [Julian Sch&ouml;nb&auml;chler](https://julian-s.ch/), 2018.
 If you find bugs or have ideas for new features, take a look at the [issue tracker](https://github.com/JulianSchoenbaechler/Volplane/issues)
 and open a new ticket.
 
