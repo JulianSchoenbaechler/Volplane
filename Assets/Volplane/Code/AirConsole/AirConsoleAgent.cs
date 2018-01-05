@@ -1023,8 +1023,6 @@ namespace Volplane.AirConsole
             OnPersistentDataStored = null;
             OnHighScores = null;
             OnHighScoreStored = null;
-
-            GC.SuppressFinalize(this);
         }
 
 
