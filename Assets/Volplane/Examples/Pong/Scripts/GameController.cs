@@ -18,6 +18,7 @@
         private bool gameStarted = false;   // Flag -> indicator for game state
         private int player1Score = 0;       // Score of player 1
         private int player2Score = 0;       // Score of player 2
+        private float initialBallSpeed;     // Initial ball speed (for resetting speed)
 
 
         /// <summary>
@@ -29,6 +30,7 @@
         {
             SetStandardView("waiting");
             pauseText.text = "0 Players connected\nWaiting for more players...";
+            initialBallSpeed = ballSpeed;
         }
 
         /// <summary>
@@ -178,8 +180,9 @@
         /// <param name="restart">If set to <c>true</c> restart.</param>
         private void ResetBall(bool restart)
         {
-            // Set ball position back to its origin
+            // Set ball position back to its origin and reset speed
             ball.position = Vector2.zero;
+            ballSpeed = initialBallSpeed;
 
             // Restart the game?
             if(restart)
