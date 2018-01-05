@@ -38,8 +38,8 @@
         /// <param name="player">The player object of the connected device.</param>
         private void OnConnect(VPlayer player)
         {
-            // Set player inactive if it is active
-            if(player.IsActive)
+            // Set player inactive if it is active and game not started yet
+            if(player.IsActive && !gameStarted)
                 player.SetActive(false);
 
             // You will not receive any input from inactive players.
@@ -65,7 +65,7 @@
 
             // When two players are connected and game has not started yet
             // -> let's go
-            if((PlayerCount == 2) && (gameStarted == false))
+            if((PlayerCount == 2) && !gameStarted)
                 StartGame();
         }
 
