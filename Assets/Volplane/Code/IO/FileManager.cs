@@ -121,7 +121,9 @@ namespace Volplane.IO
             // Write file
             using(StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
             {
+                writer.NewLine = "\n";
                 writer.Write(sbContent);
+                writer.WriteLine();
             }
 
             if((jsonData.Type == JTokenType.Object) && (jsonData["name"] != null))
