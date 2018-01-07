@@ -10,9 +10,9 @@ var AirConsoleAgent = {
     {
         window.volplane.processData(Pointer_stringify(data));
     },
-    UnityIsReady: function(autoScale)
+    UnityIsReady: function(autoScale, objectName)
     {
-        window.volplane.unityIsReady(autoScale ? true : false);
+        window.volplane.unityIsReady(autoScale ? true : false, Pointer_stringify(objectName));
     }
 };
 

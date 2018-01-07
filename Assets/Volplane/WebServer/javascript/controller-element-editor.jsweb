@@ -119,8 +119,11 @@ ElementEditor.prototype.getElementSelector = function(elementObject) {
 
             $el.children('div').css({
                 'position': 'relative',
+                'top': '50%',
                 'margin': '0 auto',
-                'width': (elementObject.stickSize || 50).toString() + '%'
+                'width': (elementObject.stickSize || 50).toString() + '%',
+                'height': (elementObject.stickSize || 50).toString() + '%',
+                'transform': 'translateY(-50%)'
             });
 
         }

@@ -213,6 +213,7 @@ ControllerEditor.prototype.init = function(controllerName) {
     $.proxy(instance.loadControllerEditor, instance);
     $.proxy(instance.addNewElement, instance);
     $.proxy(instance.removeElement, instance);
+    $.proxy(instance.deselectCurrentElement, instance);
     $.proxy(instance.getNewButton, instance);
     $.proxy(instance.reloadControllerList, instance);
     $.proxy(instance.reloadImageList, instance);
@@ -236,18 +237,7 @@ ControllerEditor.prototype.init = function(controllerName) {
     }
 
     // Deselect elements on workspace when clicking anywhere
-    $(ControllerEditor.WORKSPACE).click(function () {
-
-        // Clear properties
-        $(ControllerEditor.SIDEPANELTOP).empty().html('<i>No element selected.</i>');
-
-        // Unselect all elements
-        $(ControllerEditor.WORKSPACE + ' > .ce-content-element-border').removeClass('ce-content-element-border');
-
-        // Hide 'delete' button
-        $(ControllerEditor.TASKBAR + ' > .ce-remove-element').hide();
-
-    });
+    $(ControllerEditor.WORKSPACE).click(instance.deselectCurrentElement);
 
     // Hide loading panel
     $(ControllerEditor.LOADING).fadeOut(200);
@@ -323,6 +313,7 @@ ControllerEditor.prototype.loadViewSelection = function(controllerName = null, p
                     $(ControllerEditor.VIEWS + ' > .tab-selected').removeClass('tab-selected');
                     $(this).addClass('tab-selected');
 
+                    instance.deselectCurrentElement();
                     instance.loadControllerEditor(viewArray[index]);
 
                 };
@@ -791,6 +782,32 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
 
                                     }
 
+                                } else if(obj.type == 'joystick') {
+
+                                    if(obj.relative) {
+
+                                        $el.children('div').css({
+                                            'position': 'relative',
+                                            'top': '50%',
+                                            'margin': '0 auto',
+                                            'width': viewObject.content[index].stickSize.toString() + '%',
+                                            'height': viewObject.content[index].stickSize.toString() + '%',
+                                            'transform': 'translateY(-50%)'
+                                        });
+
+                                    } else {
+
+                                        $el.children('div').css({
+                                            'position': 'absolute',
+                                            'top': 0,
+                                            'margin': 0,
+                                            'width': '100%',
+                                            'height': '100%',
+                                            'transform': 'unset'
+                                        });
+
+                                    }
+
                                 }
 
                                 // Disable or enable elements based on relative element
@@ -858,6 +875,7 @@ ControllerEditor.prototype.loadControllerEditor = function(viewName) {
 
                                 viewObject.content[index][key] = obj[key];
                                 $el.children('div').css('width', viewObject.content[index].stickSize.toString() + '%');
+                                $el.children('div').css('height', viewObject.content[index].stickSize.toString() + '%');
                                 break;
 
                             case 'text':
@@ -1053,9 +1071,27 @@ ControllerEditor.prototype.removeElement = function(e) {
         // Hide button
         $(this).hide();
 
+        instance.deselectCurrentElement();
         instance.loadControllerEditor(e.data.viewName);
 
     });
+
+};
+
+/*
+ * Deselect currently selected element in editor.
+ * @private
+ */
+ControllerEditor.prototype.deselectCurrentElement = function() {
+
+    // Clear properties
+    $(ControllerEditor.SIDEPANELTOP).empty().html('<i>No element selected.</i>');
+
+    // Unselect all elements
+    $(ControllerEditor.WORKSPACE + ' > .ce-content-element-border').removeClass('ce-content-element-border');
+
+    // Hide 'delete' button
+    $(ControllerEditor.TASKBAR + ' > .ce-remove-element').hide();
 
 };
 

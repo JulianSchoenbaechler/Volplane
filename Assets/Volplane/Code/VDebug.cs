@@ -38,6 +38,7 @@ namespace Volplane
         /// <summary>
         /// Logs a formatted message to the Unity console.
         /// </summary>
+        /// <param name="format">A composite format string.</param>
         /// <param name="args">Format arguments.</param>
         public static void LogFormat(string format, params object[] args)
         {
@@ -58,6 +59,7 @@ namespace Volplane
         /// <summary>
         /// Logs a formatted warning message to the Unity console.
         /// </summary>
+        /// <param name="format">A composite format string.</param>
         /// <param name="args">Format arguments.</param>
         public static void LogWarningFormat(string format, params object[] args)
         {
@@ -78,6 +80,7 @@ namespace Volplane
         /// <summary>
         /// Logs a formatted error message to the Unity console.
         /// </summary>
+        /// <param name="format">A composite format string.</param>
         /// <param name="args">Format arguments.</param>
         public static void LogErrorFormat(string format, params object[] args)
         {
@@ -88,7 +91,7 @@ namespace Volplane
         /// <summary>
         /// Logs an exception to the Unity console.
         /// </summary>
-        /// <param name="excpetion">Runtime Exception.</param>
+        /// <param name="exception">Runtime Exception.</param>
         public static void LogException(System.Exception exception)
         {
             if(Config.DebugErrors)

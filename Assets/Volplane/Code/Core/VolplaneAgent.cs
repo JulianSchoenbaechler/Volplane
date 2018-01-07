@@ -21,20 +21,19 @@
 
 namespace Volplane
 {
-    using SimpleJSON;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Volplane.AirConsole;
 
-    public class VolplaneAgent : IDisposable, IControllerUpdate
+    public partial class VolplaneAgent : IDisposable, IControllerUpdate
     {
         // Main player list
         // This list indices can be hardcoded
         protected static List<VPlayer> Players;
 
-        protected static JSONNode CustomState;
+        protected static SyncedData CustomState;
         protected static string InitialView;
         protected static bool LocalSyncUserData;
 
@@ -46,7 +45,7 @@ namespace Volplane
         public VolplaneAgent()
         {
             if(VolplaneAgent.CustomState == null)
-                VolplaneAgent.CustomState = new JSONObject();
+                VolplaneAgent.CustomState = new SyncedData();
 
             this.eventQueue = new Queue<Action>(4);
 
@@ -307,7 +306,7 @@ namespace Volplane
         /// </summary>
         /// <param name="playerId">Player identifier.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(int playerId, JSONObject data)
+        public void SaveUserData(int playerId, JObject data)
         {
             SaveUserData(GetPlayer(playerId), data);
         }
@@ -318,7 +317,7 @@ namespace Volplane
         /// </summary>
         /// <param name="player">Player object.</param>
         /// <param name="data">JSON data.</param>
-        public void SaveUserData(VPlayer player, JSONObject data)
+        public void SaveUserData(VPlayer player, JObject data)
         {
             if(player != null)
                 player.SaveUserData(data);
@@ -365,7 +364,7 @@ namespace Volplane
         public string GetCurrentView(VPlayer player)
         {
             if(player != null)
-                return VolplaneAgent.CustomState["views"][player.DeviceId].Value;
+                return VolplaneAgent.CustomState.Views[player.DeviceId];
 
             return null;
         }
@@ -389,8 +388,8 @@ namespace Volplane
         {
             if((player != null) && (viewName != null))
             {
-                VolplaneAgent.CustomState["views"][player.DeviceId] = viewName;
-                VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
+                VolplaneAgent.CustomState.Views[player.DeviceId] = viewName;
+                VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
             }
         }
 
@@ -407,11 +406,11 @@ namespace Volplane
             for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
                 // Change all views
-                VolplaneAgent.CustomState["views"][VolplaneAgent.Players[i].DeviceId] = viewName;
+                VolplaneAgent.CustomState.Views[VolplaneAgent.Players[i].DeviceId] = viewName;
             }
 
             // Set views
-            VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
+            VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
         }
 
         /// <summary>
@@ -428,11 +427,11 @@ namespace Volplane
             {
                 // Change only the views from active players
                 if(VolplaneAgent.Players[i].IsActive)
-                    VolplaneAgent.CustomState["views"][VolplaneAgent.Players[i].DeviceId] = viewName;
+                    VolplaneAgent.CustomState.Views[VolplaneAgent.Players[i].DeviceId] = viewName;
             }
 
             // Set views
-            VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
+            VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
         }
 
         /// <summary>
@@ -449,11 +448,11 @@ namespace Volplane
             {
                 // Change only the views from active players
                 if(!VolplaneAgent.Players[i].IsActive)
-                    VolplaneAgent.CustomState["views"][VolplaneAgent.Players[i].DeviceId] = viewName;
+                    VolplaneAgent.CustomState.Views[VolplaneAgent.Players[i].DeviceId] = viewName;
             }
 
             // Set views
-            VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
+            VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
         }
 
         /// <summary>
@@ -614,15 +613,15 @@ namespace Volplane
         protected void AllocateCustomStateArrays(int acDeviceId)
         {
             // Number of fields to allocate
-            int diffDeviceId = acDeviceId - VolplaneAgent.CustomState["active"].Count;
+            int diffDeviceId = acDeviceId - VolplaneAgent.CustomState.Active.Count;
 
             // State management
             for(int i = 0; i <= diffDeviceId; i++)
-                VolplaneAgent.CustomState["active"][-1] = false;
+                VolplaneAgent.CustomState.Active.Add(false);
 
             // View management
             for(int i = 0; i <= diffDeviceId; i++)
-                VolplaneAgent.CustomState["views"][-1] = VolplaneAgent.StandardView == null ? "" : VolplaneAgent.StandardView;
+                VolplaneAgent.CustomState.Views.Add(VolplaneAgent.StandardView ?? "");
 
         }
 
@@ -652,8 +651,8 @@ namespace Volplane
                 VPlayer newPlayer = new VPlayer(acDeviceId);
 
                 Action<bool> updateState = delegate(bool active) {
-                    VolplaneAgent.CustomState["active"][acDeviceId] = active;
-                    VolplaneController.AirConsole.SetCustomDeviceStateProperty("volplane", VolplaneAgent.CustomState);
+                    VolplaneAgent.CustomState.Active[acDeviceId] = active;
+                    VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
                 };
                 newPlayer.OnStateChange += updateState;
 
@@ -676,9 +675,9 @@ namespace Volplane
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         /// <param name="data">Input data.</param>
-        protected void ProcessMessages(int acDeviceId, JSONNode data)
+        protected void ProcessMessages(int acDeviceId, string data)
         {
-            VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data["volplane"]);
+            VolplaneController.InputHandling.ProcessInput(GetPlayerId(acDeviceId), data);
         }
 
         #endregion

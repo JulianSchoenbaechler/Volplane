@@ -3,9 +3,6 @@
  * @copyright 2017 by N-Dream AG, Switzerland. All rights reserved.
  * @license GPL v2
  *
- * This script has been slightly modified for its purpose.
- * Edited by Julian Schoenbaechler for integration in the Volplane project.
- *
  * An object containing a configuration for the Joystick constructor.
  * @typedef {object} JoystickConfig
  * @property {Function} touchstart -
@@ -264,7 +261,7 @@ JoystickRelative.prototype.adjustBaseStick = function(touch_point) {
 
 JoystickRelative.prototype.placeBaseStick = function(x, y) {
   var bbox = this.container_bbox;
-  this.placeRelative(x, y, this.base_stick/*, bbox*/);                  // Volplane edit: fixing relative placing (see below)
+  this.placeRelative(x, y, this.base_stick, bbox);
 };
 
 JoystickRelative.prototype.placeStick = function(x, y) {
@@ -274,7 +271,7 @@ JoystickRelative.prototype.placeStick = function(x, y) {
     x = bbox.left + bbox.width / 2;
     y = bbox.top + bbox.height / 2;
   }
-  this.placeRelative(x, y, this.stick/*, bbox*/);                       // Volplane edit: fixing relative placing (see below)
+  this.placeRelative(x, y, this.stick, bbox);
 };
 
 /**
@@ -282,12 +279,12 @@ JoystickRelative.prototype.placeStick = function(x, y) {
  * @param {number} dx - The x offset in pixels
  * @param {number} dy - The y offset in pixels
  */
- JoystickRelative.prototype.placeRelative = function(dx, dy, ele/*, bbox*/) {
+ JoystickRelative.prototype.placeRelative = function(dx, dy, ele, bbox) {
   var me = this;
   var cbox = me.container_bbox;
   var child_bbox = ele.getBoundingClientRect();
   var child_radius = child_bbox.width / 2;
-/*
+
   if (dx - child_radius < bbox.left) {
     dx = bbox.left - cbox.left + child_radius;
   }
@@ -299,26 +296,6 @@ JoystickRelative.prototype.placeStick = function(x, y) {
   }
   if (dy + child_radius > bbox.bottom) {
     dy = bbox.bottom - child_radius;
-  }
-*/
-  /*
-  Volplane edit:
-  The initial placing will mess up when the relative joystick container
-  is not placed at { top: 0, left: 0 }.
-  Following fix constraints the placing of objects based on the bbox of the container.
-  The 'bbox' argument of the 'placeRelative' function is not necessary for this calculation.
-  */
-  if(dx - child_radius < 0) {
-    dx = child_radius;
-  }
-  if(dx + child_radius > cbox.width) {
-    dx = cbox.width - child_radius;
-  }
-  if(dy - child_radius < 0) {
-    dy = child_radius;
-  }
-  if(dy + child_radius > cbox.height) {
-    dy = cbox.height - child_radius;
   }
 
   ele.style.left = (dx) + "px";

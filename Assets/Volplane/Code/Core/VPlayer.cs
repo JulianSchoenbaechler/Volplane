@@ -21,16 +21,19 @@
 
 namespace Volplane
 {
-    using SimpleJSON;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.IO;
+    using System.Text;
     using UnityEngine;
 
     public class VPlayer : IDisposable
     {
         protected PlayerState oldPlayerState, currentPlayerState;
+        protected StringBuilder sendData;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Volplane.VPlayer"/> class.
@@ -38,6 +41,9 @@ namespace Volplane
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         public VPlayer(int acDeviceId)
         {
+            // Allocate memory for JSON data string
+            sendData = new StringBuilder(512);
+
             // Standard values
             this.oldPlayerState = VolplaneController.AirConsole.GetMasterControllerDeviceId() == acDeviceId ?
                 PlayerState.Active :
@@ -63,7 +69,6 @@ namespace Volplane
             VolplaneController.AirConsole.OnDisconnect += Disconnect;
             VolplaneController.AirConsole.OnPremium += Hero;
             VolplaneController.AirConsole.OnDeviceStateChange += UpdateSettings;
-            VolplaneController.AirConsole.OnDeviceProfileChange += UpdateProfile;
             VolplaneController.AirConsole.OnAdShow += WaitForAd;
             VolplaneController.AirConsole.OnAdComplete += AdCompleted;
             VolplaneController.AirConsole.OnPersistentDataLoaded += GetUserData;
@@ -223,7 +228,7 @@ namespace Volplane
         /// Gets the persistent user data loaded from the AirConsole servers.
         /// </summary>
         /// <value>The user data.</value>
-        public JSONObject UserData { get; protected set; }
+        public JObject UserData { get; protected set; }
 
         #endregion
 
@@ -271,7 +276,8 @@ namespace Volplane
         /// Save user data. This method tries to persistently store the data on the AirConsole servers.
         /// When complete, <see cref="Volplane.VolplaneBehaviour.OnUserDataSaved"/> fires for this player.
         /// </summary>
-        public void SaveUserData(JSONObject data)
+        /// <param name="data">New user data as JObject.</param>
+        public void SaveUserData(JObject data)
         {
             if(data == null)
                 return;
@@ -280,9 +286,9 @@ namespace Volplane
 
             if(VolplaneAgent.SyncUserData)
             {
-                foreach(string key in data.Keys)
+                foreach(var kvp in data)
                 {
-                    VolplaneController.AirConsole.StorePersistentData(key, data[key], UID);
+                    VolplaneController.AirConsole.StorePersistentData(kvp.Key, kvp.Value.ToString(), UID);
                 }
             }
         }
@@ -306,11 +312,23 @@ namespace Volplane
         /// <param name="viewName">View name.</param>
         public void ResetView(string viewName)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "reset";
-            data["volplane"]["name"] = viewName;
+            sendData.Length = 0;
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("reset");
+                writer.WritePropertyName("name");
+                writer.WriteValue(viewName);
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -320,17 +338,33 @@ namespace Volplane
         /// <param name="color">New color.</param>
         public void ChangeViewColor(string viewName, Color color)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "view";
-            data["volplane"]["name"] = viewName;
-            data["volplane"]["properties"]["color"] = String.Format(
-                "rgb({0:F0}, {1:F0}, {2:F0})",
-                color.r * 255f,
-                color.g * 255f,
-                color.b * 255f
-            );
+            sendData.Length = 0;
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("view");
+                writer.WritePropertyName("name");
+                writer.WriteValue(viewName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("color");
+                writer.WriteValue(String.Format(
+                    "rgb({0:F0}, {1:F0}, {2:F0})",
+                    color.r * 255f,
+                    color.g * 255f,
+                    color.b * 255f
+                ));
+                writer.WriteEndObject();
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -342,12 +376,28 @@ namespace Volplane
         /// <param name="image">The image name (including extension).</param>
         public void ChangeViewImage(string viewName, string image)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "view";
-            data["volplane"]["name"] = viewName;
-            data["volplane"]["properties"]["image"] = String.Format("img/{0:G}", image);
+            sendData.Length = 0;
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("view");
+                writer.WritePropertyName("name");
+                writer.WriteValue(viewName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("image");
+                writer.WriteValue(String.Format("img/{0:G}", image));
+                writer.WriteEndObject();
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         #endregion
@@ -360,15 +410,35 @@ namespace Volplane
         /// <param name="elementName">Element name.</param>
         public void HideElement(string elementName)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "element";
-            data["volplane"]["name"] = elementName;
-            data["volplane"]["properties"]["hidden"] = true;
+            sendData.Length = 0;
 
-            if(CurrentView != null)
-                data["volplane"]["view"] = CurrentView;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("element");
+                writer.WritePropertyName("name");
+                writer.WriteValue(elementName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("hidden");
+                writer.WriteValue(true);
+                writer.WriteEndObject();
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+                if(CurrentView != null)
+                {
+                    writer.WritePropertyName("view");
+                    writer.WriteValue(CurrentView);
+                }
+
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -377,15 +447,35 @@ namespace Volplane
         /// <param name="elementName">Element name.</param>
         public void ShowElement(string elementName)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "element";
-            data["volplane"]["name"] = elementName;
-            data["volplane"]["properties"]["hidden"] = false;
+            sendData.Length = 0;
 
-            if(CurrentView != null)
-                data["volplane"]["view"] = CurrentView;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("element");
+                writer.WritePropertyName("name");
+                writer.WriteValue(elementName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("hidden");
+                writer.WriteValue(false);
+                writer.WriteEndObject();
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+                if(CurrentView != null)
+                {
+                    writer.WritePropertyName("view");
+                    writer.WriteValue(CurrentView);
+                }
+
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -394,15 +484,35 @@ namespace Volplane
         /// <param name="elementName">Element name.</param>
         public void ToggleElement(string elementName)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "element";
-            data["volplane"]["name"] = elementName;
-            data["volplane"]["properties"]["toggle"] = true;
+            sendData.Length = 0;
 
-            if(CurrentView != null)
-                data["volplane"]["view"] = CurrentView;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("element");
+                writer.WritePropertyName("name");
+                writer.WriteValue(elementName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("toggle");
+                writer.WriteValue(true);
+                writer.WriteEndObject();
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+                if(CurrentView != null)
+                {
+                    writer.WritePropertyName("view");
+                    writer.WriteValue(CurrentView);
+                }
+
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -412,15 +522,35 @@ namespace Volplane
         /// <param name="text">New text.</param>
         public void ChangeElementText(string elementName, string text)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "element";
-            data["volplane"]["name"] = elementName;
-            data["volplane"]["properties"]["text"] = text;
+            sendData.Length = 0;
 
-            if(CurrentView != null)
-                data["volplane"]["view"] = CurrentView;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("element");
+                writer.WritePropertyName("name");
+                writer.WriteValue(elementName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("text");
+                writer.WriteValue(text);
+                writer.WriteEndObject();
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+                if(CurrentView != null)
+                {
+                    writer.WritePropertyName("view");
+                    writer.WriteValue(CurrentView);
+                }
+
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -432,15 +562,35 @@ namespace Volplane
         /// <param name="image">The image name (including extension).</param>
         public void ChangeElementImage(string elementName, string image)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "element";
-            data["volplane"]["name"] = elementName;
-            data["volplane"]["properties"]["image"] = String.Format("img/{0:G}", image);
+            sendData.Length = 0;
 
-            if(CurrentView != null)
-                data["volplane"]["view"] = CurrentView;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("element");
+                writer.WritePropertyName("name");
+                writer.WriteValue(elementName);
+                writer.WritePropertyName("properties");
+                writer.WriteStartObject();
+                writer.WritePropertyName("image");
+                writer.WriteValue(String.Format("img/{0:G}", image));
+                writer.WriteEndObject();
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+                if(CurrentView != null)
+                {
+                    writer.WritePropertyName("view");
+                    writer.WriteValue(CurrentView);
+                }
+
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -451,15 +601,32 @@ namespace Volplane
         /// <param name="properties">Properties.</param>
         public void ChangeElementProperties(string elementName, ElementProperties properties)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "element";
-            data["volplane"]["name"] = elementName;
-            data["volplane"]["properties"] = properties.Data;
+            sendData.Length = 0;
 
-            if(CurrentView != null)
-                data["volplane"]["view"] = CurrentView;
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("element");
+                writer.WritePropertyName("name");
+                writer.WriteValue(elementName);
+                writer.WritePropertyName("properties");
+                writer.WriteRawValue(properties.Data);
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+                if(CurrentView != null)
+                {
+                    writer.WritePropertyName("view");
+                    writer.WriteValue(CurrentView);
+                }
+
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -471,11 +638,23 @@ namespace Volplane
         /// <param name="value">If set to <c>true</c> motion data will be tracked.</param>
         public void TrackingControllerMotion(bool value)
         {
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "deviceMotion";
-            data["volplane"]["enable"] = value;
+            sendData.Length = 0;
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("deviceMotion");
+                writer.WritePropertyName("enable");
+                writer.WriteValue(value);
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         /// <summary>
@@ -487,11 +666,23 @@ namespace Volplane
         {
             int milliseconds = time > 10f ? 10000 : (int)(time * 1000f);
 
-            JSONNode data = new JSONObject();
-            data["volplane"]["action"] = "vibrate";
-            data["volplane"]["time"] = milliseconds;
+            sendData.Length = 0;
 
-            VolplaneController.AirConsole.Message(DeviceId, data);
+            using(var sw = new StringWriter(sendData))
+            using(var writer = new JsonTextWriter(sw))
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName("volplane");
+                writer.WriteStartObject();
+                writer.WritePropertyName("action");
+                writer.WriteValue("vibrate");
+                writer.WritePropertyName("time");
+                writer.WriteValue(milliseconds);
+                writer.WriteEndObject();
+                writer.WriteEnd();
+            }
+
+            VolplaneController.AirConsole.Message(DeviceId, sendData.ToString());
         }
 
         #endregion
@@ -511,11 +702,10 @@ namespace Volplane
             VolplaneController.AirConsole.OnDisconnect -= Disconnect;
             VolplaneController.AirConsole.OnPremium -= Hero;
             VolplaneController.AirConsole.OnDeviceStateChange -= UpdateSettings;
-            VolplaneController.AirConsole.OnDeviceProfileChange -= UpdateProfile;
             VolplaneController.AirConsole.OnAdShow -= WaitForAd;
             VolplaneController.AirConsole.OnAdComplete -= AdCompleted;
 
-            // Unassign won events
+            // Unassign events
             OnStateChange = null;
         }
 
@@ -554,9 +744,7 @@ namespace Volplane
         protected void Hero(int acDeviceId)
         {
             if(acDeviceId == DeviceId)
-            {
                 IsHero = true;
-            }
         }
 
         /// <summary>
@@ -564,29 +752,18 @@ namespace Volplane
         /// </summary>
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         /// <param name="data">Device state data.</param>
-        protected void UpdateSettings(int acDeviceId, JSONNode data)
+        protected void UpdateSettings(int acDeviceId, Volplane.AirConsole.AirConsoleAgent.Device data)
         {
             if(data == null)
                 return;
 
             if(acDeviceId == DeviceId)
             {
-                UID = data["uid"].Value;
-                IsUsingBrowser = data["client"]["app"].Value == "web";
-                HasSlowConnection = data["slow_connection"].AsBool;
-            }
-        }
-
-        /// <summary>
-        /// When this player device updates its profile.
-        /// </summary>
-        /// <param name="acDeviceId">AirConsole device identifier.</param>
-        protected void UpdateProfile(int acDeviceId)
-        {
-            if(acDeviceId == DeviceId)
-            {
-                Nickname = VolplaneController.AirConsole.GetNickname(acDeviceId);
-                IsLoggedIn = VolplaneController.AirConsole.IsUserLoggedIn(acDeviceId);
+                UID = data.UID;
+                IsUsingBrowser = data.IsUsingBrowser;
+                HasSlowConnection = data.HasSlowConnection;
+                Nickname = data.Nickname;
+                IsLoggedIn = data.IsLoggedIn;
             }
         }
 
@@ -610,10 +787,12 @@ namespace Volplane
         /// When requested persistent data was received.
         /// </summary>
         /// <param name="data">Persistent user data.</param>
-        protected void GetUserData(JSONNode data)
+        protected void GetUserData(string data)
         {
-            if(data[UID] != null)
-                UserData = data[UID] as JSONObject;
+            JObject globalData = JObject.Parse(data);
+
+            if(globalData[UID] != null)
+                UserData = globalData[UID] as JObject;
         }
 
         #endregion

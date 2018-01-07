@@ -21,7 +21,7 @@
 
 namespace Volplane.IO
 {
-    using SimpleJSON;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -38,9 +38,9 @@ namespace Volplane.IO
         /// <returns>The file list as JSONArray.</returns>
         /// <param name="directoryPath">Path to the directory.</param>
         /// <param name="prefixPath">Optional prefix path to add.</param>
-        public static JSONArray GetFileListFromDirectory(string directoryPath, string prefixPath = "")
+        public static JArray GetFileListFromDirectory(string directoryPath, string prefixPath = "")
         {
-            JSONArray list = new JSONArray();
+            JArray list = new JArray();
             IEnumerable<string> directories;
 
             directoryPath = Regex.Replace(directoryPath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
@@ -53,7 +53,7 @@ namespace Volplane.IO
             // -> Replace backslash '\' to slash '/' for web and unix compatibility
             foreach(string directory in directories)
             {
-                list[-1] = prefixPath + directory.Replace(directoryPath, "").Replace('\\', '/');
+                list.Add(prefixPath + directory.Replace(directoryPath, "").Replace('\\', '/'));
             }
 
             return list;
@@ -81,7 +81,7 @@ namespace Volplane.IO
                 }
             }
 
-            return WriteJSON(JSON.Parse(sbContent.ToString()), filePath, prettify);
+            return WriteJSON(JToken.Parse(sbContent.ToString()), filePath, prettify);
         }
 
         /// <summary>
@@ -93,12 +93,12 @@ namespace Volplane.IO
         /// <param name="jsonData">JSON data.</param>
         /// <param name="filePath">File path.</param>
         /// <param name="prettify">If set to <c>true</c> prettify JSON output.</param>
-        public static string WriteJSON(JSONNode jsonData, string filePath, bool prettify = true)
+        public static string WriteJSON(JToken jsonData, string filePath, bool prettify = true)
         {
             StringBuilder sbContent = new StringBuilder(1024);
 
             if(prettify)
-                sbContent.Insert(0, jsonData.ToString(4));
+                sbContent.Insert(0, jsonData.ToString(Newtonsoft.Json.Formatting.Indented));
             else
                 sbContent.Insert(0, jsonData.ToString());
 
@@ -107,7 +107,7 @@ namespace Volplane.IO
             // Check if path is a directory
             if(Path.GetExtension(filePath) == String.Empty)
             {
-                if(jsonData["name"] == null)
+                if((jsonData.Type == JTokenType.Object) && (jsonData["name"] == null))
                 {
                     if(Config.DebugLog == (int)DebugState.All)
                         VDebug.LogError("[Volplane (FileManager)] Invalid file path. Could not write file.");
@@ -115,23 +115,28 @@ namespace Volplane.IO
                     return null;
                 }
 
-                filePath = Path.Combine(filePath, String.Format("{0:G}.json", jsonData["name"].Value));
+                filePath = Path.Combine(filePath, String.Format("{0:G}.json", (string)jsonData["name"]));
             }
 
             // Write file
             using(StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
             {
+                writer.NewLine = "\n";
                 writer.Write(sbContent);
+                writer.WriteLine();
             }
 
-            return jsonData["name"] != null ? jsonData["name"].Value : null;
+            if((jsonData.Type == JTokenType.Object) && (jsonData["name"] != null))
+                return (string)jsonData["name"];
+
+            return null;
         }
 
         /// <summary>
         /// Reads JSON data from a file.
         /// </summary>
         /// <param name="filePath">File path.</param>
-        public static JSONNode ReadJSON(string filePath)
+        public static JToken ReadJSON(string filePath)
         {
             filePath = Regex.Replace(filePath, @"[\\\/]", Path.DirectorySeparatorChar.ToString());
 
@@ -151,7 +156,7 @@ namespace Volplane.IO
                 }
             }
 
-            return JSON.Parse(sbContent.ToString());
+            return JToken.Parse(sbContent.ToString());
         }
     }
 }

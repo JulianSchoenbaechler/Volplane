@@ -21,13 +21,13 @@
 
 namespace Volplane
 {
-    using SimpleJSON;
+    using Newtonsoft.Json.Linq;
     using System;
     using UnityEngine;
 
     public class ElementProperties
     {
-        protected JSONNode data;
+        protected JObject data;
         protected bool hidden = false;
         protected string[] images = new string[5];
         protected string text = null;
@@ -42,7 +42,7 @@ namespace Volplane
         /// </summary>
         public ElementProperties()
         {
-            data = new JSONObject();
+            data = new JObject();
         }
 
         /// <summary>
@@ -96,7 +96,11 @@ namespace Volplane
 
             set
             {
-                data["hidden"] = value;
+                if(data["hidden"] != null)
+                    data["hidden"] = value;
+                else
+                    data.Add("hidden", value);
+                
                 hidden = value;
             }
         }
@@ -111,7 +115,11 @@ namespace Volplane
 
             set
             {
-                data["image"] = String.Format("img/{0:G}", value);
+                if(data["image"] != null)
+                    data["image"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("image", String.Format("img/{0:G}", value));
+                
                 images[0] = value;
             }
         }
@@ -127,7 +135,11 @@ namespace Volplane
 
             set
             {
-                data["highlightImage"] = String.Format("img/{0:G}", value);
+                if(data["highlightImage"] != null)
+                    data["highlightImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("highlightImage", String.Format("img/{0:G}", value));
+                
                 images[1] = value;
             }
         }
@@ -143,7 +155,11 @@ namespace Volplane
 
             set
             {
-                data["handlerImage"] = String.Format("img/{0:G}", value);
+                if(data["handlerImage"] != null)
+                    data["handlerImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("handlerImage", String.Format("img/{0:G}", value));
+                
                 images[1] = value;
             }
         }
@@ -159,7 +175,11 @@ namespace Volplane
 
             set
             {
-                data["upHighlightImage"] = String.Format("img/{0:G}", value);
+                if(data["upHighlightImage"] != null)
+                    data["upHighlightImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("upHighlightImage", String.Format("img/{0:G}", value));
+
                 images[1] = value;
             }
         }
@@ -175,7 +195,11 @@ namespace Volplane
 
             set
             {
-                data["downHighlightImage"] = String.Format("img/{0:G}", value);
+                if(data["downHighlightImage"] != null)
+                    data["downHighlightImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("downHighlightImage", String.Format("img/{0:G}", value));
+
                 images[2] = value;
             }
         }
@@ -191,7 +215,11 @@ namespace Volplane
 
             set
             {
-                data["leftHighlightImage"] = String.Format("img/{0:G}", value);
+                if(data["leftHighlightImage"] != null)
+                    data["leftHighlightImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("leftHighlightImage", String.Format("img/{0:G}", value));
+
                 images[3] = value;
             }
         }
@@ -207,7 +235,11 @@ namespace Volplane
 
             set
             {
-                data["rightHighlightImage"] = String.Format("img/{0:G}", value);
+                if(data["rightHighlightImage"] != null)
+                    data["rightHighlightImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("rightHighlightImage", String.Format("img/{0:G}", value));
+
                 images[4] = value;
             }
         }
@@ -223,7 +255,11 @@ namespace Volplane
 
             set
             {
-                data["stickImage"] = String.Format("img/{0:G}", value);
+                if(data["stickImage"] != null)
+                    data["stickImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("stickImage", String.Format("img/{0:G}", value));
+
                 images[1] = value;
             }
         }
@@ -239,7 +275,11 @@ namespace Volplane
 
             set
             {
-                data["thumbImage"] = String.Format("img/{0:G}", value);
+                if(data["thumbImage"] != null)
+                    data["thumbImage"] = String.Format("img/{0:G}", value);
+                else
+                    data.Add("thumbImage", String.Format("img/{0:G}", value));
+
                 images[2] = value;
             }
         }
@@ -254,7 +294,11 @@ namespace Volplane
 
             set
             {
-                data["text"] = value;
+                if(data["text"] != null)
+                    data["text"] = value;
+                else
+                    data.Add("text", value);
+
                 text = value;
             }
         }
@@ -272,19 +316,31 @@ namespace Volplane
                 switch(value)
                 {
                     case Alignment.Left:
-                        data["textAlign"] = "left";
+                        if(data["textAlign"] != null)
+                            data["textAlign"] = "left";
+                        else
+                            data.Add("textAlign", "left");
                         break;
 
                     case Alignment.Right:
-                        data["textAlign"] = "right";
+                        if(data["textAlign"] != null)
+                            data["textAlign"] = "right";
+                        else
+                            data.Add("textAlign", "right");
                         break;
 
                     case Alignment.Justify:
-                        data["textAlign"] = "justify";
+                        if(data["textAlign"] != null)
+                            data["textAlign"] = "justify";
+                        else
+                            data.Add("textAlign", "justify");
                         break;
 
                     default:
-                        data["textAlign"] = "center";
+                        if(data["textAlign"] != null)
+                            data["textAlign"] = "center";
+                        else
+                            data.Add("textAlign", "center");
                         break;
                 }
 
@@ -303,7 +359,11 @@ namespace Volplane
 
             set
             {
-                data["paddingVertical"] = value;
+                if(data["paddingVertical"] != null)
+                    data["paddingVertical"] = value;
+                else
+                    data.Add("paddingVertical", value);
+
                 padding[0] = value;
             }
         }
@@ -319,7 +379,11 @@ namespace Volplane
 
             set
             {
-                data["paddingHorizontal"] = value;
+                if(data["paddingHorizontal"] != null)
+                    data["paddingHorizontal"] = value;
+                else
+                    data.Add("paddingHorizontal", value);
+
                 padding[1] = value;
             }
         }
@@ -334,7 +398,11 @@ namespace Volplane
 
             set
             {
-                data["font"] = value;
+                if(data["font"] != null)
+                    data["font"] = value;
+                else
+                    data.Add("font", value);
+
                 font = value;
             }
         }
@@ -349,7 +417,11 @@ namespace Volplane
 
             set
             {
-                data["fontSize"] = value;
+                if(data["fontSize"] != null)
+                    data["fontSize"] = value;
+                else
+                    data.Add("fontSize", value);
+
                 fontSize = value;
             }
         }
@@ -364,11 +436,23 @@ namespace Volplane
 
             set
             {
-                data["fontColor"] = String.Format("rgba({0:F0},{1:F0},{2:F0},{3:F0})",
-                                                              value.r * 255f,
-                                                              value.g * 255f,
-                                                              value.b * 255f,
-                                                              value.a * 255f);
+                if(data["fontColor"] != null)
+                {
+                    data["fontColor"] = String.Format("rgba({0:F0},{1:F0},{2:F0},{3:F0})",
+                                                      value.r * 255f,
+                                                      value.g * 255f,
+                                                      value.b * 255f,
+                                                      value.a * 255f);
+                }
+                else
+                {
+                    data.Add("fontColor", String.Format("rgba({0:F0},{1:F0},{2:F0},{3:F0})",
+                                                        value.r * 255f,
+                                                        value.g * 255f,
+                                                        value.b * 255f,
+                                                        value.a * 255f));
+                }
+
                 fontColor = value;
             }
         }
@@ -377,9 +461,9 @@ namespace Volplane
         /// Gets the element properties data.
         /// </summary>
         /// <value>The element properties data.</value>
-        public JSONNode Data
+        public string Data
         {
-            get { return data; }
+            get { return data.ToString(); }
         }
 
         /// <summary>

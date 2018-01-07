@@ -21,7 +21,7 @@
 
 namespace Volplane.Editor.UI
 {
-    using SimpleJSON;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Text.RegularExpressions;
     using UnityEditor;
@@ -124,9 +124,9 @@ namespace Volplane.Editor.UI
 					// Check for special chars
 					if(!namingConventions.Match(tempName).Success)
 					{
-						JSONNode controller = new JSONObject();
-						controller["name"] = tempName;
-                        controller["views"] = new JSONObject();
+                        JObject controller = new JObject();
+                        controller.Add("name", tempName);
+                        controller.Add("views", new JObject());
 
 						FileManager.WriteJSON(controller, String.Format("{0:G}{1:G}/data/controller/{2:G}.json", Application.dataPath, Config.WebServerPath, tempName));
 

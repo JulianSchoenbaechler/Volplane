@@ -21,7 +21,7 @@
 
 namespace Volplane.Editor.UI
 {
-    using SimpleJSON;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.IO;
     using System.Text.RegularExpressions;
@@ -144,7 +144,7 @@ namespace Volplane.Editor.UI
                 // Open last build
                 if(GUILayout.Button("Open Last Build"))
                 {
-                    Extensions.OpenBuild();
+                    Volplane.Editor.Extensions.OpenBuild();
                 }
             }
 
@@ -218,7 +218,7 @@ namespace Volplane.Editor.UI
         /// </summary>
         private void ReloadControllerList()
         {
-            JSONArray jsonControllerList = new JSONArray();
+            JArray jsonControllerList = new JArray();
 
             // Get all controllers
             controllerPaths = Directory.GetFiles(controllerFolderPath, "*.json", SearchOption.TopDirectoryOnly);
@@ -231,7 +231,7 @@ namespace Volplane.Editor.UI
             for(int i = 1; i < controllerList.Length; i++)
             {
                 controllerList[i] = Path.GetFileNameWithoutExtension(controllerPaths[i - 1]);
-                jsonControllerList[-1] = controllerList[i];
+                jsonControllerList.Add(controllerList[i]);
 
                 if(Config.SelectedController == controllerList[i])
                     tempSelectedController = controllerList[i];
@@ -271,10 +271,12 @@ namespace Volplane.Editor.UI
                 // Compare controller data with existing
                 // Copy if newer...
                 string controllerPath = controllerPaths[Array.IndexOf<string>(controllerList, tempSelectedController) - 1];
-                JSONNode dataNew = FileManager.ReadJSON(controllerPath);
-                JSONNode dataOld = FileManager.ReadJSON(controllerDestinationPath);
+                JToken dataNew = FileManager.ReadJSON(controllerPath);
+                JToken dataOld = FileManager.ReadJSON(controllerDestinationPath);
 
-                if((dataOld == null) || (dataNew["lastEdit"].AsInt > dataOld["lastEdit"].AsInt))
+                if((dataOld == null) ||
+                   !dataOld.HasValues ||
+                   ((int)dataNew["lastEdit"] > (int)dataOld["lastEdit"]))
                 {
                     // Copy selected controller data into WebGL template
                     File.Copy(controllerPath,

@@ -21,7 +21,6 @@
 
 namespace Volplane
 {
-    using SimpleJSON;
     using System;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -66,8 +65,9 @@ namespace Volplane
         /// UnityIsReady() external WebGL call.
         /// </summary>
         /// <param name="autoScale">If set to <c>true</c> auto scale.</param>
+        /// <param name="objectName">The name of this gameobject for interacting between WebGL and Unity scripting.</param>
         [DllImport("__Internal")]
-        private static extern void UnityIsReady(bool autoScale);
+        private static extern void UnityIsReady(bool autoScale, string objectName);
 
 
         // Instance variables
@@ -85,14 +85,14 @@ namespace Volplane
         /// <param name="data">JSON formatted data sent from clients implemented AirConsole API.</param>
         public void ProcessData(string data)
         {
-            VolplaneController.AirConsole.ProcessData(JSON.Parse(data));
+            VolplaneController.AirConsole.ProcessData(data);
         }
 
         /// <summary>
         /// Method for sending data to AirConsole API.
         /// </summary>
-        /// <param name="data">JSON data.</param>
-        public void Send(JSONObject data)
+        /// <param name="data">Data in JSON format.</param>
+        public void Send(string data)
         {
             #if UNITY_EDITOR
 
@@ -113,7 +113,10 @@ namespace Volplane
         {
             // Use this object as singleton
             if((VolplaneSingleton != null) && (VolplaneSingleton != this))
+            {
                 Destroy(this.gameObject);
+                return;
+            }
 
             VolplaneSingleton = this;
             DontDestroyOnLoad(this.gameObject);
@@ -165,7 +168,7 @@ namespace Volplane
             #else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
-                UnityIsReady(Config.AutoScaleCanvas);
+                UnityIsReady(Config.AutoScaleCanvas, gameObject.name);
 
             #endif
         }
