@@ -221,24 +221,6 @@ namespace Volplane
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
 
             #endif
-
-            if(VolplaneController.AirConsole != null)
-            {
-                VolplaneController.AirConsole.Dispose();
-                VolplaneController.AirConsole = null;
-            }
-
-            if(VolplaneController.Main != null)
-            {
-                VolplaneController.Main.Dispose();
-                VolplaneController.Main = null;
-            }
-
-            if(VolplaneController.InputHandling != null)
-            {
-                VolplaneController.InputHandling.Dispose();
-                VolplaneController.InputHandling = null;
-            }
         }
 
         /// <summary>
