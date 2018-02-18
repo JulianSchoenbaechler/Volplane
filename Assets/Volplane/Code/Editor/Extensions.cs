@@ -103,9 +103,14 @@ namespace Volplane.Editor
 
             foreach(NetworkInterface network in networkInterfaces)
             {
+
+#if UNITY_EDITOR_WIN
+
                 // Skip disconnected network interfaces
                 if(network.OperationalStatus != OperationalStatus.Up)
                     continue;
+
+#endif
 
                 // Read the IP configuration for each network
                 IPInterfaceProperties properties = network.GetIPProperties();
@@ -122,6 +127,8 @@ namespace Volplane.Editor
                         continue;
 
                     // Add address to collection
+                    Debug.Log(network.Name);
+                    Debug.Log(network.OperationalStatus);
                     collection.Add(address.Address.ToString());
                 }
             }
