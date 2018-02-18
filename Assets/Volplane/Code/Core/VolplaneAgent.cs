@@ -631,8 +631,7 @@ namespace Volplane
                 // Create new player and subscribe state change event for updating custom device state
                 VPlayer newPlayer = new VPlayer(acDeviceId);
 
-                Action<bool> updateState = delegate (bool active)
-                {
+                Action<bool> updateState = delegate(bool active) {
                     VolplaneAgent.CustomState.Active[acDeviceId] = active;
                     VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
                 };
@@ -679,8 +678,7 @@ namespace Volplane
 
             if(OnReady != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnReady.Invoke();
                 });
             }
@@ -697,8 +695,7 @@ namespace Volplane
             // OnConnect (player identifier)
             if(OnConnect != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnConnect.Invoke(playerId);
                 });
             }
@@ -706,8 +703,7 @@ namespace Volplane
             // OnConnect (player object)
             if(OnConnectSecondary != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnConnectSecondary.Invoke(GetPlayer(playerId));
                 });
             }
@@ -724,8 +720,7 @@ namespace Volplane
             // OnDisconnect (player identifier)
             if(OnDisconnect != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnDisconnect.Invoke(playerId);
                 });
             }
@@ -733,8 +728,7 @@ namespace Volplane
             // OnDisconnect (player object)
             if(OnDisconnectSecondary != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnDisconnectSecondary.Invoke(GetPlayer(playerId));
                 });
             }
@@ -751,8 +745,7 @@ namespace Volplane
             // OnHero (player identifier)
             if(OnHero != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnHero.Invoke(playerId);
                 });
             }
@@ -760,8 +753,7 @@ namespace Volplane
             // OnHero (player object)
             if(OnHeroSecondary != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnHeroSecondary.Invoke(GetPlayer(playerId));
                 });
             }
@@ -775,8 +767,7 @@ namespace Volplane
             // OnAdShow
             if(OnAdShow != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnAdShow.Invoke();
                 });
             }
@@ -791,8 +782,7 @@ namespace Volplane
             // OnAdComplete (without indicator)
             if(OnAdComplete != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnAdComplete.Invoke();
                 });
             }
@@ -800,8 +790,7 @@ namespace Volplane
             // OnAdComplete (with indicator)
             if(OnAdCompleteSecondary != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnAdCompleteSecondary.Invoke(adWasShown);
                 });
             }
@@ -818,8 +807,7 @@ namespace Volplane
             // OnPlayerProfileChange (player identifier)
             if(OnPlayerProfileChange != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnPlayerProfileChange.Invoke(playerId);
                 });
             }
@@ -827,8 +815,7 @@ namespace Volplane
             // OnPlayerProfileChange (player object)
             if(OnPlayerProfileChangeSecondary != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnPlayerProfileChangeSecondary.Invoke(GetPlayer(playerId));
                 });
             }
@@ -850,8 +837,7 @@ namespace Volplane
             // OnUserDataSaved (player identifier)
             if(OnUserDataSaved != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnUserDataSaved.Invoke(playerId);
                 });
             }
@@ -859,8 +845,7 @@ namespace Volplane
             // OnUserDataSaved (player object)
             if(OnUserDataSavedSecondary != null)
             {
-                eventQueue.Enqueue(delegate
-                {
+                eventQueue.Enqueue(delegate {
                     OnUserDataSavedSecondary.Invoke(GetPlayer(playerId));
                 });
             }
