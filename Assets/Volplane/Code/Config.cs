@@ -37,7 +37,7 @@ namespace Volplane
 
     public static class Config
     {
-        public const string Version                         = "v1.0.4";
+        public const string Version                         = "v1.0.5";
         public const string AirConsoleVersion               = "1.7";
 
         public static int BrowserStart                      = (int)BrowserStartMode.Standard;
@@ -48,6 +48,7 @@ namespace Volplane
         public const int DefaultLocalWebsocketPort          = 7861;
         public static int LocalServerPort                   = 7860;
         public static int LocalWebsocketPort                = 7861;
+        public static string LocalIPv4                      = null;
 
         public const string WebServerPath                   = "/Volplane/WebServer";
         public const string WebTemplatePath                 = "/WebGLTemplates/Volplane";

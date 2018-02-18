@@ -21,6 +21,8 @@
 
 namespace Volplane.Editor.UI
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using UnityEditor;
     using UnityEngine;
 
@@ -31,6 +33,13 @@ namespace Volplane.Editor.UI
         /// </summary>
         protected static ConfigWindow window;
 
+        /// <summary>
+        /// All loaded IPv4 addresses from this machines network interface.
+        /// </summary>
+        private static IList<string> LocalIPv4Adresses;
+
+        private int tempSelectedIP;
+        private string tempIPv4;
         private int tempServerPort;
         private int tempWebsocketPort;
         private int tempDebugLog;
@@ -44,9 +53,10 @@ namespace Volplane.Editor.UI
         [MenuItem("Window/Volplane Configuration")]
         static void Init()
         {
-            Rect position = new Rect(400f, 100f, 400f, 220f);
+            Rect position = new Rect(400f, 100f, 400f, 240f);
 
             ConfigWindow.window = EditorWindow.GetWindowWithRect<ConfigWindow>(position, true, "Volplane Configuration", true);
+            ConfigWindow.LocalIPv4Adresses = Extensions.GetLocalIPAddresses() as IList<string>;
         }
 
         /// <summary>
@@ -55,13 +65,30 @@ namespace Volplane.Editor.UI
         protected virtual void OnGUI()
         {
             // Format and Styles
-            redStyle = new GUIStyle(GUI.skin.label);
-            greenStyle = new GUIStyle(GUI.skin.label);
-            redStyle.normal.textColor = new Color(0.6f, 0f, 0f);
-            greenStyle.normal.textColor = new Color(0f, 0.6f, 0f);
+            if((redStyle == null) || (greenStyle == null))
+            {
+                redStyle = new GUIStyle(GUI.skin.label);
+                greenStyle = new GUIStyle(GUI.skin.label);
+                redStyle.normal.textColor = new Color(0.6f, 0f, 0f);
+                greenStyle.normal.textColor = new Color(0f, 0.6f, 0f);
+            }
 
             // Rendering window
+            EditorGUI.BeginChangeCheck();
             GUILayout.Space(10f);
+
+            if(ConfigWindow.LocalIPv4Adresses != null)
+            {
+                if(ConfigWindow.LocalIPv4Adresses.Count > 0)
+                {
+                    tempSelectedIP = ConfigWindow.LocalIPv4Adresses.IndexOf(Config.LocalIPv4);
+                    tempSelectedIP = EditorGUILayout.Popup("Local IPv4 Address:", Mathf.Max(tempSelectedIP, 0), ConfigWindow.LocalIPv4Adresses.ToArray());
+                }
+                else
+                {
+                    tempIPv4 = EditorGUILayout.TextField("Local IPv4 Address:", Config.LocalIPv4);
+                }
+            }
 
             tempServerPort = EditorGUILayout.IntField("Local Webserver Port:", Config.LocalServerPort);
             tempWebsocketPort = EditorGUILayout.IntField("Local Websocket Port:", Config.LocalWebsocketPort);
@@ -97,7 +124,25 @@ namespace Volplane.Editor.UI
 
             EditorGUILayout.EndHorizontal();
 
+            // No changes made?
+            if(!EditorGUI.EndChangeCheck())
+                return;
+
             // Saving edited preferences
+            if(ConfigWindow.LocalIPv4Adresses.Count > tempSelectedIP)
+            {
+                if(ConfigWindow.LocalIPv4Adresses[tempSelectedIP] != Config.LocalIPv4)
+                {
+                    Config.LocalIPv4 = ConfigWindow.LocalIPv4Adresses[tempSelectedIP];
+                    EditorPrefs.SetInt("SelectedLocalIPv4", tempSelectedIP);
+                }
+            }
+            else
+            {
+                Config.LocalIPv4 = tempIPv4;
+                EditorPrefs.SetString("LocalIPv4", tempIPv4);
+            }
+
             if(tempServerPort != Config.LocalServerPort)
             {
                 Config.LocalServerPort = tempServerPort;
