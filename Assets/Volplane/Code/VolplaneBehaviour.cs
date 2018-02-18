@@ -23,18 +23,22 @@ namespace Volplane
 {
     using Newtonsoft.Json.Linq;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
     using UnityEngine;
 
     public abstract class VolplaneBehaviour : MonoBehaviour
     {
+        private const int EventCount = 15;
+
+        private bool initialized = false;
+
         private Type objectType;
         private MethodInfo methodInfo;
-        private MethodInfo addMethodInfo;
         private EventInfo eventInfo;
         private Delegate handler;
+
+        private List<ReflectionEvent> detectedEvents;
 
         #region Volplane Property Wrappers
 
@@ -370,10 +374,33 @@ namespace Volplane
         #region Initialization / Subscribe Children Events
 
         /// <summary>
+        /// Unity OnEnable call. Call base method on override.
+        /// </summary>
+        protected virtual void OnEnable()
+        {
+            // Not yet initialized?
+            if(!initialized)
+                Initialize();
+
+            for(int i = 0; i < detectedEvents.Count; i++)
+                detectedEvents[i].Add();
+        }
+
+        /// <summary>
+        /// Unity OnDisable call. Call base method on override.
+        /// </summary>
+        protected virtual void OnDisable()
+        {
+            for(int i = 0; i < detectedEvents.Count; i++)
+                detectedEvents[i].Remove();
+        }
+
+        /// <summary>
         /// Initialize this behaviour.
         /// </summary>
         private void Initialize()
         {
+            detectedEvents = new List<ReflectionEvent>(EventCount);
             objectType = this.GetType();
 
             // Subscribe input events
@@ -394,6 +421,8 @@ namespace Volplane
             SubscribeEvent(VolplaneController.Main, "OnAdComplete", "Secondary");
             SubscribeEvent(VolplaneController.Main, "OnPlayerProfileChange", "Secondary");
             SubscribeEvent(VolplaneController.Main, "OnUserDataSaved", "Secondary");
+
+            initialized = true;
         }
 
         /// <summary>
@@ -417,10 +446,10 @@ namespace Volplane
                 // Create delegate from child method
                 handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, methodInfo, false);
 
-                // If event delegate parameters matches with the ones from the child method -> add event handler
+                // If event delegate parameters matches with the ones from the child method -> add event to collection
                 if(handler != null)
                 {
-                    eventInfo.GetAddMethod().Invoke(eventHolder, new[] { handler });
+                    detectedEvents.Add(new ReflectionEvent(eventHolder, eventInfo, handler));
                 }
                 else if(appendix != null)
                 {
@@ -430,9 +459,9 @@ namespace Volplane
                     // Create delegate from child method
                     handler = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, methodInfo, false);
 
-                    // If event delegate parameters matches with the ones from the child method -> add event handler
+                    // If event delegate parameters matches with the ones from the child method -> add event to collection
                     if(handler != null)
-                        eventInfo.GetAddMethod().Invoke(eventHolder, new[] { handler });
+                        detectedEvents.Add(new ReflectionEvent(eventHolder, eventInfo, handler));
                 }
             }
         }

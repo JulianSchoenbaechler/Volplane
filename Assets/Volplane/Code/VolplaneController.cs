@@ -21,8 +21,6 @@
 
 namespace Volplane
 {
-    using System;
-    using System.Reflection;
     using System.Runtime.InteropServices;
     using UnityEngine;
     using Volplane.AirConsole;
@@ -74,10 +72,10 @@ namespace Volplane
 
         [SerializeField] private bool usePersistentData = false;
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private WebSocketServer websocketServer;
         private VolplaneWebsocketService websocketService;
-        #endif
+#endif
 
         /// <summary>
         /// Gateway method for AirConsole events.
@@ -94,16 +92,16 @@ namespace Volplane
         /// <param name="data">Data in JSON format.</param>
         public void Send(string data)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
-			websocketService.Message(data);
+            websocketService.Message(data);
 
-            #else
+#else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
                 SendData(data.ToString());
 
-            #endif
+#endif
         }
 
         /// <summary>
@@ -132,16 +130,6 @@ namespace Volplane
 
             // Use persistent data for the connected players
             VolplaneController.Main.UsePersistentData(this.usePersistentData);
-
-            // Initialize all VolplaneBehaviours in the Scene
-            VolplaneBehaviour[] volplaneInstances = Resources.FindObjectsOfTypeAll<VolplaneBehaviour>();
-
-            // Invoke initialization on every VolplaneBehaviour instance
-            for(int i = 0; i < volplaneInstances.Length; i++)
-            {
-                typeof(VolplaneBehaviour).GetMethod("Initialize", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Invoke(volplaneInstances[i], null);
-            }
         }
 
         /// <summary>
@@ -151,26 +139,26 @@ namespace Volplane
         {
             Application.runInBackground = true;
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
             if(Application.isEditor)
             {
                 // Websocket management
                 websocketServer = new WebSocketServer(Config.LocalWebsocketPort);
-                websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate(VolplaneWebsocketService websocketService)
+                websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate (VolplaneWebsocketService websocketService)
                 {
-					this.websocketService = websocketService;
+                    this.websocketService = websocketService;
                     this.websocketService.dataReceived += ProcessData;
                 });
                 websocketServer.Start();
             }
 
-            #else
+#else
 
             if(Application.platform == RuntimePlatform.WebGLPlayer)
                 UnityIsReady(Config.AutoScaleCanvas, gameObject.name);
 
-            #endif
+#endif
         }
 
         /// <summary>
@@ -178,15 +166,15 @@ namespace Volplane
         /// </summary>
         private void OnApplicationQuit()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
-			if(websocketServer == null)
-				return;
+            if(websocketServer == null)
+                return;
 
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
 
-            #endif
+#endif
 
             if(VolplaneController.AirConsole != null)
             {
@@ -211,16 +199,16 @@ namespace Volplane
         /// On disable this component.
         /// </summary>
         private void OnDisable()
-		{
-            #if UNITY_EDITOR
+        {
+#if UNITY_EDITOR
 
-			if(websocketServer == null)
-				return;
+            if(websocketServer == null)
+                return;
 
             if(websocketServer.IsListening)
                 websocketServer.Stop(CloseStatusCode.Normal, "Application has quit.");
 
-            #endif
+#endif
         }
 
         /// <summary>
