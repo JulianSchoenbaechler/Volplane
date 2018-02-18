@@ -127,8 +127,6 @@ namespace Volplane.Editor
                         continue;
 
                     // Add address to collection
-                    Debug.Log(network.Name);
-                    Debug.Log(network.OperationalStatus);
                     collection.Add(address.Address.ToString());
                 }
             }
