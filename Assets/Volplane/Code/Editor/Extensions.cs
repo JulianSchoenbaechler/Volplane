@@ -22,10 +22,12 @@
 namespace Volplane.Editor
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Text;
     using System.Net;
     using System.Net.Sockets;
+    using System.Net.NetworkInformation;
     using UnityEditor;
     using UnityEngine;
     using Volplane.Net;
@@ -58,13 +60,13 @@ namespace Volplane.Editor
 
             // Register playmode stat change event
 
-            #if UNITY_2017_2_OR_NEWER
+#if UNITY_2017_2_OR_NEWER
             EditorApplication.playModeStateChanged -= PlaymodeStateChanged;
             EditorApplication.playModeStateChanged += PlaymodeStateChanged;
-            #else
+#else
             EditorApplication.playmodeStateChanged -= PlaymodeStateChanged;
             EditorApplication.playmodeStateChanged += PlaymodeStateChanged;
-            #endif
+#endif
         }
 
         /// <summary>
@@ -82,10 +84,54 @@ namespace Volplane.Editor
                 Application.OpenURL(
                     String.Format("{0:G}http://{1:G}:{2:D}/build/",
                                   Config.AirConsolePlayUrl,
-                                  GetLocalIPAddress(),
+                                  Config.LocalIPv4,
                                   Config.LocalServerPort)
                 );
             }
+        }
+
+        /// <summary>
+        /// Gets all the local IPv4 addresses of this machine.
+        /// </summary>
+        /// <returns>A local IPv4 address collection.</returns>
+        public static ICollection<string> GetLocalIPAddresses()
+        {
+            ICollection<string> collection = new List<string>();
+
+            // Get a list of all network interfaces (usually one per network card, dialup, and VPN connection)
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach(NetworkInterface network in networkInterfaces)
+            {
+
+#if UNITY_EDITOR_WIN
+
+                // Skip disconnected network interfaces
+                if(network.OperationalStatus != OperationalStatus.Up)
+                    continue;
+
+#endif
+
+                // Read the IP configuration for each network
+                IPInterfaceProperties properties = network.GetIPProperties();
+
+                // Each network interface may have multiple IP addresses
+                foreach(IPAddressInformation address in properties.UnicastAddresses)
+                {
+                    // Only IPv4 local network
+                    if(address.Address.AddressFamily != AddressFamily.InterNetwork)
+                        continue;
+
+                    // Ignore loopback addresses
+                    if(IPAddress.IsLoopback(address.Address))
+                        continue;
+
+                    // Add address to collection
+                    collection.Add(address.Address.ToString());
+                }
+            }
+
+            return collection;
         }
 
         /// <summary>
@@ -115,6 +161,15 @@ namespace Volplane.Editor
         /// </summary>
         protected static void LoadSettings()
         {
+            // Load saved editor preferences
+            IList<string> IPv4Adresses = GetLocalIPAddresses() as IList<string>;
+            int selectedIP = EditorPrefs.GetInt("SelectedLocalIPv4", 0);
+
+            if(IPv4Adresses.Count > selectedIP)
+                Config.LocalIPv4 = IPv4Adresses[selectedIP];
+            else
+                Config.LocalIPv4 = EditorPrefs.GetString("LocalIPv4", "0.0.0.0");
+
             Config.LocalServerPort = EditorPrefs.GetInt("LocalServerPort", Config.DefaultLocalServerPort);
             Config.LocalWebsocketPort = EditorPrefs.GetInt("LocalWebsocketPort", Config.DefaultLocalWebsocketPort);
             Config.DebugLog = EditorPrefs.GetInt("DebugLog", (int)DebugState.None);
@@ -139,11 +194,11 @@ namespace Volplane.Editor
 
             if(savedIndex.Length == 0)
             {
-                #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
                 savedIndex = "5-6";
-                #else
+#else
                 savedIndex = "pre-5-6";
-                #endif
+#endif
 
                 EditorPrefs.SetString("TemplateIndex", savedIndex);
 
@@ -154,7 +209,7 @@ namespace Volplane.Editor
                     true
                 );
             }
-            #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
             else if(savedIndex == "pre-5-6")
             {
                 savedIndex = "5-6";
@@ -167,7 +222,7 @@ namespace Volplane.Editor
                     true
                 );
             }
-            #else
+#else
             else if(savedIndex == "5-6")
             {
                 savedIndex = "pre-5-6";
@@ -180,14 +235,14 @@ namespace Volplane.Editor
                     true
                 );
             }
-            #endif
+#endif
         }
 
         /// <summary>
         /// Playmode state change listener.
         /// Firing entering playmode event.
         /// </summary>
-        #if UNITY_2017_2_OR_NEWER
+#if UNITY_2017_2_OR_NEWER
         protected static void PlaymodeStateChanged(PlayModeStateChange state)
         {
             if(GameObject.FindWithTag("Volplane") == null)
@@ -207,7 +262,7 @@ namespace Volplane.Editor
                 Extensions.processedEnteringPlaymode = false;
             }
         }
-        #else
+#else
         protected static void PlaymodeStateChanged()
         {
             if(GameObject.FindWithTag("Volplane") == null)
@@ -229,7 +284,7 @@ namespace Volplane.Editor
                 Extensions.processedEnteringPlaymode = false;
             }
         }
-        #endif
+#endif
 
         /// <summary>
         /// Starts the browser and connects to AirConsole in order to test the game.
@@ -261,29 +316,12 @@ namespace Volplane.Editor
             }
 
             url.AppendFormat("http://{0}:{1:D}/?unity-editor-websocket-port={2:D}&unity-plugin-version={3:G}",
-                             GetLocalIPAddress(),
+                             Config.LocalIPv4,
                              Config.LocalServerPort,
                              Config.LocalWebsocketPort,
                              Config.AirConsoleVersion);
 
             Application.OpenURL(url.ToString());
-        }
-
-        /// <summary>
-        /// Gets the local IP address of this machine.
-        /// </summary>
-        /// <returns>The local IP address.</returns>
-        protected static string GetLocalIPAddress()
-        {
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    return ip.ToString();
-            }
-
-            return "?";
         }
     }
 }

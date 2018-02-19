@@ -31,7 +31,7 @@ namespace Volplane
     {
         // Main player list
         // This list indices can be hardcoded
-        protected static List<VPlayer> Players;
+        protected static List<VPlayer> Players = new List<VPlayer>(8);
 
         protected static SyncedData CustomState;
         protected static string InitialView;
@@ -153,11 +153,8 @@ namespace Volplane
         /// <param name="playerId">Player identifier.</param>
         public VPlayer GetPlayer(int playerId)
         {
-            if(VolplaneAgent.Players != null)
-            {
-                if(playerId < VolplaneAgent.Players.Count)
-                    return VolplaneAgent.Players[playerId];
-            }
+            if(playerId < VolplaneAgent.Players.Count)
+                return VolplaneAgent.Players[playerId];
 
             return null;
         }
@@ -169,10 +166,7 @@ namespace Volplane
         /// <param name="player">Player object.</param>
         public int GetPlayerId(VPlayer player)
         {
-            if(VolplaneAgent.Players != null)
-                return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == player.DeviceId);
-
-            return -1;
+            return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == player.DeviceId);
         }
 
         /// <summary>
@@ -224,10 +218,7 @@ namespace Volplane
         {
             int acDeviceId = VolplaneController.AirConsole.GetMasterControllerDeviceId();
 
-            if(VolplaneAgent.Players != null)
-                return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == acDeviceId);
-
-            return -1;
+            return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == acDeviceId);
         }
 
         /// <summary>
@@ -335,14 +326,11 @@ namespace Volplane
         {
             InitialView = viewName;
 
-            if(VolplaneAgent.Players != null)
+            // Change all views for players without a currently set one
+            for(int i = 0; i < VolplaneAgent.Players.Count; i++)
             {
-                // Change all views for players without a currently set one
-                for(int i = 0; i < VolplaneAgent.Players.Count; i++)
-                {
-                    if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
-                        VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], viewName);
-                }
+                if(VolplaneController.Main.GetCurrentView(VolplaneAgent.Players[i]).Length == 0)
+                    VolplaneController.Main.ChangeView(VolplaneAgent.Players[i], viewName);
             }
         }
 
@@ -597,10 +585,7 @@ namespace Volplane
         /// <param name="acDeviceId">AirConsole device identifier.</param>
         protected int GetPlayerId(int acDeviceId)
         {
-            if(VolplaneAgent.Players != null)
-                return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == acDeviceId);
-
-            return -1;
+            return VolplaneAgent.Players.FindIndex(vp => vp.DeviceId == acDeviceId);
         }
 
         /// <summary>
@@ -634,10 +619,6 @@ namespace Volplane
         {
             if(acDeviceId < 1)
                 return -1;
-
-            // Create player list if not exists
-            if(VolplaneAgent.Players == null)
-                VolplaneAgent.Players = new List<VPlayer>(8);
 
             // Get index of this player
             int index = GetPlayerId(acDeviceId);
@@ -848,8 +829,7 @@ namespace Volplane
         {
             int playerId = -1;
 
-            if(VolplaneAgent.Players != null)
-                playerId = VolplaneAgent.Players.FindIndex(vp => vp.UID == uid);
+            playerId = VolplaneAgent.Players.FindIndex(vp => vp.UID == uid);
 
             if(playerId == -1)
                 return;

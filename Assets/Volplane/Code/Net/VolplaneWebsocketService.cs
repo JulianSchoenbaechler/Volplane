@@ -96,7 +96,7 @@ namespace Volplane.Net
 
             if(Config.DebugLog != (int)DebugState.None)
             {
-                VDebug.LogFormat("[Volplane (Websocket Service)] Socket connection closed. Code:{0:D}.", e.Code);
+                VDebug.LogFormat("[Volplane (Websocket Service)] Socket connection closed. Code: {0:D}.", e.Code);
             }
         }
 
