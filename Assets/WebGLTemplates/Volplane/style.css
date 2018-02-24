@@ -1,7 +1,7 @@
 /*
  * Volplane Screen Template Style Sheet
  * Copyright 2017 by Julian Schoenbaechler (http://julian-s.ch/). All rights reserved.
- * Version      v1.0.0
+ * Version      v1.1.0
  * License      GPL v3
  */
 
@@ -60,10 +60,21 @@ div.full-screen p {
     flex-wrap: wrap;
     text-align: center;
     background-color: #1F1D2A;
+    background-image: none;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+#screen-progress.full-screen {
+    display: block;
 }
 #screen-progress img {
     padding: 0;
     margin: 0;
+    z-index: 0;
+}
+#screen-progress.full-screen img {
+    display: none;
 }
 #screen-progress .bar {
     position: relative;
@@ -74,6 +85,14 @@ div.full-screen p {
     background-color: transparent;
     border: 1px solid #87383C;
     border-radius: 3px;
+    z-index: 1;
+}
+#screen-progress.full-screen .bar {
+    position: absolute;
+    top: 60%;
+    left: 35%;
+    width: 30%;
+    height: 6%;
 }
 #screen-progress .bar span {
     display: block;
@@ -88,10 +107,20 @@ div.full-screen p {
     border-radius: 1px;
     -webkit-transition: width 0.4s ease-in-out;
     transition: width 0.4s ease-in-out;
+    z-index: 2;
 }
 #screen-progress p {
     margin: 10px auto;
     font-size: 10pt;
     font-family: 'Lucida Console', Monaco, monospace;
     color: #F8F8EC;
+    z-index: 3;
+}
+#screen-progress.full-screen p {
+    position: absolute;
+    top: 70%;
+    left: 35%;
+    width: 30%;
+    height: auto;
+    margin: 0;
 }

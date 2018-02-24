@@ -15,22 +15,45 @@
         <script type="text/javascript">
             function initVolplane() {
 
+                // The screen ratio of the game container
                 var screenRatio = {
                     width: 16,
                     height: 9,
                     stretch: false
                 };
 
+                // Loading screen properties
                 var loadingScreen = {
-                    image: 'loading.png',
-                    barWidth: 300,
-                    barHeight: 6,
-                    barColor: '#7A2F34',
-                    barBorderColor: '#87383C',
-                    barBorderRadius: 3,
-                    fontColor: '#F8F8EC',
-                    background: '#1F1D2A'
+                    image: 'loading.png',           // Loading image
+                    barWidth: 300,                  // Progress bar width in [px]
+                    barHeight: 6,                   // Progress bar height in [px]
+                    barColor: '#7A2F34',            // Progress bar color
+                    barBorderColor: '#87383C',      // Progress bar border color
+                    barBorderRadius: 3,             // Progress bar border radius in [px]
+                    fontColor: '#F8F8EC',           // Progress text color
+                    background: '#1F1D2A'           // Screen background color
                 };
+
+                // Use the following properties for a fullscreen loading image
+                // (Replace with upper...)
+                /*
+                var loadingScreen = {
+                    fullScreenImage: true,          // Use fullscreen
+                    image: 'loading.png',           // Loading image (will be displayed as background)
+                    barTop: 60,                     // Progress bar position from the top in [% of window size]
+                    barLeft: 35,                    // Progress bar position from the left in [% of window size]
+                    barWidth: 30,                   // Progress bar width in [% of window size]
+                    barHeight: 1,                   // Progress bar height in [% of window size]
+                    barColor: '#7A2F34',            // Progress bar color
+                    barBorderColor: '#87383C',      // Progress bar border color
+                    barBorderRadius: 3,             // Progress bar border radius in [px]
+                    textTop: 64,                    // Progress text position from the top in [% of window size]
+                    textLeft: 35,                   // Progress text position from the left in [% of window size]
+                    textWidth: 30,                  // Progress text width in [% of window size]
+                    fontColor: '#F8F8EC',           // Progress text color
+                    background: '#1F1D2A'           // Screen background color
+                };
+                */
 
                 window.volplane = new Agent('game', screenRatio, loadingScreen);
 
