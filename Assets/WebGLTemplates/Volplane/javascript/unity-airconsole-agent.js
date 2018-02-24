@@ -1,7 +1,7 @@
 /**
  * Unity-AirConsole Agent.
  * @copyright 2017 by Julian Schoenbaechler. All rights reserved.
- * @version 1.0.3
+ * @version 1.0.6
  * @see https://github.com/JulianSchoenbaechler/Volplane for the project source code.
  *
  * This file is part of the Volplane project.
@@ -64,7 +64,7 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
                         else
                             instance.progress.Clear();
 
-                        instance.progress.SetMessage(Math.min(100, progress * 100).toString() + '%');
+                        instance.progress.SetMessage(Math.round(Math.min(100, progress * 100)).toString() + '%');
                     };
                 })(this)
             });
@@ -80,6 +80,28 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
             var barContainer = loadingContainer.getElementsByClassName('bar')[0];
             var progress = barContainer.getElementsByTagName('SPAN')[0];
 
+            if(loadingScreen.fullScreenImage === true) {
+
+                loadingContainer.className = 'full-screen';
+                loadingContainer.style.backgroundImage = 'url("img/' + (loadingScreen.image || 'loading.png') + '")';
+                loadingContainer.style.backgroundSize = (loadingScreen.backgroundSize || 'cover');
+                barContainer.style.top = (loadingScreen.barTop || 60).toString() + '%';
+                barContainer.style.left = (loadingScreen.barLeft || 35).toString() + '%';
+                barContainer.style.width = (loadingScreen.barWidth || 30).toString() + '%';
+                barContainer.style.height = (loadingScreen.barHeight || 6).toString() + '%';
+                infoText.style.top = (loadingScreen.textTop || 70).toString() + '%';
+                infoText.style.left = (loadingScreen.textLeft || 35).toString() + '%';
+                infoText.style.width = (loadingScreen.textWidth || 30).toString() + '%';
+                infoText.style.height = (loadingScreen.textHeight || 'auto').toString() + '%';
+
+            } else {
+
+                loadingContainer.style.backgroundImage = 'none';
+                barContainer.style.width = (loadingScreen.barWidth || 300).toString() + 'px';
+                barContainer.style.height = (loadingScreen.barHeight || 6).toString() + 'px';
+
+            }
+
             loadingContainer.style.backgroundColor = (loadingScreen.background || '#1F1D2A');
             image.src = 'img/' + (loadingScreen.image || 'loading.png');
             infoText.style.color = (loadingScreen.fontColor || '#F8F8EC');
@@ -87,8 +109,6 @@ function Agent(gameContainer, screenRatio, loadingScreen) {
             progress.style.borderRadius = ((loadingScreen.barBorderRadius || 3) - 2).toString() + 'px';
             barContainer.style.borderColor = (loadingScreen.barBorderColor || '#87383C');
             barContainer.style.borderRadius = (loadingScreen.barBorderRadius || 3).toString() + 'px';
-            barContainer.style.width = (loadingScreen.barWidth || 300).toString() + 'px';
-            barContainer.style.height = (loadingScreen.barHeight || 6).toString() + 'px';
 
         }
 
