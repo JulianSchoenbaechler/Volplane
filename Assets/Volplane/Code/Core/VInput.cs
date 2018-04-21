@@ -776,7 +776,7 @@ namespace Volplane
                     VInput.Inputs[i][key].Update();
             }
 
-            while(updateQueue.Count > 0)
+            if(updateQueue.Count > 0)
                 updateQueue.Dequeue().Invoke();
         }
 
@@ -802,6 +802,9 @@ namespace Volplane
             using(var sr = new StringReader(data))
             using(var reader = new JsonTextReader(sr))
             {
+                // Use buffer
+                reader.ArrayPool = JSONArrayPool.Instance;
+
                 while(!stopReading && reader.Read())
                 {
                     if((reader.TokenType == JsonToken.PropertyName) && (reader.Path == "volplane.name"))
@@ -844,6 +847,9 @@ namespace Volplane
             using(var sr = new StringReader(data))
             using(var reader = new JsonTextReader(sr))
             {
+                // Use buffer
+                reader.ArrayPool = JSONArrayPool.Instance;
+
                 while(reader.Read())
                 {
                     if(reader.TokenType == JsonToken.PropertyName)
@@ -1017,7 +1023,7 @@ namespace Volplane
                     break;
 
                 case ElementInput.InputType.TouchArea:
-                    
+
                     // Event
                     if(VInput.TouchEvents && (OnTouch != null))
                     {

@@ -317,6 +317,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -343,6 +346,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -381,6 +387,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -415,6 +424,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -452,6 +464,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -489,6 +504,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -527,6 +545,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -567,6 +588,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -606,6 +630,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -643,6 +670,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
@@ -671,6 +701,9 @@ namespace Volplane
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("volplane");
                 writer.WriteStartObject();
