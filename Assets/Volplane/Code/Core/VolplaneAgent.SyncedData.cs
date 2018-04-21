@@ -79,6 +79,9 @@ namespace Volplane
                 using(var sr = new StringReader(json))
                 using(var reader = new JsonTextReader(sr))
                 {
+                    // Use buffer
+                    reader.ArrayPool = JSONArrayPool.Instance;
+
                     while(reader.Read())
                     {
                         if(reader.TokenType == JsonToken.PropertyName)
@@ -112,7 +115,7 @@ namespace Volplane
                                         }
                                         break;
 
-                                        // Read "views" array
+                                    // Read "views" array
                                     case "views":
                                         while(reader.Read() && (reader.TokenType != JsonToken.EndArray))
                                         {
@@ -153,6 +156,9 @@ namespace Volplane
                 using(var sw = new StringWriter(dataBuilder))
                 using(var writer = new JsonTextWriter(sw))
                 {
+                    // Use buffer
+                    writer.ArrayPool = JSONArrayPool.Instance;
+
                     writer.WriteStartObject();
                     writer.WritePropertyName("volplane");
                     writer.WriteStartObject();

@@ -78,6 +78,9 @@ namespace Volplane.AirConsole
                 using(var sr = new StringReader(json))
                 using(var reader = new JsonTextReader(sr))
                 {
+                    // Use buffer
+                    reader.ArrayPool = JSONArrayPool.Instance;
+
                     while(reader.Read())
                     {
                         if((reader.TokenType == JsonToken.PropertyName) && (reader.Depth == 1))
@@ -108,6 +111,9 @@ namespace Volplane.AirConsole
                                     using(var sw = new StringWriter(dataObject.Data))
                                     using(var writer = new JsonTextWriter(sw))
                                     {
+                                        // Use buffer
+                                        writer.ArrayPool = JSONArrayPool.Instance;
+
                                         reader.Read();
                                         writer.WriteToken(reader);
                                     }

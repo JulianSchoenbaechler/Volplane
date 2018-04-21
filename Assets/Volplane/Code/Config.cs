@@ -37,7 +37,7 @@ namespace Volplane
 
     public static class Config
     {
-        public const string Version                         = "v1.0.6";
+        public const string Version                         = "v1.0.7";
         public const string AirConsoleVersion               = "1.7";
 
         public static int BrowserStart                      = (int)BrowserStartMode.Standard;

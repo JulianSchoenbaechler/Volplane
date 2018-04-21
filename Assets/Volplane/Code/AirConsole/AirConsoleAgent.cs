@@ -250,6 +250,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("message");
@@ -278,6 +281,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("broadcast");
@@ -391,6 +397,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("setCustomDeviceState");
@@ -430,6 +439,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("setCustomDeviceStateProperty");
@@ -630,6 +642,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("setActivePlayers");
@@ -665,6 +680,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("showAd");
@@ -726,6 +744,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("storePersistentData");
@@ -759,6 +780,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("requestPersistentData");
@@ -814,6 +838,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("storeHighScore");
@@ -866,7 +893,7 @@ namespace Volplane.AirConsole
         }
 
         /// <summary>
-        /// AirConsole API: requestHighScore function.
+        /// AirConsole API: requestHighScores function.
         /// See <see href="https://developers.airconsole.com/#!/api">https://developers.airconsole.com/#!/api</see>
         /// for the AirConsole documentation.
         /// </summary>
@@ -876,22 +903,25 @@ namespace Volplane.AirConsole
         /// <param name="ranks">High score rank types.</param>
         /// <param name="total">Amount of high scores per rank type.</param>
         /// <param name="top">Amount of top high scores per rank type.</param>
-        public void RequestHighScore(string levelName,
+        public void RequestHighScores(string levelName,
                                      string levelVersion,
                                      ICollection<string> uids = null,
                                      ICollection<string> ranks = null,
                                      int total = -1,
                                      int top = -1)
         {
-            if(!IsConnectionReady("requestHighScore()"))
+            if(!IsConnectionReady("requestHighScores()"))
                 return;
 
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
-                writer.WriteValue("requestHighScore");
+                writer.WriteValue("requestHighScores");
                 writer.WritePropertyName("level_name");
                 writer.WriteValue(levelName);
                 writer.WritePropertyName("level_version");
@@ -930,10 +960,13 @@ namespace Volplane.AirConsole
         {
             if(!IsConnectionReady("navigateHome()"))
                 return;
-            
+
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("navigateHome");
@@ -958,6 +991,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("navigateTo");
@@ -984,6 +1020,9 @@ namespace Volplane.AirConsole
             using(var sw = new StringWriter(sendData))
             using(var writer = new JsonTextWriter(sw))
             {
+                // Use buffer
+                writer.ArrayPool = JSONArrayPool.Instance;
+
                 writer.WriteStartObject();
                 writer.WritePropertyName("action");
                 writer.WriteValue("showDefaultUI");
