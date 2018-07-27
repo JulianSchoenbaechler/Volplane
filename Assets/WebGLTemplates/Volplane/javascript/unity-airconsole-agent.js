@@ -576,11 +576,11 @@ Agent.prototype.getUrlParameter = function(name) {
  * Indicates that Unity is ready.
  * @param {boolean} autoScaleCanvas - true when canvas should scale automatically. Otherwise false.
  */
-Agent.prototype.unityIsReady = function(autoScaleCanvas, accessObject = 'Volplane') {
+Agent.prototype.unityIsReady = function(autoScaleCanvas, accessObject) {
 
     var instance = this;
 
-    instance.accessObject = accessObject;
+    instance.accessObject = accessObject || 'Volplane';
     instance.isUnityReady = true;
     instance.dequeueToUnity();
 

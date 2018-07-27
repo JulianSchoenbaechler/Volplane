@@ -32,6 +32,19 @@ namespace Volplane.IO
 
     public class FileManager
     {
+        public static readonly IList<string> SupportedExtensions = new List<string> {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".otf",
+            ".ttf",
+            ".eot",
+            ".woff",
+            ".woff2",
+            ".svg"
+        }.AsReadOnly();
+
         /// <summary>
         /// Generates a file list from a specific directory as JSONArray.
         /// </summary>
@@ -47,14 +60,12 @@ namespace Volplane.IO
 
             // Ignore meta files
             directories = Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
-                .Where<string>(name => !name.EndsWith(".meta"));
+                .Where(file => SupportedExtensions.Any(ext => file.EndsWith(ext, StringComparison.OrdinalIgnoreCase)));
 
             // Write all filenames from directory
             // -> Replace backslash '\' to slash '/' for web and unix compatibility
             foreach(string directory in directories)
-            {
                 list.Add(prefixPath + directory.Replace(directoryPath, "").Replace('\\', '/'));
-            }
 
             return list;
         }
@@ -76,9 +87,7 @@ namespace Volplane.IO
             using(StreamReader reader = new StreamReader(inputStream, Encoding.UTF8))
             {
                 while(!reader.EndOfStream)
-                {
                     sbContent.Append(reader.ReadLine());
-                }
             }
 
             return WriteJSON(JToken.Parse(sbContent.ToString()), filePath, prettify);
@@ -150,9 +159,7 @@ namespace Volplane.IO
                 using(StreamReader reader = new StreamReader(fileStream, Encoding.UTF8))
                 {
                     while(!reader.EndOfStream)
-                    {
                         sbContent.Append(reader.ReadLine());
-                    }
                 }
             }
 

@@ -21,9 +21,9 @@
 
 namespace Volplane.Net
 {
-	using System;
-	using System.IO;
-	using System.Net;
+    using System;
+    using System.IO;
+    using System.Net;
     using System.Text.RegularExpressions;
 
 
@@ -169,28 +169,28 @@ namespace Volplane.Net
 
                 case ".js":
                 case ".jsweb":
-					return "application/javascript";
+                    return "application/javascript";
 
-				case ".svg":
-					return "image/svg+xml";
+                case ".svg":
+                    return "image/svg+xml";
 
-				case ".ttf":
-					return "application/x-font-truetype";
+                case ".ttf":
+                    return "application/x-font-truetype";
 
-				case ".otf":
-					return "application/x-font-opentype";
+                case ".otf":
+                    return "application/x-font-opentype";
 
-				case ".woff":
-					return "application/font-woff";
+                case ".woff":
+                    return "application/font-woff";
 
-				case ".woff2":
-					return "application/font-woff2";
+                case ".woff2":
+                    return "application/font-woff2";
 
-				case ".eot":
-					return "application/vnd.ms-fontobject";
+                case ".eot":
+                    return "application/vnd.ms-fontobject";
 
-				case ".sfnt":
-					return "application/font-sfnt";
+                case ".sfnt":
+                    return "application/font-sfnt";
 
                 default:
                     return "application/octet-stream";
