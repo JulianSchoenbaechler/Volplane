@@ -277,7 +277,7 @@
         {
             if(!lobbyActive)
                 return;
-            
+
             // It could be that the game master has now changed
             if(GetMasterId() == player.PlayerId)
             {
@@ -287,5 +287,5 @@
                     KickPlayer(GetAllActivePlayers().Last().PlayerId);
             }
         }
-	}
+    }
 }

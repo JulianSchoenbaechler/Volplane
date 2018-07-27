@@ -631,7 +631,7 @@ namespace Volplane
                 // Create new player and subscribe state change event for updating custom device state
                 VPlayer newPlayer = new VPlayer(acDeviceId);
 
-                Action<bool> updateState = delegate(bool active) {
+                Action<bool> updateState = (active) => {
                     VolplaneAgent.CustomState.Active[acDeviceId] = active;
                     VolplaneController.AirConsole.SetCustomDeviceState(VolplaneAgent.CustomState.ToJSON());
                 };

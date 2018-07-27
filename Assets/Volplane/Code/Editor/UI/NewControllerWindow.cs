@@ -36,14 +36,14 @@ namespace Volplane.Editor.UI
 		public static NewControllerWindow window;
 
         private string tempName;
-		private string errorString;
+        private string errorString;
         private Regex namingConventions;
         private GUIStyle labelFormat, errorFormat, buttonFormat, inputFormat;
 
-		/// <summary>
-		/// Occurs when a new controller was created.
-		/// </summary>
-		public event Action<string> ControllerCreated;
+        /// <summary>
+        /// Occurs when a new controller was created.
+        /// </summary>
+        public event Action<string> ControllerCreated;
 
         /// <summary>
         /// Init this instance.
@@ -60,8 +60,8 @@ namespace Volplane.Editor.UI
         protected virtual void OnEnable()
         {
             namingConventions = new Regex(@"([^a-zA-Z0-9_-]+)");
-			tempName = "";
-			errorString = "";
+            tempName = "";
+            errorString = "";
         }
 
         /// <summary>
@@ -74,9 +74,9 @@ namespace Volplane.Editor.UI
             labelFormat.alignment = TextAnchor.MiddleCenter;
             labelFormat.fontSize = 12;
 
-			// Label error style
-			errorFormat = new GUIStyle(labelFormat);
-			errorFormat.normal.textColor = Color.red;
+            // Label error style
+            errorFormat = new GUIStyle(labelFormat);
+            errorFormat.normal.textColor = Color.red;
 
             // Input style
             inputFormat = new GUIStyle(GUI.skin.textField);
@@ -90,24 +90,24 @@ namespace Volplane.Editor.UI
             buttonFormat.fixedWidth = 100;
 
 
-			// Name
+            // Name
             GUILayout.Space(10f);
             EditorGUILayout.LabelField("Enter a name for this controller:", labelFormat);
             GUILayout.Space(10f);
 
-			// Input
-			tempName = EditorGUILayout.TextField(tempName, inputFormat);
+            // Input
+            tempName = EditorGUILayout.TextField(tempName, inputFormat);
             GUILayout.Space(14f);
 
-			// Error
-			EditorGUILayout.LabelField(errorString, errorFormat);
-			GUILayout.Space(20f);
+            // Error
+            EditorGUILayout.LabelField(errorString, errorFormat);
+            GUILayout.Space(20f);
 
-			// Buttons
+            // Buttons
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-			// Cancel button
+            // Cancel button
             if(GUILayout.Button("Cancel", buttonFormat))
             {
                 NewControllerWindow.window.Close();
@@ -115,36 +115,36 @@ namespace Volplane.Editor.UI
 
             GUILayout.FlexibleSpace();
 
-			// Create new controller
+            // Create new controller
             if(GUILayout.Button("OK", buttonFormat))
-			{
-				// Check length
+            {
+                // Check length
                 if(tempName.Length >= 3)
-				{
-					// Check for special chars
-					if(!namingConventions.Match(tempName).Success)
-					{
+                {
+                    // Check for special chars
+                    if(!namingConventions.Match(tempName).Success)
+                    {
                         JObject controller = new JObject();
                         controller.Add("name", tempName);
                         controller.Add("views", new JObject());
 
-						FileManager.WriteJSON(controller, String.Format("{0:G}{1:G}/data/controller/{2:G}.json", Application.dataPath, Config.WebServerPath, tempName));
+                        FileManager.WriteJSON(controller, String.Format("{0:G}{1:G}/data/controller/{2:G}.json", Application.dataPath, Config.WebServerPath, tempName));
 
-						// Fire controller created event
-						if(ControllerCreated != null)
-							ControllerCreated(tempName);
+                        // Fire controller created event
+                        if(ControllerCreated != null)
+                            ControllerCreated(tempName);
 
-						NewControllerWindow.window.Close();
-					}
-					else
-					{
-						errorString = "The controller name must not have any special characters\nwith the exception of '-' and '_'.";
-					}
-				}
-				else
-				{
-					errorString = "The controller name must be at least three characters long.";
-				}
+                        NewControllerWindow.window.Close();
+                    }
+                    else
+                    {
+                        errorString = "The controller name must not have any special characters\nwith the exception of '-' and '_'.";
+                    }
+                }
+                else
+                {
+                    errorString = "The controller name must be at least three characters long.";
+                }
             }
 
             GUILayout.FlexibleSpace();

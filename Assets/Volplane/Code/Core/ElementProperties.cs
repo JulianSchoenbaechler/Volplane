@@ -100,7 +100,7 @@ namespace Volplane
                     data["hidden"] = value;
                 else
                     data.Add("hidden", value);
-                
+
                 hidden = value;
             }
         }
@@ -119,7 +119,7 @@ namespace Volplane
                     data["image"] = String.Format("img/{0:G}", value);
                 else
                     data.Add("image", String.Format("img/{0:G}", value));
-                
+
                 images[0] = value;
             }
         }
@@ -139,7 +139,7 @@ namespace Volplane
                     data["highlightImage"] = String.Format("img/{0:G}", value);
                 else
                     data.Add("highlightImage", String.Format("img/{0:G}", value));
-                
+
                 images[1] = value;
             }
         }
@@ -159,7 +159,7 @@ namespace Volplane
                     data["handlerImage"] = String.Format("img/{0:G}", value);
                 else
                     data.Add("handlerImage", String.Format("img/{0:G}", value));
-                
+
                 images[1] = value;
             }
         }
