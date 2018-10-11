@@ -813,7 +813,8 @@ namespace Volplane
         /// </summary>
         protected void AdCompleted(bool complete)
         {
-            State = oldPlayerState;
+            if(complete)
+                State = oldPlayerState;
         }
 
         /// <summary>
