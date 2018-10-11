@@ -122,7 +122,7 @@
 
                     if(playerText != null)
                         playerText.text = GetPlayer(playerId).Nickname + "\n(Ready)";
-                    
+
                     IsReady = true;
 
                     // Try to start the game by calling the lobbys 'StartGame()' method
@@ -141,7 +141,7 @@
 
                     if(playerText != null)
                         playerText.text = GetPlayer(playerId).Nickname + "\n(Waiting)";
-                    
+
                     IsReady = false;
                 }
             }
@@ -200,7 +200,7 @@
                                          31f / 256f,
                                          28f / 256f);
                     break;
-                    
+
             }
 
             objectRenderer.material.color = newColor;                               // Apply color on material

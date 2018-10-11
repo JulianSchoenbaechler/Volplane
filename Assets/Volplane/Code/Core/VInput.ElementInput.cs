@@ -23,7 +23,7 @@ namespace Volplane
 {
     using Newtonsoft.Json;
     using System.IO;
-	using UnityEngine;
+    using UnityEngine;
 
     public sealed partial class VInput
     {
@@ -93,20 +93,20 @@ namespace Volplane
             public bool Move { get; set; }                  // Moved input indicator
             public bool HadDirections { get; set; }         // Triggered directions input indicator
 
-            public float X  { get; set; }                   // Coordinates
-            public float Y  { get; set; }
+            public float X { get; set; }                    // Coordinates
+            public float Y { get; set; }
 
             public float Distance { get; set; }             // Swipe distance
             public float Angle { get; set; }                // Swipe angle in radians
             public float Degree { get; set; }               // Swipe angle in degree
             public float Speed { get; set; }                // Swipe speed
 
-            public float AX  { get; set; }                  // Accelerometer (x, y, z)
-            public float AY  { get; set; }
-            public float AZ  { get; set; }
-            public float Alpha  { get; set; }               // Gyroscope (alpha, beta, gamma)
-            public float Beta  { get; set; }
-            public float Gamma  { get; set; }
+            public float AX { get; set; }                   // Accelerometer (x, y, z)
+            public float AY { get; set; }
+            public float AZ { get; set; }
+            public float Alpha { get; set; }                // Gyroscope (alpha, beta, gamma)
+            public float Beta { get; set; }
+            public float Gamma { get; set; }
 
             public int Delay { get; set; }                  // Connection delay
             public bool Dirty { get; set; }                 // Changed input indicator

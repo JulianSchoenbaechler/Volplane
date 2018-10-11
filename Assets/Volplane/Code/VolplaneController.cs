@@ -145,8 +145,7 @@ namespace Volplane
             {
                 // Websocket management
                 websocketServer = new WebSocketServer(Config.LocalWebsocketPort);
-                websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, delegate (VolplaneWebsocketService websocketService)
-                {
+                websocketServer.AddWebSocketService<VolplaneWebsocketService>(Config.WebsocketVirtualPath, (websocketService) => {
                     this.websocketService = websocketService;
                     this.websocketService.dataReceived += ProcessData;
                 });

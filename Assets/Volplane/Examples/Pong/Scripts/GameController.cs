@@ -61,7 +61,7 @@
             // by whichever device connects first. However player ids can be hardcoded. For example if
             // the game master has the player id 3 and suddenly looses connection, on a rejoin, the
             // controller will be reassigned to this id and player object.
-            
+
             // Update pause text with the current player count
             pauseText.text = string.Format("{0} Players connected\nWaiting for more players...", PlayerCount);
 

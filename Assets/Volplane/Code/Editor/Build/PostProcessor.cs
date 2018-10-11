@@ -41,7 +41,7 @@ namespace Volplane.Editor.Build
             // Rename 'index.html' to 'screen.hmtl'
             File.Move(path + "/index.html", path + "/screen.html");
 
-            #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
 
             // Delete existing 'game.json' (previous build)
             if(File.Exists(path + "/Build/game.json"))
@@ -53,7 +53,7 @@ namespace Volplane.Editor.Build
                 path + "/Build/game.json"
             );
 
-            #endif
+#endif
 
             // Save build path in preferences
             EditorPrefs.SetString("BuildPath", path);
