@@ -200,7 +200,7 @@ input:focus,
 select:focus,
 option:focus {
     outline: none;
-	box-shadow: none;
+    box-shadow: none;
 }
 textarea::-moz-focus-inner,
 input::-moz-focus-inner {
@@ -705,37 +705,37 @@ label.align-right div span:last-of-type::after { left: -5px; }
 .virtual-console {
     position: absolute;
     top: 0;
-	min-width: 640px;
-	min-height: 360px;
-	width: 100%;
-	height: auto;
+    min-width: 640px;
+    min-height: 360px;
+    width: 100%;
+    height: auto;
     padding: 64px 0;
     text-align: center;
     z-index: 1;
 }
 #ce-controller-workspace {
     position: relative;
-	display: inline-block;
+    display: inline-block;
     background-position: center center;
     background-color: #000000;
     text-align: center;
     font-size: 0;
     color: #000000;
-	line-height: 0;
+    line-height: 0;
 }
 #ce-controller-workspace.landscape {
     min-width: 640px;
     min-height: 360px;
-	width: 640px;
-	height: 360px;
+    width: 640px;
+    height: 360px;
     max-width: 640px;
     max-height: 360px;
 }
 #ce-controller-workspace.portrait {
     min-width: 360px;
     min-height: 640px;
-	width: 360px;
-	height: 640px;
+    width: 360px;
+    height: 640px;
     max-width: 360px;
     max-height: 640px;
 }
@@ -757,10 +757,10 @@ label.align-right div span:last-of-type::after { left: -5px; }
 #ce-controller-taskbar,
 #ce-controller-side {
     position: relative;
-	display: inline-block;
+    display: inline-block;
     font-weight: 200;
-	line-height: normal;
-	padding: 4px;
+    line-height: normal;
+    padding: 4px;
 }
 #ce-controller-ctrlbar {
     position: fixed;
@@ -807,49 +807,49 @@ label.align-right div span:last-of-type::after { left: -5px; }
 
 /* CONTROLLER EDITOR ELEMENTS */
 .ce-content-element {
-	position: absolute;
-	display: inline-block;
-	width: 20%;
-	height: 20%;
-	margin: 0;
-	padding: 0;
-	overflow: visible;
-	white-space: nowrap;
-	vertical-align: top;
-	background-image: url('img/editor-button-icon.png');
-	background-position: center center;
-	background-size: contain;
-	background-repeat: no-repeat;
-	border: none;
+    position: absolute;
+    display: inline-block;
+    width: 20%;
+    height: 20%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    white-space: nowrap;
+    vertical-align: top;
+    background-image: url('img/editor-button-icon.png');
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: none;
     cursor: move;
     z-index: 2;
 }
 .ce-content-element div {
     position: absolute;
-	display: inline-block;
+    display: inline-block;
     top: 0;
     left: 0;
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	background-position: center center;
-	background-size: contain;
-	background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 .ce-content-element p,
 .ce-content-element div p {
-	position: relative;
-	display: inline-block;
-	top: 50%;
-	width: 100%;
-	margin: 0;
-	padding: 0;
-	text-align: center;
-	font-family: Helvetica, Arial, sans-serif;
-	font-size: 12pt;
-	overflow: visible;
-	white-space: normal;
+    position: relative;
+    display: inline-block;
+    top: 50%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12pt;
+    overflow: visible;
+    white-space: normal;
 }
 .ce-content-element p.no-vertical-align,
 .ce-content-element div p.no-vertical-align {
@@ -858,10 +858,10 @@ label.align-right div span:last-of-type::after { left: -5px; }
     box-sizing: border-box;
 }
 .ce-content-element-border {
-	box-sizing: border-box;
+    box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-	border: 1px solid #CDAf7B;
+    border: 1px solid #CDAf7B;
 }
 
 /* DOCUMENT CLASSES */
@@ -872,16 +872,16 @@ label.align-right div span:last-of-type::after { left: -5px; }
     float: right;
 }
 .noselect {
-	-webkit-touch-callout: none;
+    -webkit-touch-callout: none;
     -webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	/*user-select: none;*/
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /*user-select: none;*/
 }
 .debug {
-	box-sizing: border-box;
+    box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-	border: 1px solid #FF3700;
+    border: 1px solid #FF3700;
 }
