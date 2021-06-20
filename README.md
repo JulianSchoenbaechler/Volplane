@@ -3,6 +3,7 @@
 </p>
 
 # Create games for AirConsole in a breeze!
+> **Note:** _The Volplane Project_ has been archived and will not undergo further development!
 
 **Volplane** is a feature-rich framework for the Unity&reg; game engine that provides a better and faster workflow for
 creating AirConsole games.
